@@ -3,9 +3,6 @@
 Simplified test suite for MCP server functionality
 """
 
-import asyncio
-import json
-import os
 import tempfile
 from pathlib import Path
 
@@ -19,11 +16,11 @@ def is_mcp_success(response):
     """Helper function to check if MCP response indicates success"""
     if not isinstance(response, dict):
         return False
-    
+
     # Check for error field - if present, not successful
     if "error" in response:
         return False
-    
+
     # Check for content field with proper structure
     if "content" in response:
         content = response["content"]
@@ -35,7 +32,7 @@ def is_mcp_success(response):
                     if "error" in text.lower() or "failed" in text.lower():
                         return False
             return True
-    
+
     # Check for success field (backward compatibility)
     return response.get("success", False)
 
@@ -74,7 +71,7 @@ class TestMCPServerBasic:
             {
                 "package_name": "com.example.app",
                 "features": ["consent_management", "data_portability", "right_to_erasure"],
-            }
+            },
         )
         assert is_mcp_success(result)
 
@@ -87,7 +84,7 @@ class TestMCPServerBasic:
                 "prompt": "Generate a Kotlin data class for User",
                 "llm_provider": "local",
                 "privacy_mode": True,
-            }
+            },
         )
         assert is_mcp_success(result)
 
@@ -101,7 +98,7 @@ class TestMCPServerBasic:
                 "code_type": "component",
                 "framework": "compose",
                 "compliance_requirements": ["gdpr"],
-            }
+            },
         )
         assert is_mcp_success(result)
 
