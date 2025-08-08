@@ -1,0 +1,10 @@
+version: '3.8'
+
+services:
+  mcp-assistant:
+    build: .
+    volumes:
+      - .:/app
+    tty: true
+    ports:
+      - "4000:4000"

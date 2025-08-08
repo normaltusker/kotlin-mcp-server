@@ -1,0 +1,9 @@
+.env
+*.iml
+.idea/
+__pycache__/
+*.zip
+*.apk
+build/
+.gradle/
+local.properties
