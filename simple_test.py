@@ -15,6 +15,31 @@ import pytest_asyncio
 from ai_integration_server import AIIntegratedMCPServer
 
 
+def is_mcp_success(response):
+    """Helper function to check if MCP response indicates success"""
+    if not isinstance(response, dict):
+        return False
+    
+    # Check for error field - if present, not successful
+    if "error" in response:
+        return False
+    
+    # Check for content field with proper structure
+    if "content" in response:
+        content = response["content"]
+        if isinstance(content, list) and len(content) > 0:
+            for item in content:
+                if isinstance(item, dict) and item.get("type") == "text":
+                    text = item.get("text", "")
+                    # Check for error indicators in text
+                    if "error" in text.lower() or "failed" in text.lower():
+                        return False
+            return True
+    
+    # Check for success field (backward compatibility)
+    return response.get("success", False)
+
+
 class TestMCPServerBasic:
     """Test basic MCP server functionality"""
 
@@ -44,47 +69,41 @@ class TestMCPServerBasic:
     @pytest.mark.asyncio
     async def test_gdpr_compliance_implementation(self, server):
         """Test GDPR compliance feature implementation"""
-        result = await server.handle_tool_call(
+        result = await server.handle_call_tool(
+            "implement_gdpr_compliance",
             {
-                "name": "implement_gdpr_compliance",
-                "arguments": {
-                    "package_name": "com.example.app",
-                    "features": ["consent_management", "data_portability", "right_to_erasure"],
-                },
+                "package_name": "com.example.app",
+                "features": ["consent_management", "data_portability", "right_to_erasure"],
             }
         )
-        assert result.get("success") == True
+        assert is_mcp_success(result)
 
     @pytest.mark.asyncio
     async def test_llm_query_local(self, server):
         """Test local LLM integration"""
-        result = await server.handle_tool_call(
+        result = await server.handle_call_tool(
+            "query_llm",
             {
-                "name": "query_llm",
-                "arguments": {
-                    "prompt": "Generate a Kotlin data class for User",
-                    "llm_provider": "local",
-                    "privacy_mode": True,
-                },
+                "prompt": "Generate a Kotlin data class for User",
+                "llm_provider": "local",
+                "privacy_mode": True,
             }
         )
-        assert result.get("success") == True
+        assert is_mcp_success(result)
 
     @pytest.mark.asyncio
     async def test_code_generation_with_ai(self, server):
         """Test AI-powered code generation"""
-        result = await server.handle_tool_call(
+        result = await server.handle_call_tool(
+            "generate_code_with_ai",
             {
-                "name": "generate_code_with_ai",
-                "arguments": {
-                    "description": "Create a login screen with validation",
-                    "code_type": "component",
-                    "framework": "compose",
-                    "compliance_requirements": ["gdpr"],
-                },
+                "description": "Create a login screen with validation",
+                "code_type": "component",
+                "framework": "compose",
+                "compliance_requirements": ["gdpr"],
             }
         )
-        assert result.get("success") == True
+        assert is_mcp_success(result)
 
 
 if __name__ == "__main__":
