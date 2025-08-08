@@ -940,7 +940,7 @@ class EnhancedAndroidMCPServer(MCPServer):
             else:
                 return {
                     "content": [{"type": "text", "text": f"Unknown enhanced tool: {name}"}],
-                    "error": f"Unknown enhanced tool: {name}"
+                    "error": f"Unknown enhanced tool: {name}",
                 }
         except Exception as e:
             return {
@@ -1076,6 +1076,7 @@ fun {component_name}Preview() {{
 
         # Create ViewModel
         from pathlib import Path
+
         viewmodel_path = (
             Path(self.project_path)
             / f"src/main/kotlin/{package_name.replace('.', '/')}/{feature_name.lower()}/{feature_name}ViewModel.kt"
@@ -1187,7 +1188,7 @@ class {feature_name}UseCase @Inject constructor(
     }}
 }}
 """
-            
+
             usecase_path.write_text(usecase_content, encoding="utf-8")
             created_files.append(f"UseCase: {usecase_path.name}")
 
@@ -1589,35 +1590,32 @@ class {store_name}DataStore @Inject constructor(private val context: Context) {{
     # Missing method implementations
     async def _create_custom_view(self, arguments: dict) -> dict:
         """Create custom Android view"""
-        return {
-            "content": [{"type": "text", "text": "Custom view created successfully"}]
-        }
+        return {"content": [{"type": "text", "text": "Custom view created successfully"}]}
 
     async def _setup_dependency_injection(self, arguments: dict) -> dict:
         """Setup dependency injection framework"""
-        return {
-            "content": [{"type": "text", "text": "Dependency injection setup completed"}]
-        }
+        return {"content": [{"type": "text", "text": "Dependency injection setup completed"}]}
 
     async def _setup_room_database(self, arguments: dict) -> dict:
         """Setup Room database"""
         database_name = arguments.get("database_name", "AppDatabase")
         package_name = arguments.get("package_name", "com.example.data")
         entities = arguments.get("entities", [])
-        
+
         # Create directory structure
         from pathlib import Path
+
         base_path = Path(self.project_path) / "src/main/kotlin" / package_name.replace(".", "/")
         base_path.mkdir(parents=True, exist_ok=True)
-        
+
         # Create entities directory
         entities_path = base_path / "entities"
         entities_path.mkdir(exist_ok=True)
-        
+
         # Create dao directory
         dao_path = base_path / "dao"
         dao_path.mkdir(exist_ok=True)
-        
+
         # Create database file
         db_file = base_path / f"{database_name}.kt"
         db_content = f"""package {package_name}
@@ -1651,7 +1649,7 @@ abstract class {database_name} : RoomDatabase() {{
 }}
 """
         db_file.write_text(db_content)
-        
+
         # Create entity files
         for entity in entities:
             entity_file = entities_path / f"{entity}.kt"
@@ -1666,7 +1664,7 @@ data class {entity}(
 )
 """
             entity_file.write_text(entity_content)
-            
+
             # Create DAO files
             dao_file = dao_path / f"{entity}Dao.kt"
             dao_content = f"""package {package_name}.dao
@@ -1691,9 +1689,14 @@ interface {entity}Dao {{
 }}
 """
             dao_file.write_text(dao_content)
-        
+
         return {
-            "content": [{"type": "text", "text": f"Room database {database_name} setup completed with {len(entities)} entities"}]
+            "content": [
+                {
+                    "type": "text",
+                    "text": f"Room database {database_name} setup completed with {len(entities)} entities",
+                }
+            ]
         }
 
     async def _setup_retrofit_api(self, arguments: dict) -> dict:
@@ -1702,12 +1705,13 @@ interface {entity}Dao {{
         package_name = arguments.get("package_name", "com.example.network")
         base_url = arguments.get("base_url", "https://api.example.com")
         endpoints = arguments.get("endpoints", [])
-        
+
         # Create directory structure
         from pathlib import Path
+
         base_path = Path(self.project_path) / "src/main/kotlin" / package_name.replace(".", "/")
         base_path.mkdir(parents=True, exist_ok=True)
-        
+
         # Create API interface
         api_file = base_path / f"{api_name}.kt"
         api_content = f"""package {package_name}
@@ -1717,44 +1721,41 @@ import retrofit2.http.*
 
 interface {api_name} {{
 """
-        
+
         for endpoint in endpoints:
             method = endpoint.get("method", "GET")
             path = endpoint.get("path", "/")
             name = endpoint.get("name", "getData")
-            api_content += f"    @{method}(\"{path}\")\n"
+            api_content += f'    @{method}("{path}")\n'
             api_content += f"    suspend fun {name}(): Response<Any>\n\n"
-        
+
         api_content += "}\n"
         api_file.write_text(api_content)
-        
+
         return {
-            "content": [{"type": "text", "text": f"Retrofit API {api_name} setup completed with {len(endpoints)} endpoints"}]
+            "content": [
+                {
+                    "type": "text",
+                    "text": f"Retrofit API {api_name} setup completed with {len(endpoints)} endpoints",
+                }
+            ]
         }
 
     async def _create_complex_layout(self, arguments: dict) -> dict:
         """Create complex layout file"""
-        return {
-            "content": [{"type": "text", "text": "Complex layout created successfully"}]
-        }
+        return {"content": [{"type": "text", "text": "Complex layout created successfully"}]}
 
     async def _generate_test_suite(self, arguments: dict) -> dict:
         """Generate test suite"""
-        return {
-            "content": [{"type": "text", "text": "Test suite generated successfully"}]
-        }
+        return {"content": [{"type": "text", "text": "Test suite generated successfully"}]}
 
     async def _configure_build_variants(self, arguments: dict) -> dict:
         """Configure build variants"""
-        return {
-            "content": [{"type": "text", "text": "Build variants configured successfully"}]
-        }
+        return {"content": [{"type": "text", "text": "Build variants configured successfully"}]}
 
     async def _setup_security_crypto(self, arguments: dict) -> dict:
         """Setup security and cryptography"""
-        return {
-            "content": [{"type": "text", "text": "Security crypto setup completed"}]
-        }
+        return {"content": [{"type": "text", "text": "Security crypto setup completed"}]}
 
     async def _create_accessibility_features(self, arguments: dict) -> dict:
         """Create accessibility features"""
@@ -1764,72 +1765,48 @@ interface {api_name} {{
 
     async def _setup_in_app_updates(self, arguments: dict) -> dict:
         """Setup in-app updates"""
-        return {
-            "content": [{"type": "text", "text": "In-app updates setup completed"}]
-        }
+        return {"content": [{"type": "text", "text": "In-app updates setup completed"}]}
 
     async def _create_dynamic_features(self, arguments: dict) -> dict:
         """Create dynamic features"""
-        return {
-            "content": [{"type": "text", "text": "Dynamic features created successfully"}]
-        }
+        return {"content": [{"type": "text", "text": "Dynamic features created successfully"}]}
 
     async def _setup_ml_kit_integration(self, arguments: dict) -> dict:
         """Setup ML Kit integration"""
-        return {
-            "content": [{"type": "text", "text": "ML Kit integration setup completed"}]
-        }
+        return {"content": [{"type": "text", "text": "ML Kit integration setup completed"}]}
 
     async def _create_file_manager(self, arguments: dict) -> dict:
         """Create file manager"""
-        return {
-            "content": [{"type": "text", "text": "File manager created successfully"}]
-        }
+        return {"content": [{"type": "text", "text": "File manager created successfully"}]}
 
     async def _setup_document_provider(self, arguments: dict) -> dict:
         """Setup document provider"""
-        return {
-            "content": [{"type": "text", "text": "Document provider setup completed"}]
-        }
+        return {"content": [{"type": "text", "text": "Document provider setup completed"}]}
 
     async def _create_media_scanner(self, arguments: dict) -> dict:
         """Create media scanner"""
-        return {
-            "content": [{"type": "text", "text": "Media scanner created successfully"}]
-        }
+        return {"content": [{"type": "text", "text": "Media scanner created successfully"}]}
 
     async def _create_api_client(self, arguments: dict) -> dict:
         """Create API client"""
-        return {
-            "content": [{"type": "text", "text": "API client created successfully"}]
-        }
+        return {"content": [{"type": "text", "text": "API client created successfully"}]}
 
     async def _setup_graphql_client(self, arguments: dict) -> dict:
         """Setup GraphQL client"""
-        return {
-            "content": [{"type": "text", "text": "GraphQL client setup completed"}]
-        }
+        return {"content": [{"type": "text", "text": "GraphQL client setup completed"}]}
 
     async def _create_websocket_client(self, arguments: dict) -> dict:
         """Create WebSocket client"""
-        return {
-            "content": [{"type": "text", "text": "WebSocket client created successfully"}]
-        }
+        return {"content": [{"type": "text", "text": "WebSocket client created successfully"}]}
 
     async def _setup_third_party_apis(self, arguments: dict) -> dict:
         """Setup third-party APIs"""
-        return {
-            "content": [{"type": "text", "text": "Third-party APIs setup completed"}]
-        }
+        return {"content": [{"type": "text", "text": "Third-party APIs setup completed"}]}
 
     async def _create_api_cache_manager(self, arguments: dict) -> dict:
         """Create API cache manager"""
-        return {
-            "content": [{"type": "text", "text": "API cache manager created successfully"}]
-        }
+        return {"content": [{"type": "text", "text": "API cache manager created successfully"}]}
 
     async def _setup_offline_sync(self, arguments: dict) -> dict:
         """Setup offline sync"""
-        return {
-            "content": [{"type": "text", "text": "Offline sync setup completed"}]
-        }
+        return {"content": [{"type": "text", "text": "Offline sync setup completed"}]}

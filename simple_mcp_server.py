@@ -232,12 +232,12 @@ class MCPServer:
             else:
                 return {
                     "content": [{"type": "text", "text": f"Unknown tool: {name}"}],
-                    "error": f"Unknown tool: {name}"
+                    "error": f"Unknown tool: {name}",
                 }
         except Exception as e:
             return {
                 "content": [{"type": "text", "text": f"Error executing {name}: {str(e)}"}],
-                "error": f"Error executing {name}: {str(e)}"
+                "error": f"Error executing {name}: {str(e)}",
             }
 
     async def _gradle_build(self, arguments: dict) -> dict:

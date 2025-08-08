@@ -118,44 +118,52 @@ class AIIntegratedMCPServer(SecurityPrivacyMCPServer):
             # Validate required parameters
             if "prompt" not in arguments:
                 return {
-                    "content": [{
-                        "type": "text",
-                        "text": "Error: Missing required parameter 'prompt' for query_llm"
-                    }],
-                    "error": "Missing required parameter 'prompt'"
+                    "content": [
+                        {
+                            "type": "text",
+                            "text": "Error: Missing required parameter 'prompt' for query_llm",
+                        }
+                    ],
+                    "error": "Missing required parameter 'prompt'",
                 }
             return await self._query_llm(**arguments)
         elif tool_name == "analyze_code_with_ai":
             # Validate required parameters
             if "code" not in arguments:
                 return {
-                    "content": [{
-                        "type": "text",
-                        "text": "Error: Missing required parameter 'code' for analyze_code_with_ai"
-                    }],
-                    "error": "Missing required parameter 'code'"
+                    "content": [
+                        {
+                            "type": "text",
+                            "text": "Error: Missing required parameter 'code' for analyze_code_with_ai",
+                        }
+                    ],
+                    "error": "Missing required parameter 'code'",
                 }
             return await self._analyze_code_with_ai(**arguments)
         elif tool_name == "generate_code_with_ai":
             # Validate required parameters
             if "description" not in arguments or "code_type" not in arguments:
                 return {
-                    "content": [{
-                        "type": "text",
-                        "text": "Error: Missing required parameters 'description' and/or 'code_type' for generate_code_with_ai"
-                    }],
-                    "error": "Missing required parameters"
+                    "content": [
+                        {
+                            "type": "text",
+                            "text": "Error: Missing required parameters 'description' and/or 'code_type' for generate_code_with_ai",
+                        }
+                    ],
+                    "error": "Missing required parameters",
                 }
             return await self._generate_code_with_ai(**arguments)
         elif tool_name == "manage_project_files":
             # Validate required parameters
             if "operation" not in arguments or "target_path" not in arguments:
                 return {
-                    "content": [{
-                        "type": "text",
-                        "text": "Error: Missing required parameters 'operation' and/or 'target_path' for manage_project_files"
-                    }],
-                    "error": "Missing required parameters"
+                    "content": [
+                        {
+                            "type": "text",
+                            "text": "Error: Missing required parameters 'operation' and/or 'target_path' for manage_project_files",
+                        }
+                    ],
+                    "error": "Missing required parameters",
                 }
             return await self._manage_project_files(**arguments)
         elif tool_name == "setup_cloud_sync":
@@ -164,11 +172,13 @@ class AIIntegratedMCPServer(SecurityPrivacyMCPServer):
             # Validate required parameters
             if "api_name" not in arguments:
                 return {
-                    "content": [{
-                        "type": "text",
-                        "text": "Error: Missing required parameter 'api_name' for integrate_external_api"
-                    }],
-                    "error": "Missing required parameter 'api_name'"
+                    "content": [
+                        {
+                            "type": "text",
+                            "text": "Error: Missing required parameter 'api_name' for integrate_external_api",
+                        }
+                    ],
+                    "error": "Missing required parameter 'api_name'",
                 }
             return await self._integrate_external_api(**arguments)
         elif tool_name == "monitor_api_usage":
@@ -177,11 +187,13 @@ class AIIntegratedMCPServer(SecurityPrivacyMCPServer):
             # Validate required parameters
             if "model_type" not in arguments or "use_case" not in arguments:
                 return {
-                    "content": [{
-                        "type": "text",
-                        "text": "Error: Missing required parameters 'model_type' and/or 'use_case' for integrate_ml_model"
-                    }],
-                    "error": "Missing required parameters"
+                    "content": [
+                        {
+                            "type": "text",
+                            "text": "Error: Missing required parameters 'model_type' and/or 'use_case' for integrate_ml_model",
+                        }
+                    ],
+                    "error": "Missing required parameters",
                 }
             return await self._integrate_ml_model(**arguments)
         else:
@@ -208,10 +220,9 @@ class AIIntegratedMCPServer(SecurityPrivacyMCPServer):
                 return {"success": False, "error": f"LLM provider {llm_provider} not available"}
 
             return {
-                "content": [{
-                    "type": "text", 
-                    "text": f"LLM Query successful. Response: {response}"
-                }],
+                "content": [
+                    {"type": "text", "text": f"LLM Query successful. Response: {response}"}
+                ],
                 "success": True,
                 "response": response,
                 "provider": llm_provider,
@@ -227,7 +238,11 @@ class AIIntegratedMCPServer(SecurityPrivacyMCPServer):
         return f"// Generated Kotlin code based on: {prompt}\ndata class User(val id: String, val name: String)"
 
     async def _analyze_code_with_ai(
-        self, code: str, analysis_type: str = "security", language: str = "kotlin", use_local_model: bool = True
+        self,
+        code: str,
+        analysis_type: str = "security",
+        language: str = "kotlin",
+        use_local_model: bool = True,
     ) -> Dict[str, Any]:
         """Analyze Kotlin/Android code using AI models"""
         try:
@@ -243,10 +258,12 @@ class AIIntegratedMCPServer(SecurityPrivacyMCPServer):
                     recommendations.append("Add input validation for user data")
 
             return {
-                "content": [{
-                    "type": "text", 
-                    "text": f"Code analysis completed. Found {len(security_issues)} security issues."
-                }],
+                "content": [
+                    {
+                        "type": "text",
+                        "text": f"Code analysis completed. Found {len(security_issues)} security issues.",
+                    }
+                ],
                 "success": True,
                 "code_analyzed": True,
                 "analysis_type": analysis_type,
@@ -278,10 +295,7 @@ class Generated{code_type.title()} {{
 """
 
         return {
-            "content": [{
-                "type": "text", 
-                "text": f"Code generated successfully for {description}"
-            }],
+            "content": [{"type": "text", "text": f"Code generated successfully for {description}"}],
             "success": True,
             "generated_code": generated_code,
             "code_type": code_type,
@@ -290,26 +304,28 @@ class Generated{code_type.title()} {{
         }
 
     async def _manage_project_files(
-        self, 
-        operation: str, 
-        target_path: str, 
-        destination: str = None, 
+        self,
+        operation: str,
+        target_path: str,
+        destination: str = None,
         backup_location: str = None,
         include_patterns: List[str] = None,
         exclude_patterns: List[str] = None,
-        **kwargs
+        **kwargs,
     ) -> Dict[str, Any]:
         """Advanced file management with security and backup"""
         try:
             # Use backup_location if provided, otherwise destination
             dest = backup_location or destination
-            
+
             if operation == "backup":
                 return {
-                    "content": [{
-                        "type": "text",
-                        "text": f"File operation {operation} completed successfully on {target_path}"
-                    }],
+                    "content": [
+                        {
+                            "type": "text",
+                            "text": f"File operation {operation} completed successfully on {target_path}",
+                        }
+                    ],
                     "success": True,
                     "operation": operation,
                     "target_path": target_path,
@@ -318,12 +334,11 @@ class Generated{code_type.title()} {{
                     "exclude_patterns": exclude_patterns or [],
                     "files_backed_up": 10,  # Simulated count
                 }
-            
+
             return {
-                "content": [{
-                    "type": "text",
-                    "text": f"Operation {operation} completed successfully"
-                }],
+                "content": [
+                    {"type": "text", "text": f"Operation {operation} completed successfully"}
+                ],
                 "success": True,
                 "operation": operation,
                 "target_path": target_path,
@@ -332,12 +347,9 @@ class Generated{code_type.title()} {{
             }
         except Exception as e:
             return {
-                "content": [{
-                    "type": "text",
-                    "text": f"Error in file operation: {str(e)}"
-                }],
+                "content": [{"type": "text", "text": f"Error in file operation: {str(e)}"}],
                 "success": False,
-                "error": str(e)
+                "error": str(e),
             }
 
     async def _setup_cloud_sync(
@@ -356,12 +368,11 @@ class Generated{code_type.title()} {{
         provider_name = provider or cloud_provider or "unknown"
         encrypt = encryption if encryption is not None else encryption_in_transit
         frequency = sync_frequency or sync_strategy
-        
+
         return {
-            "content": [{
-                "type": "text",
-                "text": f"Cloud sync setup completed for {provider_name}"
-            }],
+            "content": [
+                {"type": "text", "text": f"Cloud sync setup completed for {provider_name}"}
+            ],
             "success": True,
             "cloud_provider": provider_name,
             "sync_folders": sync_folders or [],
@@ -387,12 +398,14 @@ class Generated{code_type.title()} {{
         # Use api_url if provided, otherwise use base_url
         url = api_url or base_url or "https://api.example.com"
         auth = auth_method or auth_type
-        
+
         return {
-            "content": [{
-                "type": "text",
-                "text": f"External API {api_name} integrated successfully with {len(endpoints) if endpoints else 0} endpoints"
-            }],
+            "content": [
+                {
+                    "type": "text",
+                    "text": f"External API {api_name} integrated successfully with {len(endpoints) if endpoints else 0} endpoints",
+                }
+            ],
             "success": True,
             "api_name": api_name,
             "api_url": url,
@@ -402,22 +415,24 @@ class Generated{code_type.title()} {{
         }
 
     async def _monitor_api_usage(
-        self, 
-        api_name: str = None, 
+        self,
+        api_name: str = None,
         api_endpoints: List[str] = None,
         metrics: List[str] = None,
-        alert_thresholds: Dict[str, float] = None
+        alert_thresholds: Dict[str, float] = None,
     ) -> Dict[str, Any]:
         """Monitor and analyze API usage patterns"""
         endpoints = api_endpoints or []
         metrics_list = metrics or ["latency", "error_rate"]
         thresholds = alert_thresholds or {}
-        
+
         return {
-            "content": [{
-                "type": "text",
-                "text": f"API monitoring configured for {len(endpoints)} endpoints"
-            }],
+            "content": [
+                {
+                    "type": "text",
+                    "text": f"API monitoring configured for {len(endpoints)} endpoints",
+                }
+            ],
             "success": True,
             "api_name": api_name or "default_api",
             "endpoints_monitored": endpoints,
