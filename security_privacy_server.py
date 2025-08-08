@@ -5,32 +5,42 @@ Supports GDPR, HIPAA, and other compliance frameworks
 """
 
 import asyncio
-import json
-import os
 import hashlib
-import uuid
+import json
 import logging
+import os
+import sqlite3
+import uuid
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Sequence
-import sqlite3
 
 # Handle optional cryptography imports gracefully
 try:
+    import base64
+
     from cryptography.fernet import Fernet
     from cryptography.hazmat.primitives import hashes
     from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
-    import base64
+
     CRYPTOGRAPHY_AVAILABLE = True
 except ImportError:
     CRYPTOGRAPHY_AVAILABLE = False
+
     # Mock classes for when cryptography is not available
     class Fernet:
-        def __init__(self, key): pass
-        def encrypt(self, data): return data
-        def decrypt(self, data): return data
+        def __init__(self, key):
+            pass
+
+        def encrypt(self, data):
+            return data
+
+        def decrypt(self, data):
+            return data
+
 
 from enhanced_mcp_server import EnhancedAndroidMCPServer
+
 
 class SecurityPrivacyMCPServer(EnhancedAndroidMCPServer):
     """MCP Server with comprehensive security and privacy features"""
@@ -62,8 +72,8 @@ class SecurityPrivacyMCPServer(EnhancedAndroidMCPServer):
         if not CRYPTOGRAPHY_AVAILABLE:
             return Fernet(None)
 
-        password = os.getenv('MCP_ENCRYPTION_PASSWORD', 'default-key').encode()
-        salt = b'mcp-server-salt'  # In production, use random salt
+        password = os.getenv("MCP_ENCRYPTION_PASSWORD", "default-key").encode()
+        salt = b"mcp-server-salt"  # In production, use random salt
         kdf = PBKDF2HMAC(
             algorithm=hashes.SHA256(),
             length=32,
@@ -79,7 +89,8 @@ class SecurityPrivacyMCPServer(EnhancedAndroidMCPServer):
         self.audit_db = sqlite3.connect(str(audit_path))
 
         # Create audit tables
-        self.audit_db.execute("""
+        self.audit_db.execute(
+            """
             CREATE TABLE IF NOT EXISTS audit_log (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 timestamp TEXT NOT NULL,
@@ -90,9 +101,11 @@ class SecurityPrivacyMCPServer(EnhancedAndroidMCPServer):
                 ip_address TEXT,
                 compliance_flags TEXT
             )
-        """)
+        """
+        )
 
-        self.audit_db.execute("""
+        self.audit_db.execute(
+            """
             CREATE TABLE IF NOT EXISTS data_processing_log (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 timestamp TEXT NOT NULL,
@@ -103,9 +116,11 @@ class SecurityPrivacyMCPServer(EnhancedAndroidMCPServer):
                 encryption_status TEXT,
                 data_subject_id TEXT
             )
-        """)
+        """
+        )
 
-        self.audit_db.execute("""
+        self.audit_db.execute(
+            """
             CREATE TABLE IF NOT EXISTS consent_records (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 data_subject_id TEXT NOT NULL,
@@ -115,7 +130,8 @@ class SecurityPrivacyMCPServer(EnhancedAndroidMCPServer):
                 purpose TEXT NOT NULL,
                 status TEXT DEFAULT 'active'
             )
-        """)
+        """
+        )
 
         self.audit_db.commit()
 
@@ -123,26 +139,39 @@ class SecurityPrivacyMCPServer(EnhancedAndroidMCPServer):
         """Setup security-focused logging"""
         logging.basicConfig(
             level=logging.INFO,
-            format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-            handlers=[
-                logging.FileHandler('mcp_security.log'),
-                logging.StreamHandler()
-            ]
+            format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+            handlers=[logging.FileHandler("mcp_security.log"), logging.StreamHandler()],
         )
-        self.security_logger = logging.getLogger('mcp_security')
+        self.security_logger = logging.getLogger("mcp_security")
 
-    def log_audit_event(self, action: str, resource: str = None, details: str = None,
-                       user_id: str = None, ip_address: str = None):
+    def log_audit_event(
+        self,
+        action: str,
+        resource: str = None,
+        details: str = None,
+        user_id: str = None,
+        ip_address: str = None,
+    ):
         """Log security and compliance events"""
         timestamp = datetime.now(timezone.utc).isoformat()
         compliance_flags = self._get_compliance_flags(action, resource)
 
-        self.audit_db.execute("""
+        self.audit_db.execute(
+            """
             INSERT INTO audit_log 
             (timestamp, user_id, action, resource, details, ip_address, compliance_flags)
             VALUES (?, ?, ?, ?, ?, ?, ?)
-        """, (timestamp, user_id, action, resource, details, ip_address,
-              json.dumps(compliance_flags)))
+        """,
+            (
+                timestamp,
+                user_id,
+                action,
+                resource,
+                details,
+                ip_address,
+                json.dumps(compliance_flags),
+            ),
+        )
         self.audit_db.commit()
 
         self.security_logger.info(f"AUDIT: {action} on {resource} by {user_id}")
@@ -153,18 +182,22 @@ class SecurityPrivacyMCPServer(EnhancedAndroidMCPServer):
             "gdpr_relevant": False,
             "hipaa_relevant": False,
             "pii_involved": False,
-            "phi_involved": False
+            "phi_involved": False,
         }
 
         # GDPR checks
-        if any(keyword in (action + str(resource)).lower() for keyword in
-               ['personal', 'user', 'profile', 'email', 'contact']):
+        if any(
+            keyword in (action + str(resource)).lower()
+            for keyword in ["personal", "user", "profile", "email", "contact"]
+        ):
             flags["gdpr_relevant"] = True
             flags["pii_involved"] = True
 
         # HIPAA checks
-        if any(keyword in (action + str(resource)).lower() for keyword in
-               ['health', 'medical', 'patient', 'diagnosis', 'treatment']):
+        if any(
+            keyword in (action + str(resource)).lower()
+            for keyword in ["health", "medical", "patient", "diagnosis", "treatment"]
+        ):
             flags["hipaa_relevant"] = True
             flags["phi_involved"] = True
 
@@ -176,9 +209,11 @@ class SecurityPrivacyMCPServer(EnhancedAndroidMCPServer):
         arguments = tool_call.get("arguments", {})
 
         # Log the tool call for audit purposes
-        self.log_audit_event(f"tool_call_{tool_name}",
-                           resource=str(arguments.get("file_path", "unknown")),
-                           details=json.dumps(arguments))
+        self.log_audit_event(
+            f"tool_call_{tool_name}",
+            resource=str(arguments.get("file_path", "unknown")),
+            details=json.dumps(arguments),
+        )
 
         # Security-specific tool implementations
         if tool_name == "encrypt_sensitive_data":
@@ -195,8 +230,9 @@ class SecurityPrivacyMCPServer(EnhancedAndroidMCPServer):
             # Delegate to parent class
             return await super().handle_tool_call(tool_call)
 
-    async def _encrypt_sensitive_data(self, data: str, data_type: str,
-                                    compliance_level: str = "standard") -> Dict[str, Any]:
+    async def _encrypt_sensitive_data(
+        self, data: str, data_type: str, compliance_level: str = "standard"
+    ) -> Dict[str, Any]:
         """Encrypt sensitive data with compliance-grade encryption"""
         try:
             if self.encryption_key and CRYPTOGRAPHY_AVAILABLE:
@@ -207,18 +243,20 @@ class SecurityPrivacyMCPServer(EnhancedAndroidMCPServer):
                     "encryption_standard": "AES-256",
                     "compliance_validated": True,
                     "data_type": data_type,
-                    "compliance_level": compliance_level
+                    "compliance_level": compliance_level,
                 }
             else:
                 return {
                     "encrypted": False,
                     "error": "Encryption not available - cryptography package required",
-                    "data_type": data_type
+                    "data_type": data_type,
                 }
         except Exception as e:
             return {"encrypted": False, "error": str(e)}
 
-    async def _implement_gdpr_compliance(self, package_name: str, features: List[str]) -> Dict[str, Any]:
+    async def _implement_gdpr_compliance(
+        self, package_name: str, features: List[str]
+    ) -> Dict[str, Any]:
         """Implement GDPR compliance features"""
         implemented_features = []
 
@@ -241,10 +279,12 @@ class SecurityPrivacyMCPServer(EnhancedAndroidMCPServer):
             "package_name": package_name,
             "implemented_features": implemented_features,
             "compliance_standard": "GDPR",
-            "files_created": len(implemented_features)
+            "files_created": len(implemented_features),
         }
 
-    async def _implement_hipaa_compliance(self, package_name: str, features: List[str]) -> Dict[str, Any]:
+    async def _implement_hipaa_compliance(
+        self, package_name: str, features: List[str]
+    ) -> Dict[str, Any]:
         """Implement HIPAA compliance features"""
         implemented_features = []
 
@@ -267,39 +307,33 @@ class SecurityPrivacyMCPServer(EnhancedAndroidMCPServer):
             "package_name": package_name,
             "implemented_features": implemented_features,
             "compliance_standard": "HIPAA",
-            "files_created": len(implemented_features)
+            "files_created": len(implemented_features),
         }
 
-    async def _setup_secure_storage(self, storage_type: str, package_name: str,
-                                  data_classification: str = "confidential") -> Dict[str, Any]:
+    async def _setup_secure_storage(
+        self, storage_type: str, package_name: str, data_classification: str = "confidential"
+    ) -> Dict[str, Any]:
         """Setup secure storage with encryption and access controls"""
         storage_config = {
             "storage_type": storage_type,
             "package_name": package_name,
             "data_classification": data_classification,
             "encryption_enabled": True,
-            "access_controls": True
+            "access_controls": True,
         }
 
-        return {
-            "success": True,
-            "storage_configured": True,
-            **storage_config
-        }
+        return {"success": True, "storage_configured": True, **storage_config}
 
-    async def _generate_privacy_policy(self, app_name: str, data_types: List[str],
-                                     compliance_requirements: List[str] = None) -> Dict[str, Any]:
+    async def _generate_privacy_policy(
+        self, app_name: str, data_types: List[str], compliance_requirements: List[str] = None
+    ) -> Dict[str, Any]:
         """Generate privacy policy based on app data usage"""
         policy_sections = []
 
         # Basic sections
-        policy_sections.extend([
-            "data_collection",
-            "data_usage",
-            "data_sharing",
-            "data_retention",
-            "user_rights"
-        ])
+        policy_sections.extend(
+            ["data_collection", "data_usage", "data_sharing", "data_retention", "user_rights"]
+        )
 
         # Add compliance-specific sections
         if compliance_requirements:
@@ -314,7 +348,7 @@ class SecurityPrivacyMCPServer(EnhancedAndroidMCPServer):
             "data_types_covered": data_types,
             "policy_sections": policy_sections,
             "compliance_requirements": compliance_requirements or [],
-            "policy_generated": True
+            "policy_generated": True,
         }
 
     async def handle_list_tools(self) -> dict:
@@ -329,11 +363,14 @@ class SecurityPrivacyMCPServer(EnhancedAndroidMCPServer):
                     "type": "object",
                     "properties": {
                         "data": {"type": "string", "description": "Data to encrypt"},
-                        "data_type": {"type": "string", "enum": ["pii", "phi", "financial", "general"]},
-                        "compliance_level": {"type": "string", "enum": ["gdpr", "hipaa", "both"]}
+                        "data_type": {
+                            "type": "string",
+                            "enum": ["pii", "phi", "financial", "general"],
+                        },
+                        "compliance_level": {"type": "string", "enum": ["gdpr", "hipaa", "both"]},
                     },
-                    "required": ["data", "data_type"]
-                }
+                    "required": ["data", "data_type"],
+                },
             },
             {
                 "name": "implement_gdpr_compliance",
@@ -344,12 +381,20 @@ class SecurityPrivacyMCPServer(EnhancedAndroidMCPServer):
                         "package_name": {"type": "string", "description": "Package name"},
                         "features": {
                             "type": "array",
-                            "items": {"type": "string", "enum": ["consent_management", "data_portability", "right_to_erasure", "privacy_policy"]},
-                            "description": "GDPR features to implement"
-                        }
+                            "items": {
+                                "type": "string",
+                                "enum": [
+                                    "consent_management",
+                                    "data_portability",
+                                    "right_to_erasure",
+                                    "privacy_policy",
+                                ],
+                            },
+                            "description": "GDPR features to implement",
+                        },
                     },
-                    "required": ["package_name", "features"]
-                }
+                    "required": ["package_name", "features"],
+                },
             },
             {
                 "name": "implement_hipaa_compliance",
@@ -360,12 +405,20 @@ class SecurityPrivacyMCPServer(EnhancedAndroidMCPServer):
                         "package_name": {"type": "string", "description": "Package name"},
                         "features": {
                             "type": "array",
-                            "items": {"type": "string", "enum": ["audit_logging", "access_controls", "encryption", "secure_messaging"]},
-                            "description": "HIPAA features to implement"
-                        }
+                            "items": {
+                                "type": "string",
+                                "enum": [
+                                    "audit_logging",
+                                    "access_controls",
+                                    "encryption",
+                                    "secure_messaging",
+                                ],
+                            },
+                            "description": "HIPAA features to implement",
+                        },
                     },
-                    "required": ["package_name", "features"]
-                }
+                    "required": ["package_name", "features"],
+                },
             },
             {
                 "name": "setup_secure_storage",
@@ -373,12 +426,18 @@ class SecurityPrivacyMCPServer(EnhancedAndroidMCPServer):
                 "inputSchema": {
                     "type": "object",
                     "properties": {
-                        "storage_type": {"type": "string", "enum": ["encrypted_preferences", "keystore", "room_encrypted"]},
+                        "storage_type": {
+                            "type": "string",
+                            "enum": ["encrypted_preferences", "keystore", "room_encrypted"],
+                        },
                         "package_name": {"type": "string", "description": "Package name"},
-                        "data_classification": {"type": "string", "enum": ["public", "internal", "confidential", "restricted"]}
+                        "data_classification": {
+                            "type": "string",
+                            "enum": ["public", "internal", "confidential", "restricted"],
+                        },
                     },
-                    "required": ["storage_type", "package_name"]
-                }
+                    "required": ["storage_type", "package_name"],
+                },
             },
             {
                 "name": "generate_privacy_policy",
@@ -387,12 +446,19 @@ class SecurityPrivacyMCPServer(EnhancedAndroidMCPServer):
                     "type": "object",
                     "properties": {
                         "app_name": {"type": "string", "description": "Application name"},
-                        "data_types": {"type": "array", "items": {"type": "string"}, "description": "Types of data collected"},
-                        "compliance_requirements": {"type": "array", "items": {"type": "string", "enum": ["gdpr", "hipaa", "ccpa", "coppa"]}}
+                        "data_types": {
+                            "type": "array",
+                            "items": {"type": "string"},
+                            "description": "Types of data collected",
+                        },
+                        "compliance_requirements": {
+                            "type": "array",
+                            "items": {"type": "string", "enum": ["gdpr", "hipaa", "ccpa", "coppa"]},
+                        },
                     },
-                    "required": ["app_name", "data_types"]
-                }
-            }
+                    "required": ["app_name", "data_types"],
+                },
+            },
         ]
 
         # Merge with base tools

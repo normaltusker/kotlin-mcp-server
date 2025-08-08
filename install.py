@@ -4,11 +4,12 @@ Setup script for Kotlin Android MCP Server
 Handles installation and configuration for different deployment scenarios
 """
 
-import os
-import sys
 import json
+import os
 import shutil
+import sys
 from pathlib import Path
+
 
 def create_symlink_installation():
     """Create a symlink-based installation in user's local bin"""
@@ -35,6 +36,7 @@ python3 simple_mcp_server.py "$@"
 
     return symlink_path
 
+
 def update_config_file(config_file, installation_type, script_dir=None):
     """Update configuration file based on installation type"""
 
@@ -42,31 +44,21 @@ def update_config_file(config_file, installation_type, script_dir=None):
         "portable": {
             "command": "python3",
             "args": ["simple_mcp_server.py"],
-            "cwd": str(script_dir) if script_dir else "."
+            "cwd": str(script_dir) if script_dir else ".",
         },
-        "installable": {
-            "command": "kotlin-android-mcp",
-            "args": []
-        },
+        "installable": {"command": "kotlin-android-mcp", "args": []},
         "module": {
             "command": "python3",
             "args": ["-m", "kotlin_android_mcp"],
-            "cwd": str(script_dir) if script_dir else "."
-        }
+            "cwd": str(script_dir) if script_dir else ".",
+        },
     }
 
     config = configs.get(installation_type, configs["portable"])
 
     # Don't set PROJECT_PATH at install time - let it be dynamic
     mcp_config = {
-        "mcpServers": {
-            "kotlin-android": {
-                **config,
-                "env": {
-                    "PROJECT_PATH": "${WORKSPACE_ROOT}"
-                }
-            }
-        }
+        "mcpServers": {"kotlin-android": {**config, "env": {"PROJECT_PATH": "${WORKSPACE_ROOT}"}}}
     }
 
     # Create multiple config examples
@@ -74,34 +66,25 @@ def update_config_file(config_file, installation_type, script_dir=None):
         "mcp_config.json": mcp_config,
         "mcp_config_claude.json": {
             "mcpServers": {
-                "kotlin-android": {
-                    **config,
-                    "env": {
-                        "PROJECT_PATH": "${workspaceRoot}"
-                    }
-                }
+                "kotlin-android": {**config, "env": {"PROJECT_PATH": "${workspaceRoot}"}}
             }
         },
         "mcp_config_vscode.json": {
             "mcpServers": {
-                "kotlin-android": {
-                    **config,
-                    "env": {
-                        "PROJECT_PATH": "${workspaceFolder}"
-                    }
-                }
+                "kotlin-android": {**config, "env": {"PROJECT_PATH": "${workspaceFolder}"}}
             }
-        }
+        },
     }
 
     created_files = []
     for filename, config_content in configs_to_create.items():
         config_path = Path(config_file).parent / filename
-        with open(config_path, 'w') as f:
+        with open(config_path, "w") as f:
             json.dump(config_content, f, indent=2)
         created_files.append(config_path)
 
     return created_files
+
 
 def main():
     script_dir = Path(__file__).parent.absolute()
@@ -112,6 +95,7 @@ def main():
     # Check Python
     try:
         import subprocess
+
         result = subprocess.run([sys.executable, "--version"], capture_output=True, text=True)
         print(f"✅ Python: {result.stdout.strip()}")
     except Exception as e:
@@ -121,8 +105,11 @@ def main():
     # Install dependencies
     print("\n📦 Installing dependencies...")
     try:
-        subprocess.run([sys.executable, "-m", "pip", "install", "-r", "requirements.txt"],
-                      check=True, cwd=script_dir)
+        subprocess.run(
+            [sys.executable, "-m", "pip", "install", "-r", "requirements.txt"],
+            check=True,
+            cwd=script_dir,
+        )
         print("✅ Dependencies installed")
     except subprocess.CalledProcessError as e:
         print(f"❌ Failed to install dependencies: {e}")
@@ -203,6 +190,7 @@ def main():
     print("   No need to hardcode project paths in the configuration.")
 
     return 0
+
 
 if __name__ == "__main__":
     sys.exit(main())

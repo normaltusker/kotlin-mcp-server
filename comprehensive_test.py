@@ -5,13 +5,16 @@ Tests security, privacy, AI integration, file management, and API features
 """
 
 import asyncio
-import pytest
-import pytest_asyncio
-import tempfile
 import json
 import os
+import tempfile
 from pathlib import Path
+
+import pytest
+import pytest_asyncio
+
 from ai_integration_server import AIIntegratedMCPServer
+
 
 class TestMCPServerCore:
     """Test core MCP server functionality"""
@@ -57,6 +60,7 @@ class TestMCPServerCore:
         assert "integrate_external_api" in tool_names
         assert "monitor_api_usage" in tool_names
 
+
 class TestSecurityAndPrivacy:
     """Test security and privacy compliance features"""
 
@@ -69,13 +73,15 @@ class TestSecurityAndPrivacy:
     @pytest.mark.asyncio
     async def test_gdpr_compliance_implementation(self, server):
         """Test GDPR compliance feature implementation"""
-        result = await server.handle_tool_call({
-            "name": "implement_gdpr_compliance",
-            "arguments": {
-                "package_name": "com.example.app",
-                "features": ["consent_management", "data_portability", "right_to_erasure"]
+        result = await server.handle_tool_call(
+            {
+                "name": "implement_gdpr_compliance",
+                "arguments": {
+                    "package_name": "com.example.app",
+                    "features": ["consent_management", "data_portability", "right_to_erasure"],
+                },
             }
-        })
+        )
 
         assert result["success"] == True
         assert result["compliance_standard"] == "GDPR"
@@ -85,13 +91,15 @@ class TestSecurityAndPrivacy:
     @pytest.mark.asyncio
     async def test_hipaa_compliance_implementation(self, server):
         """Test HIPAA compliance feature implementation"""
-        result = await server.handle_tool_call({
-            "name": "implement_hipaa_compliance",
-            "arguments": {
-                "package_name": "com.healthcare.app",
-                "features": ["audit_logging", "access_controls", "encryption"]
+        result = await server.handle_tool_call(
+            {
+                "name": "implement_hipaa_compliance",
+                "arguments": {
+                    "package_name": "com.healthcare.app",
+                    "features": ["audit_logging", "access_controls", "encryption"],
+                },
             }
-        })
+        )
 
         assert result["success"] == True
         assert result["compliance_standard"] == "HIPAA"
@@ -103,14 +111,16 @@ class TestSecurityAndPrivacy:
         """Test data encryption capabilities"""
         sensitive_data = "Patient John Doe, SSN: 123-45-6789"
 
-        result = await server.handle_tool_call({
-            "name": "encrypt_sensitive_data",
-            "arguments": {
-                "data": sensitive_data,
-                "data_type": "phi",
-                "compliance_level": "hipaa"
+        result = await server.handle_tool_call(
+            {
+                "name": "encrypt_sensitive_data",
+                "arguments": {
+                    "data": sensitive_data,
+                    "data_type": "phi",
+                    "compliance_level": "hipaa",
+                },
             }
-        })
+        )
 
         # Should work regardless of cryptography availability
         assert "data_type" in result
@@ -119,19 +129,22 @@ class TestSecurityAndPrivacy:
     @pytest.mark.asyncio
     async def test_privacy_policy_generation(self, server):
         """Test privacy policy generation"""
-        result = await server.handle_tool_call({
-            "name": "generate_privacy_policy",
-            "arguments": {
-                "app_name": "HealthTracker",
-                "data_types": ["health_data", "location", "personal_info"],
-                "compliance_requirements": ["gdpr", "hipaa"]
+        result = await server.handle_tool_call(
+            {
+                "name": "generate_privacy_policy",
+                "arguments": {
+                    "app_name": "HealthTracker",
+                    "data_types": ["health_data", "location", "personal_info"],
+                    "compliance_requirements": ["gdpr", "hipaa"],
+                },
             }
-        })
+        )
 
         assert result["success"] == True
         assert result["policy_generated"] == True
         assert "gdpr_rights" in result["policy_sections"]
         assert "phi_protection" in result["policy_sections"]
+
 
 class TestAIIntegration:
     """Test AI/ML integration capabilities"""
@@ -145,14 +158,16 @@ class TestAIIntegration:
     @pytest.mark.asyncio
     async def test_llm_query_local(self, server):
         """Test local LLM integration"""
-        result = await server.handle_tool_call({
-            "name": "query_llm",
-            "arguments": {
-                "prompt": "Generate a Kotlin data class for User",
-                "llm_provider": "local",
-                "privacy_mode": True
+        result = await server.handle_tool_call(
+            {
+                "name": "query_llm",
+                "arguments": {
+                    "prompt": "Generate a Kotlin data class for User",
+                    "llm_provider": "local",
+                    "privacy_mode": True,
+                },
             }
-        })
+        )
 
         assert result["success"] == True
         assert "data class User" in result["response"]
@@ -175,14 +190,16 @@ class TestAIIntegration:
         temp_file = server.project_path / "UserManager.kt"
         temp_file.write_text(kotlin_code)
 
-        result = await server.handle_tool_call({
-            "name": "analyze_code_with_ai",
-            "arguments": {
-                "file_path": str(temp_file),
-                "analysis_type": "security",
-                "use_local_model": True
+        result = await server.handle_tool_call(
+            {
+                "name": "analyze_code_with_ai",
+                "arguments": {
+                    "file_path": str(temp_file),
+                    "analysis_type": "security",
+                    "use_local_model": True,
+                },
             }
-        })
+        )
 
         assert result["success"] == True
         assert result["analysis_type"] == "security"
@@ -191,21 +208,24 @@ class TestAIIntegration:
     @pytest.mark.asyncio
     async def test_code_generation_with_ai(self, server):
         """Test AI-powered code generation"""
-        result = await server.handle_tool_call({
-            "name": "generate_code_with_ai",
-            "arguments": {
-                "description": "Create a login screen with validation",
-                "code_type": "component",
-                "framework": "compose",
-                "compliance_requirements": ["gdpr"]
+        result = await server.handle_tool_call(
+            {
+                "name": "generate_code_with_ai",
+                "arguments": {
+                    "description": "Create a login screen with validation",
+                    "code_type": "component",
+                    "framework": "compose",
+                    "compliance_requirements": ["gdpr"],
+                },
             }
-        })
+        )
 
         assert result["success"] == True
         assert result["code_type"] == "component"
         assert result["framework"] == "compose"
         assert "gdpr" in result["compliance_features"]
         assert "Generated" in result["generated_code"]
+
 
 class TestFileManagement:
     """Test advanced file management capabilities"""
@@ -222,20 +242,22 @@ class TestFileManagement:
         # Create test files
         test_dir = server.project_path / "src"
         test_dir.mkdir()
-        (test_dir / "main.kt").write_text("fun main() { println(\"Hello\") }")
+        (test_dir / "main.kt").write_text('fun main() { println("Hello") }')
         (test_dir / "config.env").write_text("SECRET_KEY=test123")
 
         backup_dir = server.project_path / "backup"
 
-        result = await server.handle_tool_call({
-            "name": "manage_project_files",
-            "arguments": {
-                "operation": "backup",
-                "target_path": str(test_dir),
-                "destination": str(backup_dir),
-                "encryption_level": "standard"
+        result = await server.handle_tool_call(
+            {
+                "name": "manage_project_files",
+                "arguments": {
+                    "operation": "backup",
+                    "target_path": str(test_dir),
+                    "destination": str(backup_dir),
+                    "encryption_level": "standard",
+                },
             }
-        })
+        )
 
         assert result["success"] == True
         assert result["operation"] == "backup"
@@ -251,17 +273,20 @@ class TestFileManagement:
 
         (source_dir / "test.kt").write_text("class Test {}")
 
-        result = await server.handle_tool_call({
-            "name": "manage_project_files",
-            "arguments": {
-                "operation": "sync",
-                "target_path": str(source_dir),
-                "destination": str(dest_dir)
+        result = await server.handle_tool_call(
+            {
+                "name": "manage_project_files",
+                "arguments": {
+                    "operation": "sync",
+                    "target_path": str(source_dir),
+                    "destination": str(dest_dir),
+                },
             }
-        })
+        )
 
         assert result["success"] == True
         assert result["sync_completed"] == True
+
 
 class TestExternalAPIIntegration:
     """Test external API integration capabilities"""
@@ -274,16 +299,18 @@ class TestExternalAPIIntegration:
     @pytest.mark.asyncio
     async def test_api_integration_setup(self, server):
         """Test external API integration setup"""
-        result = await server.handle_tool_call({
-            "name": "integrate_external_api",
-            "arguments": {
-                "api_name": "TestAPI",
-                "base_url": "https://api.test.com",
-                "auth_type": "api_key",
-                "security_features": ["rate_limiting", "request_logging"],
-                "compliance_requirements": ["gdpr"]
+        result = await server.handle_tool_call(
+            {
+                "name": "integrate_external_api",
+                "arguments": {
+                    "api_name": "TestAPI",
+                    "base_url": "https://api.test.com",
+                    "auth_type": "api_key",
+                    "security_features": ["rate_limiting", "request_logging"],
+                    "compliance_requirements": ["gdpr"],
+                },
             }
-        })
+        )
 
         assert result["integration_created"] == True
         assert result["api_name"] == "TestAPI"
@@ -294,26 +321,31 @@ class TestExternalAPIIntegration:
     async def test_api_monitoring(self, server):
         """Test API usage monitoring"""
         # First integrate an API
-        await server.handle_tool_call({
-            "name": "integrate_external_api",
-            "arguments": {
-                "api_name": "MonitoredAPI",
-                "base_url": "https://api.monitored.com",
-                "auth_type": "none"
+        await server.handle_tool_call(
+            {
+                "name": "integrate_external_api",
+                "arguments": {
+                    "api_name": "MonitoredAPI",
+                    "base_url": "https://api.monitored.com",
+                    "auth_type": "none",
+                },
             }
-        })
+        )
 
-        result = await server.handle_tool_call({
-            "name": "monitor_api_usage",
-            "arguments": {
-                "api_name": "MonitoredAPI",
-                "metrics": ["latency", "error_rate", "usage_volume"]
+        result = await server.handle_tool_call(
+            {
+                "name": "monitor_api_usage",
+                "arguments": {
+                    "api_name": "MonitoredAPI",
+                    "metrics": ["latency", "error_rate", "usage_volume"],
+                },
             }
-        })
+        )
 
         # Should return monitoring data structure
         assert "api_name" in result
         assert result["api_name"] == "MonitoredAPI"
+
 
 class TestMLModelIntegration:
     """Test ML model integration"""
@@ -326,20 +358,23 @@ class TestMLModelIntegration:
     @pytest.mark.asyncio
     async def test_ml_model_integration(self, server):
         """Test ML model integration for Android"""
-        result = await server.handle_tool_call({
-            "name": "integrate_ml_model",
-            "arguments": {
-                "model_type": "tflite",
-                "use_case": "image_classification",
-                "privacy_preserving": True
+        result = await server.handle_tool_call(
+            {
+                "name": "integrate_ml_model",
+                "arguments": {
+                    "model_type": "tflite",
+                    "use_case": "image_classification",
+                    "privacy_preserving": True,
+                },
             }
-        })
+        )
 
         assert result["success"] == True
         assert result["model_type"] == "tflite"
         assert result["use_case"] == "image_classification"
         assert result["privacy_preserving"] == True
         assert result["android_compatible"] == True
+
 
 class TestIntegrationScenarios:
     """Test complete integration scenarios"""
@@ -354,36 +389,42 @@ class TestIntegrationScenarios:
     async def test_healthcare_app_scenario(self, server):
         """Test complete healthcare app development scenario"""
         # 1. Implement HIPAA compliance
-        hipaa_result = await server.handle_tool_call({
-            "name": "implement_hipaa_compliance",
-            "arguments": {
-                "package_name": "com.health.tracker",
-                "features": ["audit_logging", "encryption", "access_controls"]
+        hipaa_result = await server.handle_tool_call(
+            {
+                "name": "implement_hipaa_compliance",
+                "arguments": {
+                    "package_name": "com.health.tracker",
+                    "features": ["audit_logging", "encryption", "access_controls"],
+                },
             }
-        })
+        )
         assert hipaa_result["success"] == True
 
         # 2. Setup secure storage
-        storage_result = await server.handle_tool_call({
-            "name": "setup_secure_storage",
-            "arguments": {
-                "storage_type": "room_encrypted",
-                "package_name": "com.health.tracker",
-                "data_classification": "restricted"
+        storage_result = await server.handle_tool_call(
+            {
+                "name": "setup_secure_storage",
+                "arguments": {
+                    "storage_type": "room_encrypted",
+                    "package_name": "com.health.tracker",
+                    "data_classification": "restricted",
+                },
             }
-        })
+        )
         assert storage_result["success"] == True
 
         # 3. Generate AI-powered code with compliance
-        code_result = await server.handle_tool_call({
-            "name": "generate_code_with_ai",
-            "arguments": {
-                "description": "Patient data entry form with validation",
-                "code_type": "component",
-                "framework": "compose",
-                "compliance_requirements": ["hipaa"]
+        code_result = await server.handle_tool_call(
+            {
+                "name": "generate_code_with_ai",
+                "arguments": {
+                    "description": "Patient data entry form with validation",
+                    "code_type": "component",
+                    "framework": "compose",
+                    "compliance_requirements": ["hipaa"],
+                },
             }
-        })
+        )
         assert code_result["success"] == True
         assert "hipaa" in code_result["compliance_features"]
 
@@ -391,38 +432,45 @@ class TestIntegrationScenarios:
     async def test_fintech_app_scenario(self, server):
         """Test complete fintech app development scenario"""
         # 1. Implement GDPR compliance
-        gdpr_result = await server.handle_tool_call({
-            "name": "implement_gdpr_compliance",
-            "arguments": {
-                "package_name": "com.fintech.app",
-                "features": ["consent_management", "data_portability"]
+        gdpr_result = await server.handle_tool_call(
+            {
+                "name": "implement_gdpr_compliance",
+                "arguments": {
+                    "package_name": "com.fintech.app",
+                    "features": ["consent_management", "data_portability"],
+                },
             }
-        })
+        )
         assert gdpr_result["success"] == True
 
         # 2. Integrate secure API
-        api_result = await server.handle_tool_call({
-            "name": "integrate_external_api",
-            "arguments": {
-                "api_name": "PaymentAPI",
-                "base_url": "https://api.payments.com",
-                "auth_type": "oauth",
-                "security_features": ["rate_limiting", "request_logging"]
+        api_result = await server.handle_tool_call(
+            {
+                "name": "integrate_external_api",
+                "arguments": {
+                    "api_name": "PaymentAPI",
+                    "base_url": "https://api.payments.com",
+                    "auth_type": "oauth",
+                    "security_features": ["rate_limiting", "request_logging"],
+                },
             }
-        })
+        )
         assert api_result["integration_created"] == True
 
         # 3. Setup cloud sync with encryption
-        sync_result = await server.handle_tool_call({
-            "name": "setup_cloud_sync",
-            "arguments": {
-                "cloud_provider": "aws",
-                "sync_strategy": "scheduled",
-                "encryption_in_transit": True,
-                "compliance_mode": "gdpr"
+        sync_result = await server.handle_tool_call(
+            {
+                "name": "setup_cloud_sync",
+                "arguments": {
+                    "cloud_provider": "aws",
+                    "sync_strategy": "scheduled",
+                    "encryption_in_transit": True,
+                    "compliance_mode": "gdpr",
+                },
             }
-        })
+        )
         assert sync_result["success"] == True
+
 
 if __name__ == "__main__":
     # Run comprehensive tests
@@ -432,12 +480,7 @@ if __name__ == "__main__":
     print("=" * 60)
 
     # Run tests with verbose output
-    exit_code = pytest.main([
-        __file__,
-        "-v",
-        "--tb=short",
-        "--disable-warnings"
-    ])
+    exit_code = pytest.main([__file__, "-v", "--tb=short", "--disable-warnings"])
 
     if exit_code == 0:
         print("=" * 60)

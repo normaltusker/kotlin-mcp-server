@@ -1,25 +1,6 @@
 # Python Linting and Code Quality Configuration
 
-# Flake8 configuration
-[flake8]
-max-line-length = 100
-ignore = 
-    E203,  # whitespace before ':'
-    E501,  # line too long (handled by black)
-    W503,  # line break before binary operator
-    W504   # line break after binary operator
-exclude = 
-    .git,
-    __pycache__,
-    .venv,
-    venv,
-    build,
-    dist,
-    *.egg-info
-per-file-ignores =
-    __init__.py:F401
-    tests/*.py:S101
-max-complexity = 12
+# Note: Flake8 configuration is in setup.cfg or .flake8 file, not in pyproject.toml
 
 # Black configuration
 [tool.black]

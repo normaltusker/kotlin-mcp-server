@@ -4,19 +4,21 @@ Advanced File Manager and External API Implementation
 Demonstrates comprehensive file handling and API integration capabilities
 """
 
+import asyncio
+import hashlib
+import json
 import os
 import shutil
-import json
-import asyncio
-import aiohttp
-import aiofiles
-from pathlib import Path
-from datetime import datetime
-from typing import Dict, List, Any
-import hashlib
 import zipfile
-from watchdog.observers import Observer
+from datetime import datetime
+from pathlib import Path
+from typing import Any, Dict, List
+
+import aiofiles
+import aiohttp
 from watchdog.events import FileSystemEventHandler
+from watchdog.observers import Observer
+
 
 class AdvancedFileManager:
     """Comprehensive file management system with enterprise features"""
@@ -39,7 +41,7 @@ class AdvancedFileManager:
             "extract": self._extract_files,
             "watch": self._watch_directory,
             "search": self._search_files,
-            "analyze": self._analyze_file_structure
+            "analyze": self._analyze_file_structure,
         }
 
         if operation not in operations:
@@ -51,8 +53,9 @@ class AdvancedFileManager:
         except Exception as e:
             return {"success": False, "error": str(e)}
 
-    async def _backup_files(self, target_path: str, destination: str,
-                           encryption_level: str = "standard", **kwargs) -> Dict:
+    async def _backup_files(
+        self, target_path: str, destination: str, encryption_level: str = "standard", **kwargs
+    ) -> Dict:
         """Create encrypted backup of files"""
         source = Path(target_path)
         dest = Path(destination)
@@ -89,18 +92,18 @@ class AdvancedFileManager:
             "files_count": files_backed_up,
             "total_size_bytes": total_size,
             "encryption_level": encryption_level,
-            "backup_version": "1.0"
+            "backup_version": "1.0",
         }
 
         manifest_file = backup_dir / "backup_manifest.json"
-        async with aiofiles.open(manifest_file, 'w') as f:
+        async with aiofiles.open(manifest_file, "w") as f:
             await f.write(json.dumps(manifest, indent=2))
 
         return {
             "backup_path": str(backup_dir),
             "files_backed_up": files_backed_up,
             "total_size": total_size,
-            "encryption_applied": encryption_level != "none"
+            "encryption_applied": encryption_level != "none",
         }
 
     async def _restore_files(self, backup_path: str, destination: str, **kwargs) -> Dict:
@@ -111,7 +114,7 @@ class AdvancedFileManager:
         # Read backup manifest
         manifest_file = backup_dir / "backup_manifest.json"
         if manifest_file.exists():
-            async with aiofiles.open(manifest_file, 'r') as f:
+            async with aiofiles.open(manifest_file, "r") as f:
                 manifest = json.loads(await f.read())
         else:
             manifest = {"files_count": 0}
@@ -127,18 +130,14 @@ class AdvancedFileManager:
 
         return {"files_restored": files_restored, "manifest": manifest}
 
-    async def _sync_files(self, source: str, destination: str,
-                         sync_strategy: str = "real_time", **kwargs) -> Dict:
+    async def _sync_files(
+        self, source: str, destination: str, sync_strategy: str = "real_time", **kwargs
+    ) -> Dict:
         """Synchronize files between directories"""
         source_path = Path(source)
         dest_path = Path(destination)
 
-        sync_stats = {
-            "files_copied": 0,
-            "files_updated": 0,
-            "files_deleted": 0,
-            "errors": []
-        }
+        sync_stats = {"files_copied": 0, "files_updated": 0, "files_deleted": 0, "errors": []}
 
         # Two-way sync implementation
         await self._sync_directory(source_path, dest_path, sync_stats)
@@ -148,11 +147,7 @@ class AdvancedFileManager:
             sync_id = f"sync_{hashlib.md5(f'{source}{destination}'.encode(), usedforsecurity=False).hexdigest()[:8]}"
             self._setup_file_watcher(source_path, dest_path, sync_id)
 
-        return {
-            "sync_completed": True,
-            "sync_strategy": sync_strategy,
-            **sync_stats
-        }
+        return {"sync_completed": True, "sync_strategy": sync_strategy, **sync_stats}
 
     async def _sync_directory(self, source: Path, dest: Path, stats: Dict):
         """Perform directory synchronization"""
@@ -171,6 +166,7 @@ class AdvancedFileManager:
 
     def _setup_file_watcher(self, source: Path, dest: Path, sync_id: str):
         """Setup real-time file system watcher"""
+
         class SyncHandler(FileSystemEventHandler):
             def __init__(self, source_path, dest_path):
                 self.source_path = source_path
@@ -197,7 +193,9 @@ class AdvancedFileManager:
 
         for file_path in target.rglob("*"):
             if file_path.is_file() and self._should_encrypt(file_path):
-                await self._encrypt_file_to_destination(file_path, file_path.with_suffix(file_path.suffix + '.enc'))
+                await self._encrypt_file_to_destination(
+                    file_path, file_path.with_suffix(file_path.suffix + ".enc")
+                )
                 encrypted_count += 1
 
         return {"files_encrypted": encrypted_count}
@@ -209,7 +207,7 @@ class AdvancedFileManager:
 
         for file_path in target.rglob("*.enc"):
             if file_path.is_file():
-                original_path = file_path.with_suffix('')
+                original_path = file_path.with_suffix("")
                 # Decrypt file logic here
                 decrypted_count += 1
 
@@ -218,9 +216,12 @@ class AdvancedFileManager:
     async def _archive_files(self, target_path: str, archive_name: str = None, **kwargs) -> Dict:
         """Create archive of files"""
         target = Path(target_path)
-        archive_path = target.parent / f"{archive_name or target.name}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.zip"
+        archive_path = (
+            target.parent
+            / f"{archive_name or target.name}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.zip"
+        )
 
-        with zipfile.ZipFile(archive_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
+        with zipfile.ZipFile(archive_path, "w", zipfile.ZIP_DEFLATED) as zipf:
             for file_path in target.rglob("*"):
                 if file_path.is_file():
                     zipf.write(file_path, file_path.relative_to(target))
@@ -232,7 +233,7 @@ class AdvancedFileManager:
         archive = Path(archive_path)
         dest = Path(destination) if destination else archive.parent / archive.stem
 
-        with zipfile.ZipFile(archive, 'r') as zipf:
+        with zipfile.ZipFile(archive, "r") as zipf:
             zipf.extractall(dest)
             extracted_files = len(zipf.namelist())
 
@@ -253,12 +254,7 @@ class AdvancedFileManager:
     async def _analyze_file_structure(self, target_path: str, **kwargs) -> Dict:
         """Analyze file structure and provide statistics"""
         target = Path(target_path)
-        stats = {
-            "total_files": 0,
-            "total_size": 0,
-            "file_types": {},
-            "largest_files": []
-        }
+        stats = {"total_files": 0, "total_size": 0, "file_types": {}, "largest_files": []}
 
         file_sizes = []
         for file_path in target.rglob("*"):
@@ -282,7 +278,7 @@ class AdvancedFileManager:
         """Encrypt file from source to destination"""
         if self.encryption_key:
             # Simple encryption simulation - in production use proper encryption
-            async with aiofiles.open(source, 'rb') as src, aiofiles.open(destination, 'wb') as dst:
+            async with aiofiles.open(source, "rb") as src, aiofiles.open(destination, "wb") as dst:
                 content = await src.read()
                 # Simulated encryption - would use actual encryption here
                 encrypted_content = content  # Placeholder
@@ -292,8 +288,8 @@ class AdvancedFileManager:
 
     def _should_encrypt(self, file_path: Path) -> bool:
         """Determine if file should be encrypted based on content/extension"""
-        sensitive_extensions = {'.env', '.key', '.pem', '.p12', '.jks'}
-        sensitive_patterns = {'password', 'secret', 'private', 'config'}
+        sensitive_extensions = {".env", ".key", ".pem", ".p12", ".jks"}
+        sensitive_patterns = {"password", "secret", "private", "config"}
 
         # Check file extension
         if file_path.suffix.lower() in sensitive_extensions:
@@ -302,6 +298,7 @@ class AdvancedFileManager:
         # Check filename patterns
         filename_lower = file_path.name.lower()
         return any(pattern in filename_lower for pattern in sensitive_patterns)
+
 
 class ExternalAPIManager:
     """Comprehensive external API integration and management"""
@@ -312,20 +309,26 @@ class ExternalAPIManager:
         self.usage_metrics = {}
         self.rate_limiters = {}
 
-    async def integrate_api(self, api_name: str, base_url: str, auth_type: str,
-                           security_features: List[str] = None, **kwargs) -> Dict[str, Any]:
+    async def integrate_api(
+        self,
+        api_name: str,
+        base_url: str,
+        auth_type: str,
+        security_features: List[str] = None,
+        **kwargs,
+    ) -> Dict[str, Any]:
         """Integrate external API with full configuration"""
 
         api_config = {
             "name": api_name,
-            "base_url": base_url.rstrip('/'),
+            "base_url": base_url.rstrip("/"),
             "auth_type": auth_type,
             "security_features": security_features or [],
             "created_at": datetime.now().isoformat(),
             "endpoints": {},
             "rate_limits": kwargs.get("rate_limits", {}),
             "timeout": kwargs.get("timeout", 30),
-            "retry_policy": kwargs.get("retry_policy", {"max_retries": 3, "backoff_factor": 1})
+            "retry_policy": kwargs.get("retry_policy", {"max_retries": 3, "backoff_factor": 1}),
         }
 
         # Setup authentication
@@ -350,7 +353,7 @@ class ExternalAPIManager:
             "successful_requests": 0,
             "failed_requests": 0,
             "total_latency": 0,
-            "last_request": None
+            "last_request": None,
         }
 
         return {
@@ -358,7 +361,7 @@ class ExternalAPIManager:
             "api_name": api_name,
             "security_features_enabled": len(security_features or []) > 0,
             "endpoints_configured": 0,
-            "monitoring_enabled": True
+            "monitoring_enabled": True,
         }
 
     async def monitor_api_usage(self, api_name: str, metrics: List[str]) -> Dict[str, Any]:
@@ -389,7 +392,7 @@ class ExternalAPIManager:
         self.rate_limiters[api_name] = {
             "requests_per_minute": rate_limits.get("requests_per_minute", 60),
             "last_request_time": 0,
-            "request_count": 0
+            "request_count": 0,
         }
 
     async def _check_rate_limit(self, api_name: str) -> bool:
@@ -436,9 +439,15 @@ class ExternalAPIManager:
     async def _setup_authentication(self, auth_type: str, config: Dict) -> Dict:
         """Setup authentication configuration"""
         auth_configs = {
-            "api_key": {"key": config.get("api_key"), "header": config.get("key_header", "X-API-Key")},
-            "oauth": {"client_id": config.get("client_id"), "client_secret": config.get("client_secret")},
+            "api_key": {
+                "key": config.get("api_key"),
+                "header": config.get("key_header", "X-API-Key"),
+            },
+            "oauth": {
+                "client_id": config.get("client_id"),
+                "client_secret": config.get("client_secret"),
+            },
             "jwt": {"token": config.get("jwt_token"), "header": "Authorization"},
-            "basic": {"username": config.get("username"), "password": config.get("password")}
+            "basic": {"username": config.get("username"), "password": config.get("password")},
         }
         return auth_configs.get(auth_type, {})

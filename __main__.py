@@ -4,8 +4,8 @@ Kotlin Android MCP Server - Installable Module
 This allows the server to be run as: python -m kotlin_android_mcp
 """
 
-import sys
 import os
+import sys
 from pathlib import Path
 
 # Add the current directory to Python path for imports

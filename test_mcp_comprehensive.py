@@ -5,21 +5,23 @@ Tests all functionality and ensures no breaking changes after enhancements
 """
 
 import asyncio
-import pytest
-import pytest_asyncio
-import tempfile
 import json
 import os
-from pathlib import Path
-from unittest.mock import Mock, patch, AsyncMock
 import shutil
 import sqlite3
+import tempfile
+from pathlib import Path
+from unittest.mock import AsyncMock, Mock, patch
+
+import pytest
+import pytest_asyncio
+
+from ai_integration_server import AIIntegratedMCPServer
+from enhanced_mcp_server import EnhancedAndroidMCPServer
+from security_privacy_server import SecurityPrivacyMCPServer
 
 # Import all server classes
 from simple_mcp_server import MCPServer
-from enhanced_mcp_server import EnhancedAndroidMCPServer
-from security_privacy_server import SecurityPrivacyMCPServer
-from ai_integration_server import AIIntegratedMCPServer
 
 
 class TestMCPServerBase:
@@ -44,40 +46,47 @@ class TestMCPServerBase:
         """Test base tools are listed correctly"""
         tools_response = await base_server.handle_list_tools()
         tools = tools_response.get("tools", [])
-        
+
         # Check basic tools exist
         tool_names = [tool["name"] for tool in tools]
-        expected_tools = ["gradle_build", "run_tests", "create_kotlin_file", 
-                         "create_layout_file", "analyze_project"]
-        
+        expected_tools = [
+            "gradle_build",
+            "run_tests",
+            "create_kotlin_file",
+            "create_layout_file",
+            "analyze_project",
+        ]
+
         for tool in expected_tools:
             assert tool in tool_names, f"Missing basic tool: {tool}"
 
     @pytest.mark.asyncio
     async def test_gradle_build_tool(self, base_server):
         """Test gradle build functionality"""
-        with patch('subprocess.run') as mock_run:
+        with patch("subprocess.run") as mock_run:
             mock_run.return_value.returncode = 0
             mock_run.return_value.stdout = "BUILD SUCCESSFUL"
-            
-            result = await base_server.handle_call_tool("gradle_build", {
-                "task": "assembleDebug",
-                "clean": True
-            })
-            
+
+            result = await base_server.handle_call_tool(
+                "gradle_build", {"task": "assembleDebug", "clean": True}
+            )
+
             assert result.get("success") == True
             assert "BUILD SUCCESSFUL" in result.get("output", "")
 
     @pytest.mark.asyncio
     async def test_kotlin_file_creation(self, base_server):
         """Test Kotlin file creation"""
-        result = await base_server.handle_call_tool("create_kotlin_file", {
-            "file_path": "src/main/kotlin/test/TestClass.kt",
-            "class_name": "TestClass",
-            "package_name": "com.test.app",
-            "class_type": "data"
-        })
-        
+        result = await base_server.handle_call_tool(
+            "create_kotlin_file",
+            {
+                "file_path": "src/main/kotlin/test/TestClass.kt",
+                "class_name": "TestClass",
+                "package_name": "com.test.app",
+                "class_type": "data",
+            },
+        )
+
         assert result.get("success") == True
         expected_file = base_server.project_path / "src/main/kotlin/test/TestClass.kt"
         assert expected_file.exists()
@@ -85,12 +94,15 @@ class TestMCPServerBase:
     @pytest.mark.asyncio
     async def test_layout_file_creation(self, base_server):
         """Test layout file creation"""
-        result = await base_server.handle_call_tool("create_layout_file", {
-            "file_path": "src/main/res/layout/test_layout.xml",
-            "layout_type": "linear",
-            "components": ["button", "textview"]
-        })
-        
+        result = await base_server.handle_call_tool(
+            "create_layout_file",
+            {
+                "file_path": "src/main/res/layout/test_layout.xml",
+                "layout_type": "linear",
+                "components": ["button", "textview"],
+            },
+        )
+
         assert result.get("success") == True
         expected_file = base_server.project_path / "src/main/res/layout/test_layout.xml"
         assert expected_file.exists()
@@ -117,33 +129,48 @@ class TestEnhancedMCPServer:
         """Test enhanced tools are listed correctly"""
         tools_response = await enhanced_server.handle_list_tools()
         tools = tools_response.get("tools", [])
-        
+
         # Check enhanced tools exist
         tool_names = [tool["name"] for tool in tools]
         enhanced_tools = [
-            "create_compose_component", "create_custom_view", "setup_mvvm_architecture",
-            "setup_dependency_injection", "setup_room_database", "setup_retrofit_api",
-            "setup_navigation_component", "create_work_manager_worker", "setup_coroutines_flow",
-            "create_firebase_integration", "setup_data_store", "create_permission_handler",
-            "setup_biometric_auth", "create_notification_system", "setup_camera_integration",
-            "create_media_player", "setup_security_crypto", "create_accessibility_features"
+            "create_compose_component",
+            "create_custom_view",
+            "setup_mvvm_architecture",
+            "setup_dependency_injection",
+            "setup_room_database",
+            "setup_retrofit_api",
+            "setup_navigation_component",
+            "create_work_manager_worker",
+            "setup_coroutines_flow",
+            "create_firebase_integration",
+            "setup_data_store",
+            "create_permission_handler",
+            "setup_biometric_auth",
+            "create_notification_system",
+            "setup_camera_integration",
+            "create_media_player",
+            "setup_security_crypto",
+            "create_accessibility_features",
         ]
-        
+
         for tool in enhanced_tools:
             assert tool in tool_names, f"Missing enhanced tool: {tool}"
 
     @pytest.mark.asyncio
     async def test_compose_component_creation(self, enhanced_server):
         """Test Jetpack Compose component creation"""
-        result = await enhanced_server.handle_call_tool("create_compose_component", {
-            "file_path": "src/main/kotlin/ui/TestScreen.kt",
-            "component_name": "TestScreen",
-            "component_type": "screen",
-            "package_name": "com.test.app.ui",
-            "uses_state": True,
-            "uses_navigation": True
-        })
-        
+        result = await enhanced_server.handle_call_tool(
+            "create_compose_component",
+            {
+                "file_path": "src/main/kotlin/ui/TestScreen.kt",
+                "component_name": "TestScreen",
+                "component_type": "screen",
+                "package_name": "com.test.app.ui",
+                "uses_state": True,
+                "uses_navigation": True,
+            },
+        )
+
         assert result.get("success") == True
         expected_file = enhanced_server.project_path / "src/main/kotlin/ui/TestScreen.kt"
         assert expected_file.exists()
@@ -151,14 +178,17 @@ class TestEnhancedMCPServer:
     @pytest.mark.asyncio
     async def test_mvvm_architecture_setup(self, enhanced_server):
         """Test MVVM architecture setup"""
-        result = await enhanced_server.handle_call_tool("setup_mvvm_architecture", {
-            "feature_name": "user",
-            "package_name": "com.test.app",
-            "include_repository": True,
-            "include_use_cases": True,
-            "data_source": "both"
-        })
-        
+        result = await enhanced_server.handle_call_tool(
+            "setup_mvvm_architecture",
+            {
+                "feature_name": "user",
+                "package_name": "com.test.app",
+                "include_repository": True,
+                "include_use_cases": True,
+                "data_source": "both",
+            },
+        )
+
         assert result.get("success") == True
         # Check if ViewModel, Repository, and UseCase files are created
         base_path = enhanced_server.project_path / "src/main/kotlin/com/test/app/user"
@@ -169,13 +199,16 @@ class TestEnhancedMCPServer:
     @pytest.mark.asyncio
     async def test_room_database_setup(self, enhanced_server):
         """Test Room database setup"""
-        result = await enhanced_server.handle_call_tool("setup_room_database", {
-            "database_name": "AppDatabase",
-            "package_name": "com.test.app.data",
-            "entities": ["User", "Product"],
-            "include_migration": True
-        })
-        
+        result = await enhanced_server.handle_call_tool(
+            "setup_room_database",
+            {
+                "database_name": "AppDatabase",
+                "package_name": "com.test.app.data",
+                "entities": ["User", "Product"],
+                "include_migration": True,
+            },
+        )
+
         assert result.get("success") == True
         # Check if database files are created
         base_path = enhanced_server.project_path / "src/main/kotlin/com/test/app/data"
@@ -186,17 +219,20 @@ class TestEnhancedMCPServer:
     @pytest.mark.asyncio
     async def test_retrofit_api_setup(self, enhanced_server):
         """Test Retrofit API setup"""
-        result = await enhanced_server.handle_call_tool("setup_retrofit_api", {
-            "api_name": "UserApi",
-            "package_name": "com.test.app.network",
-            "base_url": "https://api.example.com",
-            "endpoints": [
-                {"method": "GET", "path": "/users", "name": "getUsers"},
-                {"method": "POST", "path": "/users", "name": "createUser"}
-            ],
-            "include_interceptors": True
-        })
-        
+        result = await enhanced_server.handle_call_tool(
+            "setup_retrofit_api",
+            {
+                "api_name": "UserApi",
+                "package_name": "com.test.app.network",
+                "base_url": "https://api.example.com",
+                "endpoints": [
+                    {"method": "GET", "path": "/users", "name": "getUsers"},
+                    {"method": "POST", "path": "/users", "name": "createUser"},
+                ],
+                "include_interceptors": True,
+            },
+        )
+
         assert result.get("success") == True
         base_path = enhanced_server.project_path / "src/main/kotlin/com/test/app/network"
         assert (base_path / "UserApi.kt").exists()
@@ -222,11 +258,14 @@ class TestSecurityPrivacyServer:
     @pytest.mark.asyncio
     async def test_gdpr_compliance_implementation(self, security_server):
         """Test GDPR compliance implementation"""
-        result = await security_server.handle_call_tool("implement_gdpr_compliance", {
-            "package_name": "com.test.app",
-            "features": ["consent_management", "data_portability", "right_to_erasure"]
-        })
-        
+        result = await security_server.handle_call_tool(
+            "implement_gdpr_compliance",
+            {
+                "package_name": "com.test.app",
+                "features": ["consent_management", "data_portability", "right_to_erasure"],
+            },
+        )
+
         assert result.get("success") == True
         assert result.get("compliance_standard") == "GDPR"
         assert len(result.get("implemented_features", [])) == 3
@@ -234,11 +273,14 @@ class TestSecurityPrivacyServer:
     @pytest.mark.asyncio
     async def test_hipaa_compliance_implementation(self, security_server):
         """Test HIPAA compliance implementation"""
-        result = await security_server.handle_call_tool("implement_hipaa_compliance", {
-            "package_name": "com.healthcare.app",
-            "features": ["audit_logging", "access_controls", "encryption"]
-        })
-        
+        result = await security_server.handle_call_tool(
+            "implement_hipaa_compliance",
+            {
+                "package_name": "com.healthcare.app",
+                "features": ["audit_logging", "access_controls", "encryption"],
+            },
+        )
+
         assert result.get("success") == True
         assert result.get("compliance_standard") == "HIPAA"
         assert len(result.get("implemented_features", [])) == 3
@@ -247,12 +289,11 @@ class TestSecurityPrivacyServer:
     async def test_data_encryption(self, security_server):
         """Test data encryption functionality"""
         test_data = "sensitive user data"
-        result = await security_server.handle_call_tool("encrypt_sensitive_data", {
-            "data": test_data,
-            "encryption_type": "aes256",
-            "key_source": "generated"
-        })
-        
+        result = await security_server.handle_call_tool(
+            "encrypt_sensitive_data",
+            {"data": test_data, "encryption_type": "aes256", "key_source": "generated"},
+        )
+
         assert result.get("success") == True
         assert result.get("encrypted_data") != test_data
         assert result.get("encryption_method") == "aes256"
@@ -261,18 +302,18 @@ class TestSecurityPrivacyServer:
     async def test_audit_logging(self, security_server):
         """Test audit logging functionality"""
         # Perform an action that should be logged
-        await security_server.handle_call_tool("implement_gdpr_compliance", {
-            "package_name": "com.test.app",
-            "features": ["consent_management"]
-        })
-        
+        await security_server.handle_call_tool(
+            "implement_gdpr_compliance",
+            {"package_name": "com.test.app", "features": ["consent_management"]},
+        )
+
         # Check if audit entry was created
         conn = sqlite3.connect(security_server.audit_db_path)
         cursor = conn.cursor()
         cursor.execute("SELECT COUNT(*) FROM audit_log")
         count = cursor.fetchone()[0]
         conn.close()
-        
+
         assert count > 0, "Audit log should contain entries"
 
 
@@ -290,48 +331,50 @@ class TestAIIntegrationServer:
     async def test_ai_server_initialization(self, ai_server):
         """Test AI server initializes correctly"""
         assert ai_server.name == "test-ai-server"
-        assert hasattr(ai_server, 'llm_clients')
-        assert hasattr(ai_server, 'local_models')
-        assert hasattr(ai_server, 'api_clients')
+        assert hasattr(ai_server, "llm_clients")
+        assert hasattr(ai_server, "local_models")
+        assert hasattr(ai_server, "api_clients")
 
     @pytest.mark.asyncio
     async def test_local_llm_query(self, ai_server):
         """Test local LLM query functionality"""
-        with patch('requests.post') as mock_post:
+        with patch("requests.post") as mock_post:
             mock_response = Mock()
-            mock_response.json.return_value = {
-                "response": "Generated Kotlin code"
-            }
+            mock_response.json.return_value = {"response": "Generated Kotlin code"}
             mock_response.status_code = 200
             mock_post.return_value = mock_response
-            
-            result = await ai_server.handle_call_tool("query_llm", {
-                "prompt": "Generate a Kotlin data class for User",
-                "llm_provider": "local",
-                "privacy_mode": True
-            })
-            
+
+            result = await ai_server.handle_call_tool(
+                "query_llm",
+                {
+                    "prompt": "Generate a Kotlin data class for User",
+                    "llm_provider": "local",
+                    "privacy_mode": True,
+                },
+            )
+
             assert result.get("success") == True
             assert "response" in result
 
     @pytest.mark.asyncio
     async def test_code_generation_with_ai(self, ai_server):
         """Test AI-powered code generation"""
-        with patch('requests.post') as mock_post:
+        with patch("requests.post") as mock_post:
             mock_response = Mock()
-            mock_response.json.return_value = {
-                "response": "Generated Compose component"
-            }
+            mock_response.json.return_value = {"response": "Generated Compose component"}
             mock_response.status_code = 200
             mock_post.return_value = mock_response
-            
-            result = await ai_server.handle_call_tool("generate_code_with_ai", {
-                "description": "Create a login screen with validation",
-                "code_type": "component",
-                "framework": "compose",
-                "compliance_requirements": ["gdpr"]
-            })
-            
+
+            result = await ai_server.handle_call_tool(
+                "generate_code_with_ai",
+                {
+                    "description": "Create a login screen with validation",
+                    "code_type": "component",
+                    "framework": "compose",
+                    "compliance_requirements": ["gdpr"],
+                },
+            )
+
             assert result.get("success") == True
 
     @pytest.mark.asyncio
@@ -345,26 +388,28 @@ class TestAIIntegrationServer:
             }
         }
         """
-        
-        result = await ai_server.handle_call_tool("analyze_code_with_ai", {
-            "code": test_code,
-            "analysis_type": "security",
-            "language": "kotlin"
-        })
-        
+
+        result = await ai_server.handle_call_tool(
+            "analyze_code_with_ai",
+            {"code": test_code, "analysis_type": "security", "language": "kotlin"},
+        )
+
         assert result.get("success") == True
 
     @pytest.mark.asyncio
     async def test_external_api_integration(self, ai_server):
         """Test external API integration"""
-        result = await ai_server.handle_call_tool("integrate_external_api", {
-            "api_name": "weather_api",
-            "api_url": "https://api.openweathermap.org/data/2.5",
-            "auth_method": "api_key",
-            "endpoints": ["/weather", "/forecast"],
-            "package_name": "com.test.app.api"
-        })
-        
+        result = await ai_server.handle_call_tool(
+            "integrate_external_api",
+            {
+                "api_name": "weather_api",
+                "api_url": "https://api.openweathermap.org/data/2.5",
+                "auth_method": "api_key",
+                "endpoints": ["/weather", "/forecast"],
+                "package_name": "com.test.app.api",
+            },
+        )
+
         assert result.get("success") == True
 
 
@@ -381,37 +426,46 @@ class TestFileAndAPIManagement:
     @pytest.mark.asyncio
     async def test_project_file_management(self, full_server):
         """Test project file management"""
-        result = await full_server.handle_call_tool("manage_project_files", {
-            "operation": "backup",
-            "target_path": "src/",
-            "backup_location": "backup/",
-            "include_patterns": ["*.kt", "*.xml"],
-            "exclude_patterns": ["*.tmp"]
-        })
-        
+        result = await full_server.handle_call_tool(
+            "manage_project_files",
+            {
+                "operation": "backup",
+                "target_path": "src/",
+                "backup_location": "backup/",
+                "include_patterns": ["*.kt", "*.xml"],
+                "exclude_patterns": ["*.tmp"],
+            },
+        )
+
         assert result.get("success") == True
 
     @pytest.mark.asyncio
     async def test_cloud_sync_setup(self, full_server):
         """Test cloud sync setup"""
-        result = await full_server.handle_call_tool("setup_cloud_sync", {
-            "provider": "google_drive",
-            "sync_folders": ["src/", "res/"],
-            "sync_frequency": "daily",
-            "encryption": True
-        })
-        
+        result = await full_server.handle_call_tool(
+            "setup_cloud_sync",
+            {
+                "provider": "google_drive",
+                "sync_folders": ["src/", "res/"],
+                "sync_frequency": "daily",
+                "encryption": True,
+            },
+        )
+
         assert result.get("success") == True
 
     @pytest.mark.asyncio
     async def test_api_usage_monitoring(self, full_server):
         """Test API usage monitoring"""
-        result = await full_server.handle_call_tool("monitor_api_usage", {
-            "api_endpoints": ["/users", "/products"],
-            "metrics": ["requests_per_hour", "error_rate", "response_time"],
-            "alert_thresholds": {"error_rate": 5.0, "response_time": 1000}
-        })
-        
+        result = await full_server.handle_call_tool(
+            "monitor_api_usage",
+            {
+                "api_endpoints": ["/users", "/products"],
+                "metrics": ["requests_per_hour", "error_rate", "response_time"],
+                "alert_thresholds": {"error_rate": 5.0, "response_time": 1000},
+            },
+        )
+
         assert result.get("success") == True
 
 
@@ -425,7 +479,7 @@ class TestToolIntegrity:
             "base": MCPServer("test-base"),
             "enhanced": EnhancedAndroidMCPServer("test-enhanced"),
             "security": SecurityPrivacyMCPServer("test-security"),
-            "ai": AIIntegratedMCPServer("test-ai")
+            "ai": AIIntegratedMCPServer("test-ai"),
         }
 
     @pytest.mark.asyncio
@@ -435,17 +489,19 @@ class TestToolIntegrity:
             server.project_path = Path(tempfile.mkdtemp())
             tools_response = await server.handle_list_tools()
             tools = tools_response.get("tools", [])
-            
+
             for tool in tools:
                 # Check required fields
                 assert "name" in tool, f"Tool missing name in {server_name}"
                 assert "description" in tool, f"Tool missing description in {server_name}"
                 assert "inputSchema" in tool, f"Tool missing inputSchema in {server_name}"
-                
+
                 # Check schema structure
                 schema = tool["inputSchema"]
                 assert "type" in schema, f"Schema missing type for {tool['name']} in {server_name}"
-                assert schema["type"] == "object", f"Schema type not object for {tool['name']} in {server_name}"
+                assert (
+                    schema["type"] == "object"
+                ), f"Schema type not object for {tool['name']} in {server_name}"
 
     @pytest.mark.asyncio
     async def test_tool_name_uniqueness(self, all_servers):
@@ -454,10 +510,10 @@ class TestToolIntegrity:
             server.project_path = Path(tempfile.mkdtemp())
             tools_response = await server.handle_list_tools()
             tools = tools_response.get("tools", [])
-            
+
             tool_names = [tool["name"] for tool in tools]
             unique_names = set(tool_names)
-            
+
             assert len(tool_names) == len(unique_names), f"Duplicate tool names in {server_name}"
 
     @pytest.mark.asyncio
@@ -465,7 +521,7 @@ class TestToolIntegrity:
         """Test error handling for invalid tool calls"""
         for server_name, server in all_servers.items():
             server.project_path = Path(tempfile.mkdtemp())
-            
+
             # Test invalid tool name
             result = await server.handle_call_tool("invalid_tool_name", {})
             assert result.get("success") == False
@@ -478,7 +534,7 @@ class TestToolIntegrity:
             server.project_path = Path(tempfile.mkdtemp())
             tools_response = await server.handle_list_tools()
             tools = tools_response.get("tools", [])
-            
+
             for tool in tools:
                 schema = tool["inputSchema"]
                 if "required" in schema and schema["required"]:
@@ -504,17 +560,20 @@ class TestPerformanceAndStability:
         # Create multiple concurrent tool calls
         tasks = []
         for i in range(10):
-            task = stress_server.handle_call_tool("create_kotlin_file", {
-                "file_path": f"src/main/kotlin/Test{i}.kt",
-                "class_name": f"Test{i}",
-                "package_name": "com.test.app",
-                "class_type": "class"
-            })
+            task = stress_server.handle_call_tool(
+                "create_kotlin_file",
+                {
+                    "file_path": f"src/main/kotlin/Test{i}.kt",
+                    "class_name": f"Test{i}",
+                    "package_name": "com.test.app",
+                    "class_type": "class",
+                },
+            )
             tasks.append(task)
-        
+
         # Execute all tasks concurrently
         results = await asyncio.gather(*tasks, return_exceptions=True)
-        
+
         # Check all succeeded
         for i, result in enumerate(results):
             assert not isinstance(result, Exception), f"Task {i} failed with exception: {result}"
@@ -524,30 +583,36 @@ class TestPerformanceAndStability:
     async def test_memory_usage(self, stress_server):
         """Test memory usage doesn't grow excessively"""
         try:
-            import psutil
             import gc
-            
+
+            import psutil
+
             process = psutil.Process()
             initial_memory = process.memory_info().rss
-            
+
             # Perform many operations
             for i in range(50):
-                await stress_server.handle_call_tool("create_kotlin_file", {
-                    "file_path": f"src/main/kotlin/MemTest{i}.kt",
-                    "class_name": f"MemTest{i}",
-                    "package_name": "com.test.app",
-                    "class_type": "class"
-                })
-                
+                await stress_server.handle_call_tool(
+                    "create_kotlin_file",
+                    {
+                        "file_path": f"src/main/kotlin/MemTest{i}.kt",
+                        "class_name": f"MemTest{i}",
+                        "package_name": "com.test.app",
+                        "class_type": "class",
+                    },
+                )
+
                 if i % 10 == 0:
                     gc.collect()  # Force garbage collection
-            
+
             final_memory = process.memory_info().rss
             memory_growth = final_memory - initial_memory
-            
+
             # Memory shouldn't grow by more than 100MB
-            assert memory_growth < 100 * 1024 * 1024, f"Memory grew by {memory_growth / 1024 / 1024:.2f}MB"
-            
+            assert (
+                memory_growth < 100 * 1024 * 1024
+            ), f"Memory grew by {memory_growth / 1024 / 1024:.2f}MB"
+
         except ImportError:
             # Skip memory test if psutil is not available
             pytest.skip("psutil not available for memory testing")
@@ -555,12 +620,14 @@ class TestPerformanceAndStability:
 
 if __name__ == "__main__":
     # Run with coverage
-    pytest.main([
-        __file__,
-        "-v",
-        "--tb=short",
-        "--cov=.",
-        "--cov-report=html",
-        "--cov-report=term-missing",
-        "--cov-fail-under=80"
-    ])
+    pytest.main(
+        [
+            __file__,
+            "-v",
+            "--tb=short",
+            "--cov=.",
+            "--cov-report=html",
+            "--cov-report=term-missing",
+            "--cov-fail-under=80",
+        ]
+    )

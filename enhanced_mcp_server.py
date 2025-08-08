@@ -15,16 +15,17 @@ from typing import Any, Dict, List, Optional, Sequence
 # Import the base server
 from simple_mcp_server import MCPServer
 
+
 class EnhancedAndroidMCPServer(MCPServer):
     """Enhanced MCP Server with advanced Android development capabilities"""
-    
+
     def __init__(self, name: str):
         super().__init__(name)
-    
+
     async def handle_list_tools(self) -> dict:
         """Enhanced tools list with complex development capabilities"""
         base_tools = await super().handle_list_tools()
-        
+
         enhanced_tools = [
             # UI Development Tools
             {
@@ -34,14 +35,29 @@ class EnhancedAndroidMCPServer(MCPServer):
                     "type": "object",
                     "properties": {
                         "file_path": {"type": "string", "description": "Path for the Compose file"},
-                        "component_name": {"type": "string", "description": "Name of the Compose component"},
-                        "component_type": {"type": "string", "enum": ["screen", "component", "dialog", "bottom_sheet"], "default": "component"},
+                        "component_name": {
+                            "type": "string",
+                            "description": "Name of the Compose component",
+                        },
+                        "component_type": {
+                            "type": "string",
+                            "enum": ["screen", "component", "dialog", "bottom_sheet"],
+                            "default": "component",
+                        },
                         "package_name": {"type": "string", "description": "Package name"},
-                        "uses_state": {"type": "boolean", "description": "Include state management", "default": False},
-                        "uses_navigation": {"type": "boolean", "description": "Include navigation", "default": False}
+                        "uses_state": {
+                            "type": "boolean",
+                            "description": "Include state management",
+                            "default": False,
+                        },
+                        "uses_navigation": {
+                            "type": "boolean",
+                            "description": "Include navigation",
+                            "default": False,
+                        },
                     },
-                    "required": ["file_path", "component_name", "package_name"]
-                }
+                    "required": ["file_path", "component_name", "package_name"],
+                },
             },
             {
                 "name": "create_custom_view",
@@ -52,13 +68,20 @@ class EnhancedAndroidMCPServer(MCPServer):
                         "file_path": {"type": "string", "description": "Path for the custom view"},
                         "view_name": {"type": "string", "description": "Name of the custom view"},
                         "package_name": {"type": "string", "description": "Package name"},
-                        "view_type": {"type": "string", "enum": ["view", "viewgroup", "compound"], "default": "view"},
-                        "has_attributes": {"type": "boolean", "description": "Include custom attributes", "default": False}
+                        "view_type": {
+                            "type": "string",
+                            "enum": ["view", "viewgroup", "compound"],
+                            "default": "view",
+                        },
+                        "has_attributes": {
+                            "type": "boolean",
+                            "description": "Include custom attributes",
+                            "default": False,
+                        },
                     },
-                    "required": ["file_path", "view_name", "package_name"]
-                }
+                    "required": ["file_path", "view_name", "package_name"],
+                },
             },
-            
             # Architecture Tools
             {
                 "name": "setup_mvvm_architecture",
@@ -66,14 +89,29 @@ class EnhancedAndroidMCPServer(MCPServer):
                 "inputSchema": {
                     "type": "object",
                     "properties": {
-                        "feature_name": {"type": "string", "description": "Name of the feature/module"},
+                        "feature_name": {
+                            "type": "string",
+                            "description": "Name of the feature/module",
+                        },
                         "package_name": {"type": "string", "description": "Base package name"},
-                        "include_repository": {"type": "boolean", "description": "Include Repository pattern", "default": True},
-                        "include_use_cases": {"type": "boolean", "description": "Include Use Cases (Clean Architecture)", "default": False},
-                        "data_source": {"type": "string", "enum": ["network", "database", "both"], "default": "network"}
+                        "include_repository": {
+                            "type": "boolean",
+                            "description": "Include Repository pattern",
+                            "default": True,
+                        },
+                        "include_use_cases": {
+                            "type": "boolean",
+                            "description": "Include Use Cases (Clean Architecture)",
+                            "default": False,
+                        },
+                        "data_source": {
+                            "type": "string",
+                            "enum": ["network", "database", "both"],
+                            "default": "network",
+                        },
                     },
-                    "required": ["feature_name", "package_name"]
-                }
+                    "required": ["feature_name", "package_name"],
+                },
             },
             {
                 "name": "setup_dependency_injection",
@@ -83,12 +121,15 @@ class EnhancedAndroidMCPServer(MCPServer):
                     "properties": {
                         "module_name": {"type": "string", "description": "Name of the DI module"},
                         "package_name": {"type": "string", "description": "Package name"},
-                        "injection_type": {"type": "string", "enum": ["network", "database", "repository", "use_case"], "default": "network"}
+                        "injection_type": {
+                            "type": "string",
+                            "enum": ["network", "database", "repository", "use_case"],
+                            "default": "network",
+                        },
                     },
-                    "required": ["module_name", "package_name"]
-                }
+                    "required": ["module_name", "package_name"],
+                },
             },
-            
             # Database Tools
             {
                 "name": "setup_room_database",
@@ -98,13 +139,20 @@ class EnhancedAndroidMCPServer(MCPServer):
                     "properties": {
                         "database_name": {"type": "string", "description": "Name of the database"},
                         "package_name": {"type": "string", "description": "Package name"},
-                        "entities": {"type": "array", "items": {"type": "string"}, "description": "List of entity names"},
-                        "include_migration": {"type": "boolean", "description": "Include migration setup", "default": False}
+                        "entities": {
+                            "type": "array",
+                            "items": {"type": "string"},
+                            "description": "List of entity names",
+                        },
+                        "include_migration": {
+                            "type": "boolean",
+                            "description": "Include migration setup",
+                            "default": False,
+                        },
                     },
-                    "required": ["database_name", "package_name", "entities"]
-                }
+                    "required": ["database_name", "package_name", "entities"],
+                },
             },
-            
             # Networking Tools
             {
                 "name": "setup_retrofit_api",
@@ -115,13 +163,20 @@ class EnhancedAndroidMCPServer(MCPServer):
                         "api_name": {"type": "string", "description": "Name of the API service"},
                         "package_name": {"type": "string", "description": "Package name"},
                         "base_url": {"type": "string", "description": "API base URL"},
-                        "endpoints": {"type": "array", "items": {"type": "object"}, "description": "API endpoints configuration"},
-                        "include_interceptors": {"type": "boolean", "description": "Include logging/auth interceptors", "default": True}
+                        "endpoints": {
+                            "type": "array",
+                            "items": {"type": "object"},
+                            "description": "API endpoints configuration",
+                        },
+                        "include_interceptors": {
+                            "type": "boolean",
+                            "description": "Include logging/auth interceptors",
+                            "default": True,
+                        },
                     },
-                    "required": ["api_name", "package_name", "base_url"]
-                }
+                    "required": ["api_name", "package_name", "base_url"],
+                },
             },
-            
             # Advanced Layout Tools
             {
                 "name": "create_complex_layout",
@@ -130,14 +185,24 @@ class EnhancedAndroidMCPServer(MCPServer):
                     "type": "object",
                     "properties": {
                         "layout_name": {"type": "string", "description": "Layout file name"},
-                        "layout_complexity": {"type": "string", "enum": ["recyclerview", "viewpager", "coordinator", "motion"], "default": "recyclerview"},
-                        "include_adapter": {"type": "boolean", "description": "Generate adapter code", "default": True},
-                        "item_layout": {"type": "string", "description": "Item layout name for lists"}
+                        "layout_complexity": {
+                            "type": "string",
+                            "enum": ["recyclerview", "viewpager", "coordinator", "motion"],
+                            "default": "recyclerview",
+                        },
+                        "include_adapter": {
+                            "type": "boolean",
+                            "description": "Generate adapter code",
+                            "default": True,
+                        },
+                        "item_layout": {
+                            "type": "string",
+                            "description": "Item layout name for lists",
+                        },
                     },
-                    "required": ["layout_name", "layout_complexity"]
-                }
+                    "required": ["layout_name", "layout_complexity"],
+                },
             },
-            
             # Testing Tools
             {
                 "name": "generate_test_suite",
@@ -145,15 +210,29 @@ class EnhancedAndroidMCPServer(MCPServer):
                 "inputSchema": {
                     "type": "object",
                     "properties": {
-                        "class_to_test": {"type": "string", "description": "Class to generate tests for"},
-                        "test_type": {"type": "string", "enum": ["unit", "integration", "ui"], "default": "unit"},
-                        "include_mockito": {"type": "boolean", "description": "Include Mockito mocks", "default": True},
-                        "test_coverage": {"type": "string", "enum": ["basic", "comprehensive"], "default": "basic"}
+                        "class_to_test": {
+                            "type": "string",
+                            "description": "Class to generate tests for",
+                        },
+                        "test_type": {
+                            "type": "string",
+                            "enum": ["unit", "integration", "ui"],
+                            "default": "unit",
+                        },
+                        "include_mockito": {
+                            "type": "boolean",
+                            "description": "Include Mockito mocks",
+                            "default": True,
+                        },
+                        "test_coverage": {
+                            "type": "string",
+                            "enum": ["basic", "comprehensive"],
+                            "default": "basic",
+                        },
                     },
-                    "required": ["class_to_test"]
-                }
+                    "required": ["class_to_test"],
+                },
             },
-            
             # Build Configuration Tools
             {
                 "name": "configure_build_variants",
@@ -161,14 +240,25 @@ class EnhancedAndroidMCPServer(MCPServer):
                 "inputSchema": {
                     "type": "object",
                     "properties": {
-                        "variants": {"type": "array", "items": {"type": "string"}, "description": "Build variant names"},
-                        "flavors": {"type": "array", "items": {"type": "string"}, "description": "Product flavor names"},
-                        "configuration_type": {"type": "string", "enum": ["development", "staging", "production"], "default": "development"}
+                        "variants": {
+                            "type": "array",
+                            "items": {"type": "string"},
+                            "description": "Build variant names",
+                        },
+                        "flavors": {
+                            "type": "array",
+                            "items": {"type": "string"},
+                            "description": "Product flavor names",
+                        },
+                        "configuration_type": {
+                            "type": "string",
+                            "enum": ["development", "staging", "production"],
+                            "default": "development",
+                        },
                     },
-                    "required": ["variants"]
-                }
+                    "required": ["variants"],
+                },
             },
-            
             # Modern Android Development Tools
             {
                 "name": "setup_navigation_component",
@@ -177,12 +267,24 @@ class EnhancedAndroidMCPServer(MCPServer):
                     "type": "object",
                     "properties": {
                         "graph_name": {"type": "string", "description": "Navigation graph name"},
-                        "destinations": {"type": "array", "items": {"type": "string"}, "description": "List of destination fragments/activities"},
-                        "use_safe_args": {"type": "boolean", "description": "Enable Safe Args plugin", "default": True},
-                        "deep_links": {"type": "array", "items": {"type": "string"}, "description": "Deep link patterns"}
+                        "destinations": {
+                            "type": "array",
+                            "items": {"type": "string"},
+                            "description": "List of destination fragments/activities",
+                        },
+                        "use_safe_args": {
+                            "type": "boolean",
+                            "description": "Enable Safe Args plugin",
+                            "default": True,
+                        },
+                        "deep_links": {
+                            "type": "array",
+                            "items": {"type": "string"},
+                            "description": "Deep link patterns",
+                        },
                     },
-                    "required": ["graph_name", "destinations"]
-                }
+                    "required": ["graph_name", "destinations"],
+                },
             },
             {
                 "name": "create_work_manager_worker",
@@ -192,11 +294,19 @@ class EnhancedAndroidMCPServer(MCPServer):
                     "properties": {
                         "worker_name": {"type": "string", "description": "Name of the worker"},
                         "package_name": {"type": "string", "description": "Package name"},
-                        "work_type": {"type": "string", "enum": ["one_time", "periodic", "chained"], "default": "one_time"},
-                        "constraints": {"type": "array", "items": {"type": "string"}, "description": "Work constraints (network, battery, etc.)"}
+                        "work_type": {
+                            "type": "string",
+                            "enum": ["one_time", "periodic", "chained"],
+                            "default": "one_time",
+                        },
+                        "constraints": {
+                            "type": "array",
+                            "items": {"type": "string"},
+                            "description": "Work constraints (network, battery, etc.)",
+                        },
                     },
-                    "required": ["worker_name", "package_name"]
-                }
+                    "required": ["worker_name", "package_name"],
+                },
             },
             {
                 "name": "setup_coroutines_flow",
@@ -204,13 +314,24 @@ class EnhancedAndroidMCPServer(MCPServer):
                 "inputSchema": {
                     "type": "object",
                     "properties": {
-                        "class_name": {"type": "string", "description": "Class name for coroutines implementation"},
+                        "class_name": {
+                            "type": "string",
+                            "description": "Class name for coroutines implementation",
+                        },
                         "package_name": {"type": "string", "description": "Package name"},
-                        "flow_type": {"type": "string", "enum": ["state_flow", "shared_flow", "flow"], "default": "state_flow"},
-                        "use_viewmodel_scope": {"type": "boolean", "description": "Use viewModelScope", "default": True}
+                        "flow_type": {
+                            "type": "string",
+                            "enum": ["state_flow", "shared_flow", "flow"],
+                            "default": "state_flow",
+                        },
+                        "use_viewmodel_scope": {
+                            "type": "boolean",
+                            "description": "Use viewModelScope",
+                            "default": True,
+                        },
                     },
-                    "required": ["class_name", "package_name"]
-                }
+                    "required": ["class_name", "package_name"],
+                },
             },
             {
                 "name": "create_firebase_integration",
@@ -218,12 +339,20 @@ class EnhancedAndroidMCPServer(MCPServer):
                 "inputSchema": {
                     "type": "object",
                     "properties": {
-                        "services": {"type": "array", "items": {"type": "string"}, "description": "Firebase services (auth, firestore, analytics, etc.)"},
+                        "services": {
+                            "type": "array",
+                            "items": {"type": "string"},
+                            "description": "Firebase services (auth, firestore, analytics, etc.)",
+                        },
                         "package_name": {"type": "string", "description": "Package name"},
-                        "include_crashlytics": {"type": "boolean", "description": "Include Crashlytics", "default": True}
+                        "include_crashlytics": {
+                            "type": "boolean",
+                            "description": "Include Crashlytics",
+                            "default": True,
+                        },
                     },
-                    "required": ["services", "package_name"]
-                }
+                    "required": ["services", "package_name"],
+                },
             },
             {
                 "name": "setup_data_store",
@@ -233,11 +362,19 @@ class EnhancedAndroidMCPServer(MCPServer):
                     "properties": {
                         "store_name": {"type": "string", "description": "DataStore name"},
                         "package_name": {"type": "string", "description": "Package name"},
-                        "store_type": {"type": "string", "enum": ["preferences", "proto"], "default": "preferences"},
-                        "keys": {"type": "array", "items": {"type": "string"}, "description": "Data keys to store"}
+                        "store_type": {
+                            "type": "string",
+                            "enum": ["preferences", "proto"],
+                            "default": "preferences",
+                        },
+                        "keys": {
+                            "type": "array",
+                            "items": {"type": "string"},
+                            "description": "Data keys to store",
+                        },
                     },
-                    "required": ["store_name", "package_name"]
-                }
+                    "required": ["store_name", "package_name"],
+                },
             },
             {
                 "name": "create_permission_handler",
@@ -245,12 +382,20 @@ class EnhancedAndroidMCPServer(MCPServer):
                 "inputSchema": {
                     "type": "object",
                     "properties": {
-                        "permissions": {"type": "array", "items": {"type": "string"}, "description": "Permissions to handle"},
+                        "permissions": {
+                            "type": "array",
+                            "items": {"type": "string"},
+                            "description": "Permissions to handle",
+                        },
                         "package_name": {"type": "string", "description": "Package name"},
-                        "use_accompanist": {"type": "boolean", "description": "Use Accompanist permissions", "default": True}
+                        "use_accompanist": {
+                            "type": "boolean",
+                            "description": "Use Accompanist permissions",
+                            "default": True,
+                        },
                     },
-                    "required": ["permissions", "package_name"]
-                }
+                    "required": ["permissions", "package_name"],
+                },
             },
             {
                 "name": "setup_biometric_auth",
@@ -258,12 +403,19 @@ class EnhancedAndroidMCPServer(MCPServer):
                 "inputSchema": {
                     "type": "object",
                     "properties": {
-                        "auth_class_name": {"type": "string", "description": "Authentication class name"},
+                        "auth_class_name": {
+                            "type": "string",
+                            "description": "Authentication class name",
+                        },
                         "package_name": {"type": "string", "description": "Package name"},
-                        "fallback_to_pin": {"type": "boolean", "description": "Allow PIN fallback", "default": True}
+                        "fallback_to_pin": {
+                            "type": "boolean",
+                            "description": "Allow PIN fallback",
+                            "default": True,
+                        },
                     },
-                    "required": ["auth_class_name", "package_name"]
-                }
+                    "required": ["auth_class_name", "package_name"],
+                },
             },
             {
                 "name": "create_notification_system",
@@ -271,13 +423,24 @@ class EnhancedAndroidMCPServer(MCPServer):
                 "inputSchema": {
                     "type": "object",
                     "properties": {
-                        "notification_class": {"type": "string", "description": "Notification manager class name"},
+                        "notification_class": {
+                            "type": "string",
+                            "description": "Notification manager class name",
+                        },
                         "package_name": {"type": "string", "description": "Package name"},
-                        "channels": {"type": "array", "items": {"type": "string"}, "description": "Notification channel names"},
-                        "support_android_13": {"type": "boolean", "description": "Support Android 13+ notification permissions", "default": True}
+                        "channels": {
+                            "type": "array",
+                            "items": {"type": "string"},
+                            "description": "Notification channel names",
+                        },
+                        "support_android_13": {
+                            "type": "boolean",
+                            "description": "Support Android 13+ notification permissions",
+                            "default": True,
+                        },
                     },
-                    "required": ["notification_class", "package_name", "channels"]
-                }
+                    "required": ["notification_class", "package_name", "channels"],
+                },
             },
             {
                 "name": "setup_camera_integration",
@@ -285,13 +448,24 @@ class EnhancedAndroidMCPServer(MCPServer):
                 "inputSchema": {
                     "type": "object",
                     "properties": {
-                        "camera_class": {"type": "string", "description": "Camera handler class name"},
+                        "camera_class": {
+                            "type": "string",
+                            "description": "Camera handler class name",
+                        },
                         "package_name": {"type": "string", "description": "Package name"},
-                        "features": {"type": "array", "items": {"type": "string"}, "description": "Camera features (capture, video, analysis)"},
-                        "use_compose": {"type": "boolean", "description": "Create Compose camera UI", "default": True}
+                        "features": {
+                            "type": "array",
+                            "items": {"type": "string"},
+                            "description": "Camera features (capture, video, analysis)",
+                        },
+                        "use_compose": {
+                            "type": "boolean",
+                            "description": "Create Compose camera UI",
+                            "default": True,
+                        },
                     },
-                    "required": ["camera_class", "package_name", "features"]
-                }
+                    "required": ["camera_class", "package_name", "features"],
+                },
             },
             {
                 "name": "create_media_player",
@@ -299,13 +473,24 @@ class EnhancedAndroidMCPServer(MCPServer):
                 "inputSchema": {
                     "type": "object",
                     "properties": {
-                        "player_class": {"type": "string", "description": "Media player class name"},
+                        "player_class": {
+                            "type": "string",
+                            "description": "Media player class name",
+                        },
                         "package_name": {"type": "string", "description": "Package name"},
-                        "media_types": {"type": "array", "items": {"type": "string"}, "description": "Supported media types"},
-                        "include_ui_controls": {"type": "boolean", "description": "Include player UI controls", "default": True}
+                        "media_types": {
+                            "type": "array",
+                            "items": {"type": "string"},
+                            "description": "Supported media types",
+                        },
+                        "include_ui_controls": {
+                            "type": "boolean",
+                            "description": "Include player UI controls",
+                            "default": True,
+                        },
                     },
-                    "required": ["player_class", "package_name"]
-                }
+                    "required": ["player_class", "package_name"],
+                },
             },
             {
                 "name": "setup_security_crypto",
@@ -313,12 +498,19 @@ class EnhancedAndroidMCPServer(MCPServer):
                 "inputSchema": {
                     "type": "object",
                     "properties": {
-                        "crypto_class": {"type": "string", "description": "Crypto handler class name"},
+                        "crypto_class": {
+                            "type": "string",
+                            "description": "Crypto handler class name",
+                        },
                         "package_name": {"type": "string", "description": "Package name"},
-                        "encryption_type": {"type": "string", "enum": ["file", "shared_prefs", "custom"], "default": "shared_prefs"}
+                        "encryption_type": {
+                            "type": "string",
+                            "enum": ["file", "shared_prefs", "custom"],
+                            "default": "shared_prefs",
+                        },
                     },
-                    "required": ["crypto_class", "package_name"]
-                }
+                    "required": ["crypto_class", "package_name"],
+                },
             },
             {
                 "name": "create_accessibility_features",
@@ -326,12 +518,19 @@ class EnhancedAndroidMCPServer(MCPServer):
                 "inputSchema": {
                     "type": "object",
                     "properties": {
-                        "screen_name": {"type": "string", "description": "Screen to make accessible"},
+                        "screen_name": {
+                            "type": "string",
+                            "description": "Screen to make accessible",
+                        },
                         "package_name": {"type": "string", "description": "Package name"},
-                        "accessibility_services": {"type": "array", "items": {"type": "string"}, "description": "Accessibility services to implement"}
+                        "accessibility_services": {
+                            "type": "array",
+                            "items": {"type": "string"},
+                            "description": "Accessibility services to implement",
+                        },
                     },
-                    "required": ["screen_name", "package_name"]
-                }
+                    "required": ["screen_name", "package_name"],
+                },
             },
             {
                 "name": "setup_in_app_updates",
@@ -339,12 +538,19 @@ class EnhancedAndroidMCPServer(MCPServer):
                 "inputSchema": {
                     "type": "object",
                     "properties": {
-                        "update_class": {"type": "string", "description": "Update manager class name"},
+                        "update_class": {
+                            "type": "string",
+                            "description": "Update manager class name",
+                        },
                         "package_name": {"type": "string", "description": "Package name"},
-                        "update_type": {"type": "string", "enum": ["flexible", "immediate", "both"], "default": "flexible"}
+                        "update_type": {
+                            "type": "string",
+                            "enum": ["flexible", "immediate", "both"],
+                            "default": "flexible",
+                        },
                     },
-                    "required": ["update_class", "package_name"]
-                }
+                    "required": ["update_class", "package_name"],
+                },
             },
             {
                 "name": "create_dynamic_features",
@@ -352,12 +558,23 @@ class EnhancedAndroidMCPServer(MCPServer):
                 "inputSchema": {
                     "type": "object",
                     "properties": {
-                        "feature_name": {"type": "string", "description": "Dynamic feature module name"},
-                        "delivery_type": {"type": "string", "enum": ["on_demand", "conditional", "fast_follow"], "default": "on_demand"},
-                        "fusing": {"type": "boolean", "description": "Include in fused APK", "default": False}
+                        "feature_name": {
+                            "type": "string",
+                            "description": "Dynamic feature module name",
+                        },
+                        "delivery_type": {
+                            "type": "string",
+                            "enum": ["on_demand", "conditional", "fast_follow"],
+                            "default": "on_demand",
+                        },
+                        "fusing": {
+                            "type": "boolean",
+                            "description": "Include in fused APK",
+                            "default": False,
+                        },
                     },
-                    "required": ["feature_name"]
-                }
+                    "required": ["feature_name"],
+                },
             },
             {
                 "name": "setup_ml_kit_integration",
@@ -365,14 +582,21 @@ class EnhancedAndroidMCPServer(MCPServer):
                 "inputSchema": {
                     "type": "object",
                     "properties": {
-                        "ml_features": {"type": "array", "items": {"type": "string"}, "description": "ML features (text_recognition, face_detection, etc.)"},
+                        "ml_features": {
+                            "type": "array",
+                            "items": {"type": "string"},
+                            "description": "ML features (text_recognition, face_detection, etc.)",
+                        },
                         "package_name": {"type": "string", "description": "Package name"},
-                        "use_bundled_models": {"type": "boolean", "description": "Use bundled models", "default": True}
+                        "use_bundled_models": {
+                            "type": "boolean",
+                            "description": "Use bundled models",
+                            "default": True,
+                        },
                     },
-                    "required": ["ml_features", "package_name"]
-                }
+                    "required": ["ml_features", "package_name"],
+                },
             },
-            
             # File Management Tools
             {
                 "name": "create_file_manager",
@@ -380,14 +604,29 @@ class EnhancedAndroidMCPServer(MCPServer):
                 "inputSchema": {
                     "type": "object",
                     "properties": {
-                        "manager_name": {"type": "string", "description": "File manager class name"},
+                        "manager_name": {
+                            "type": "string",
+                            "description": "File manager class name",
+                        },
                         "package_name": {"type": "string", "description": "Package name"},
-                        "storage_types": {"type": "array", "items": {"type": "string"}, "description": "Storage types (internal, external, scoped, media)"},
-                        "file_operations": {"type": "array", "items": {"type": "string"}, "description": "Operations (read, write, delete, copy, move)"},
-                        "use_storage_access_framework": {"type": "boolean", "description": "Use SAF for file picking", "default": True}
+                        "storage_types": {
+                            "type": "array",
+                            "items": {"type": "string"},
+                            "description": "Storage types (internal, external, scoped, media)",
+                        },
+                        "file_operations": {
+                            "type": "array",
+                            "items": {"type": "string"},
+                            "description": "Operations (read, write, delete, copy, move)",
+                        },
+                        "use_storage_access_framework": {
+                            "type": "boolean",
+                            "description": "Use SAF for file picking",
+                            "default": True,
+                        },
                     },
-                    "required": ["manager_name", "package_name"]
-                }
+                    "required": ["manager_name", "package_name"],
+                },
             },
             {
                 "name": "setup_document_provider",
@@ -395,13 +634,24 @@ class EnhancedAndroidMCPServer(MCPServer):
                 "inputSchema": {
                     "type": "object",
                     "properties": {
-                        "provider_name": {"type": "string", "description": "Document provider name"},
+                        "provider_name": {
+                            "type": "string",
+                            "description": "Document provider name",
+                        },
                         "package_name": {"type": "string", "description": "Package name"},
-                        "supported_formats": {"type": "array", "items": {"type": "string"}, "description": "Supported file formats"},
-                        "enable_cloud_sync": {"type": "boolean", "description": "Enable cloud synchronization", "default": False}
+                        "supported_formats": {
+                            "type": "array",
+                            "items": {"type": "string"},
+                            "description": "Supported file formats",
+                        },
+                        "enable_cloud_sync": {
+                            "type": "boolean",
+                            "description": "Enable cloud synchronization",
+                            "default": False,
+                        },
                     },
-                    "required": ["provider_name", "package_name"]
-                }
+                    "required": ["provider_name", "package_name"],
+                },
             },
             {
                 "name": "create_media_scanner",
@@ -409,15 +659,25 @@ class EnhancedAndroidMCPServer(MCPServer):
                 "inputSchema": {
                     "type": "object",
                     "properties": {
-                        "scanner_name": {"type": "string", "description": "Media scanner class name"},
+                        "scanner_name": {
+                            "type": "string",
+                            "description": "Media scanner class name",
+                        },
                         "package_name": {"type": "string", "description": "Package name"},
-                        "media_types": {"type": "array", "items": {"type": "string"}, "description": "Media types to scan (images, videos, audio, documents)"},
-                        "include_metadata": {"type": "boolean", "description": "Extract metadata", "default": True}
+                        "media_types": {
+                            "type": "array",
+                            "items": {"type": "string"},
+                            "description": "Media types to scan (images, videos, audio, documents)",
+                        },
+                        "include_metadata": {
+                            "type": "boolean",
+                            "description": "Extract metadata",
+                            "default": True,
+                        },
                     },
-                    "required": ["scanner_name", "package_name"]
-                }
+                    "required": ["scanner_name", "package_name"],
+                },
             },
-            
             # External API Integration Tools
             {
                 "name": "create_api_client",
@@ -428,12 +688,24 @@ class EnhancedAndroidMCPServer(MCPServer):
                         "client_name": {"type": "string", "description": "API client class name"},
                         "package_name": {"type": "string", "description": "Package name"},
                         "base_url": {"type": "string", "description": "API base URL"},
-                        "auth_type": {"type": "string", "enum": ["none", "api_key", "bearer_token", "oauth2", "basic"], "default": "none"},
-                        "features": {"type": "array", "items": {"type": "string"}, "description": "Features (caching, retry, rate_limiting, offline_support)"},
-                        "response_format": {"type": "string", "enum": ["json", "xml", "protobuf"], "default": "json"}
+                        "auth_type": {
+                            "type": "string",
+                            "enum": ["none", "api_key", "bearer_token", "oauth2", "basic"],
+                            "default": "none",
+                        },
+                        "features": {
+                            "type": "array",
+                            "items": {"type": "string"},
+                            "description": "Features (caching, retry, rate_limiting, offline_support)",
+                        },
+                        "response_format": {
+                            "type": "string",
+                            "enum": ["json", "xml", "protobuf"],
+                            "default": "json",
+                        },
                     },
-                    "required": ["client_name", "package_name", "base_url"]
-                }
+                    "required": ["client_name", "package_name", "base_url"],
+                },
             },
             {
                 "name": "setup_graphql_client",
@@ -443,13 +715,27 @@ class EnhancedAndroidMCPServer(MCPServer):
                     "properties": {
                         "client_name": {"type": "string", "description": "GraphQL client name"},
                         "package_name": {"type": "string", "description": "Package name"},
-                        "graphql_endpoint": {"type": "string", "description": "GraphQL endpoint URL"},
-                        "use_apollo": {"type": "boolean", "description": "Use Apollo GraphQL", "default": True},
-                        "enable_subscriptions": {"type": "boolean", "description": "Enable real-time subscriptions", "default": False},
-                        "schema_file": {"type": "string", "description": "GraphQL schema file path"}
+                        "graphql_endpoint": {
+                            "type": "string",
+                            "description": "GraphQL endpoint URL",
+                        },
+                        "use_apollo": {
+                            "type": "boolean",
+                            "description": "Use Apollo GraphQL",
+                            "default": True,
+                        },
+                        "enable_subscriptions": {
+                            "type": "boolean",
+                            "description": "Enable real-time subscriptions",
+                            "default": False,
+                        },
+                        "schema_file": {
+                            "type": "string",
+                            "description": "GraphQL schema file path",
+                        },
                     },
-                    "required": ["client_name", "package_name", "graphql_endpoint"]
-                }
+                    "required": ["client_name", "package_name", "graphql_endpoint"],
+                },
             },
             {
                 "name": "create_websocket_client",
@@ -457,15 +743,30 @@ class EnhancedAndroidMCPServer(MCPServer):
                 "inputSchema": {
                     "type": "object",
                     "properties": {
-                        "client_name": {"type": "string", "description": "WebSocket client class name"},
+                        "client_name": {
+                            "type": "string",
+                            "description": "WebSocket client class name",
+                        },
                         "package_name": {"type": "string", "description": "Package name"},
                         "websocket_url": {"type": "string", "description": "WebSocket server URL"},
-                        "protocols": {"type": "array", "items": {"type": "string"}, "description": "WebSocket protocols"},
-                        "features": {"type": "array", "items": {"type": "string"}, "description": "Features (auto_reconnect, heartbeat, compression)"},
-                        "message_format": {"type": "string", "enum": ["json", "protobuf", "text"], "default": "json"}
+                        "protocols": {
+                            "type": "array",
+                            "items": {"type": "string"},
+                            "description": "WebSocket protocols",
+                        },
+                        "features": {
+                            "type": "array",
+                            "items": {"type": "string"},
+                            "description": "Features (auto_reconnect, heartbeat, compression)",
+                        },
+                        "message_format": {
+                            "type": "string",
+                            "enum": ["json", "protobuf", "text"],
+                            "default": "json",
+                        },
                     },
-                    "required": ["client_name", "package_name", "websocket_url"]
-                }
+                    "required": ["client_name", "package_name", "websocket_url"],
+                },
             },
             {
                 "name": "setup_third_party_apis",
@@ -473,13 +774,25 @@ class EnhancedAndroidMCPServer(MCPServer):
                 "inputSchema": {
                     "type": "object",
                     "properties": {
-                        "api_providers": {"type": "array", "items": {"type": "string"}, "description": "API providers (google_maps, stripe, twilio, aws, etc.)"},
+                        "api_providers": {
+                            "type": "array",
+                            "items": {"type": "string"},
+                            "description": "API providers (google_maps, stripe, twilio, aws, etc.)",
+                        },
                         "package_name": {"type": "string", "description": "Package name"},
-                        "include_sdk": {"type": "boolean", "description": "Include official SDKs where available", "default": True},
-                        "custom_endpoints": {"type": "array", "items": {"type": "object"}, "description": "Custom API endpoints"}
+                        "include_sdk": {
+                            "type": "boolean",
+                            "description": "Include official SDKs where available",
+                            "default": True,
+                        },
+                        "custom_endpoints": {
+                            "type": "array",
+                            "items": {"type": "object"},
+                            "description": "Custom API endpoints",
+                        },
                     },
-                    "required": ["api_providers", "package_name"]
-                }
+                    "required": ["api_providers", "package_name"],
+                },
             },
             {
                 "name": "create_api_cache_manager",
@@ -489,12 +802,22 @@ class EnhancedAndroidMCPServer(MCPServer):
                     "properties": {
                         "cache_name": {"type": "string", "description": "Cache manager class name"},
                         "package_name": {"type": "string", "description": "Package name"},
-                        "cache_strategies": {"type": "array", "items": {"type": "string"}, "description": "Cache strategies (memory, disk, hybrid)"},
-                        "ttl_policies": {"type": "object", "description": "TTL policies for different data types"},
-                        "max_cache_size": {"type": "string", "description": "Maximum cache size (e.g., '50MB')"}
+                        "cache_strategies": {
+                            "type": "array",
+                            "items": {"type": "string"},
+                            "description": "Cache strategies (memory, disk, hybrid)",
+                        },
+                        "ttl_policies": {
+                            "type": "object",
+                            "description": "TTL policies for different data types",
+                        },
+                        "max_cache_size": {
+                            "type": "string",
+                            "description": "Maximum cache size (e.g., '50MB')",
+                        },
                     },
-                    "required": ["cache_name", "package_name"]
-                }
+                    "required": ["cache_name", "package_name"],
+                },
             },
             {
                 "name": "setup_offline_sync",
@@ -502,29 +825,50 @@ class EnhancedAndroidMCPServer(MCPServer):
                 "inputSchema": {
                     "type": "object",
                     "properties": {
-                        "sync_manager_name": {"type": "string", "description": "Sync manager class name"},
+                        "sync_manager_name": {
+                            "type": "string",
+                            "description": "Sync manager class name",
+                        },
                         "package_name": {"type": "string", "description": "Package name"},
-                        "sync_strategies": {"type": "array", "items": {"type": "string"}, "description": "Sync strategies (optimistic, pessimistic, conflict_resolution)"},
-                        "data_types": {"type": "array", "items": {"type": "string"}, "description": "Data types to sync"},
-                        "conflict_resolution": {"type": "string", "enum": ["server_wins", "client_wins", "merge", "manual"], "default": "server_wins"}
+                        "sync_strategies": {
+                            "type": "array",
+                            "items": {"type": "string"},
+                            "description": "Sync strategies (optimistic, pessimistic, conflict_resolution)",
+                        },
+                        "data_types": {
+                            "type": "array",
+                            "items": {"type": "string"},
+                            "description": "Data types to sync",
+                        },
+                        "conflict_resolution": {
+                            "type": "string",
+                            "enum": ["server_wins", "client_wins", "merge", "manual"],
+                            "default": "server_wins",
+                        },
                     },
-                    "required": ["sync_manager_name", "package_name"]
-                }
-            }
+                    "required": ["sync_manager_name", "package_name"],
+                },
+            },
         ]
-        
+
         # Combine base tools with enhanced tools
         all_tools = base_tools["tools"] + enhanced_tools
         return {"tools": all_tools}
-    
+
     async def handle_call_tool(self, name: str, arguments: dict) -> dict:
         """Handle enhanced tool calls"""
-        
+
         # Handle base tools first
-        base_tools = ["gradle_build", "run_tests", "create_kotlin_file", "create_layout_file", "analyze_project"]
+        base_tools = [
+            "gradle_build",
+            "run_tests",
+            "create_kotlin_file",
+            "create_layout_file",
+            "analyze_project",
+        ]
         if name in base_tools:
             return await super().handle_call_tool(name, arguments)
-        
+
         # Handle enhanced tools
         try:
             if name == "create_compose_component":
@@ -594,24 +938,14 @@ class EnhancedAndroidMCPServer(MCPServer):
             elif name == "setup_offline_sync":
                 return await self._setup_offline_sync(arguments)
             else:
-                return {
-                    "content": [
-                        {
-                            "type": "text",
-                            "text": f"Unknown enhanced tool: {name}"
-                        }
-                    ]
-                }
+                return {"content": [{"type": "text", "text": f"Unknown enhanced tool: {name}"}]}
         except Exception as e:
             return {
                 "content": [
-                    {
-                        "type": "text",
-                        "text": f"Error executing enhanced tool {name}: {str(e)}"
-                    }
+                    {"type": "text", "text": f"Error executing enhanced tool {name}: {str(e)}"}
                 ]
             }
-    
+
     async def _create_compose_component(self, arguments: dict) -> dict:
         """Create Jetpack Compose UI component"""
         file_path = arguments["file_path"]
@@ -620,10 +954,10 @@ class EnhancedAndroidMCPServer(MCPServer):
         component_type = arguments.get("component_type", "component")
         uses_state = arguments.get("uses_state", False)
         uses_navigation = arguments.get("uses_navigation", False)
-        
+
         full_path = self.project_path / file_path
         full_path.parent.mkdir(parents=True, exist_ok=True)
-        
+
         # Generate Compose component based on type
         imports = f"package {package_name}\n\n"
         imports += "import androidx.compose.foundation.layout.*\n"
@@ -632,25 +966,25 @@ class EnhancedAndroidMCPServer(MCPServer):
         imports += "import androidx.compose.ui.Modifier\n"
         imports += "import androidx.compose.ui.tooling.preview.Preview\n"
         imports += "import androidx.compose.ui.unit.dp\n"
-        
+
         if uses_state:
             imports += "import androidx.compose.runtime.getValue\n"
             imports += "import androidx.compose.runtime.setValue\n"
             imports += "import androidx.lifecycle.viewmodel.compose.viewModel\n"
-        
+
         if uses_navigation:
             imports += "import androidx.navigation.NavController\n"
-        
+
         state_code = ""
         if uses_state:
             state_code = """
     var state by remember { mutableStateOf("") }
 """
-        
+
         nav_param = ", navController: NavController" if uses_navigation else ""
-        
+
         templates = {
-            "screen": f'''{imports}
+            "screen": f"""{imports}
 
 @Composable
 fun {component_name}Screen({nav_param.lstrip(", ")}) {{{state_code}
@@ -675,8 +1009,8 @@ fun {component_name}ScreenPreview() {{
         {component_name}Screen()
     }}
 }}
-''',
-            "component": f'''{imports}
+""",
+            "component": f"""{imports}
 
 @Composable
 fun {component_name}({nav_param.lstrip(", ")}) {{{state_code}
@@ -705,31 +1039,28 @@ fun {component_name}Preview() {{
         {component_name}()
     }}
 }}
-'''
+""",
         }
-        
+
         content = templates.get(component_type, templates["component"])
-        
+
         try:
-            full_path.write_text(content, encoding='utf-8')
+            full_path.write_text(content, encoding="utf-8")
             return {
                 "content": [
                     {
                         "type": "text",
-                        "text": f"Created Jetpack Compose {component_type}: {file_path}"
+                        "text": f"Created Jetpack Compose {component_type}: {file_path}",
                     }
                 ]
             }
         except Exception as e:
             return {
                 "content": [
-                    {
-                        "type": "text",
-                        "text": f"Failed to create Compose component: {str(e)}"
-                    }
+                    {"type": "text", "text": f"Failed to create Compose component: {str(e)}"}
                 ]
             }
-    
+
     async def _setup_mvvm_architecture(self, arguments: dict) -> dict:
         """Set up MVVM architecture pattern"""
         feature_name = arguments["feature_name"]
@@ -737,14 +1068,17 @@ fun {component_name}Preview() {{
         include_repository = arguments.get("include_repository", True)
         include_use_cases = arguments.get("include_use_cases", False)
         data_source = arguments.get("data_source", "network")
-        
+
         created_files = []
-        
+
         # Create ViewModel
-        viewmodel_path = self.project_path / f"app/src/main/java/{package_name.replace('.', '/')}/ui/{feature_name.lower()}/{feature_name}ViewModel.kt"
+        viewmodel_path = (
+            self.project_path
+            / f"app/src/main/java/{package_name.replace('.', '/')}/ui/{feature_name.lower()}/{feature_name}ViewModel.kt"
+        )
         viewmodel_path.parent.mkdir(parents=True, exist_ok=True)
-        
-        viewmodel_content = f'''package {package_name}.ui.{feature_name.lower()}
+
+        viewmodel_content = f"""package {package_name}.ui.{feature_name.lower()}
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -787,17 +1121,20 @@ data class {feature_name}UiState(
     val data: List<Any> = emptyList(),
     val error: String? = null
 )
-'''
-        
-        viewmodel_path.write_text(viewmodel_content, encoding='utf-8')
+"""
+
+        viewmodel_path.write_text(viewmodel_content, encoding="utf-8")
         created_files.append(f"ViewModel: {viewmodel_path.name}")
-        
+
         # Create Repository if requested
         if include_repository:
-            repo_path = self.project_path / f"app/src/main/java/{package_name.replace('.', '/')}/data/repository/{feature_name}Repository.kt"
+            repo_path = (
+                self.project_path
+                / f"app/src/main/java/{package_name.replace('.', '/')}/data/repository/{feature_name}Repository.kt"
+            )
             repo_path.parent.mkdir(parents=True, exist_ok=True)
-            
-            repo_content = f'''package {package_name}.data.repository
+
+            repo_content = f"""package {package_name}.data.repository
 
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -818,20 +1155,21 @@ class {feature_name}Repository @Inject constructor(
         }}
     }}
 }}
-'''
-            
-            repo_path.write_text(repo_content, encoding='utf-8')
+"""
+
+            repo_path.write_text(repo_content, encoding="utf-8")
             created_files.append(f"Repository: {repo_path.name}")
-        
+
         return {
             "content": [
                 {
                     "type": "text",
-                    "text": f"Created MVVM architecture for {feature_name}:\\n" + "\\n".join(created_files)
+                    "text": f"Created MVVM architecture for {feature_name}:\\n"
+                    + "\\n".join(created_files),
                 }
             ]
         }
-    
+
     # Modern Android Development Methods
     async def _setup_navigation_component(self, arguments: dict) -> dict:
         """Set up Android Navigation Component"""
@@ -839,50 +1177,53 @@ class {feature_name}Repository @Inject constructor(
         destinations = arguments["destinations"]
         use_safe_args = arguments.get("use_safe_args", True)
         deep_links = arguments.get("deep_links", [])
-        
+
         # Create navigation graph XML
         nav_path = self.project_path / f"app/src/main/res/navigation/{graph_name}.xml"
         nav_path.parent.mkdir(parents=True, exist_ok=True)
-        
-        nav_content = f'''<?xml version="1.0" encoding="utf-8"?>
+
+        nav_content = f"""<?xml version="1.0" encoding="utf-8"?>
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/{graph_name}"
     app:startDestination="@id/{destinations[0] if destinations else 'homeFragment'}">
 
-'''
-        
+"""
+
         for dest in destinations:
-            nav_content += f'''    <fragment
+            nav_content += f"""    <fragment
         android:id="@+id/{dest}Fragment"
         android:name="com.example.{dest}Fragment"
         android:label="{dest}"
         tools:layout="@layout/fragment_{dest.lower()}" />
         
-'''
-        
+"""
+
         nav_content += "</navigation>"
-        nav_path.write_text(nav_content, encoding='utf-8')
-        
+        nav_path.write_text(nav_content, encoding="utf-8")
+
         return {
             "content": [
                 {
                     "type": "text",
-                    "text": f"Created Navigation Component graph: {graph_name}.xml with {len(destinations)} destinations"
+                    "text": f"Created Navigation Component graph: {graph_name}.xml with {len(destinations)} destinations",
                 }
             ]
         }
-    
+
     async def _create_work_manager_worker(self, arguments: dict) -> dict:
         """Create WorkManager worker"""
         worker_name = arguments["worker_name"]
         package_name = arguments["package_name"]
         work_type = arguments.get("work_type", "one_time")
         constraints = arguments.get("constraints", [])
-        
-        worker_path = self.project_path / f"app/src/main/java/{package_name.replace('.', '/')}/worker/{worker_name}Worker.kt"
+
+        worker_path = (
+            self.project_path
+            / f"app/src/main/java/{package_name.replace('.', '/')}/worker/{worker_name}Worker.kt"
+        )
         worker_path.parent.mkdir(parents=True, exist_ok=True)
-        
+
         constraints_code = ""
         if constraints:
             constraints_code = f"""
@@ -892,8 +1233,8 @@ class {feature_name}Repository @Inject constructor(
                           f'.setRequiresCharging(true)' if 'charging' in constraints else ''])}
             .build()
 """
-        
-        worker_content = f'''package {package_name}.worker
+
+        worker_content = f"""package {package_name}.worker
 
 import android.content.Context
 import androidx.work.*
@@ -937,49 +1278,49 @@ class {worker_name}Worker @AssistedInject constructor(
         }}
     }}
 }}
-'''
-        
-        worker_path.write_text(worker_content, encoding='utf-8')
-        
+"""
+
+        worker_path.write_text(worker_content, encoding="utf-8")
+
         return {
             "content": [
-                {
-                    "type": "text",
-                    "text": f"Created WorkManager worker: {worker_name}Worker.kt"
-                }
+                {"type": "text", "text": f"Created WorkManager worker: {worker_name}Worker.kt"}
             ]
         }
-    
+
     async def _setup_coroutines_flow(self, arguments: dict) -> dict:
         """Set up Kotlin Coroutines and Flow"""
         class_name = arguments["class_name"]
         package_name = arguments["package_name"]
         flow_type = arguments.get("flow_type", "state_flow")
         use_viewmodel_scope = arguments.get("use_viewmodel_scope", True)
-        
-        flow_path = self.project_path / f"app/src/main/java/{package_name.replace('.', '/')}/flow/{class_name}.kt"
+
+        flow_path = (
+            self.project_path
+            / f"app/src/main/java/{package_name.replace('.', '/')}/flow/{class_name}.kt"
+        )
         flow_path.parent.mkdir(parents=True, exist_ok=True)
-        
+
         imports = f"package {package_name}.flow\n\n"
         imports += "import kotlinx.coroutines.*\n"
         imports += "import kotlinx.coroutines.flow.*\n"
-        
+
         if use_viewmodel_scope:
             imports += "import androidx.lifecycle.ViewModel\n"
             imports += "import androidx.lifecycle.viewModelScope\n"
             imports += "import dagger.hilt.android.lifecycle.HiltViewModel\n"
             imports += "import javax.inject.Inject\n"
-        
+
         flow_implementations = {
-            "state_flow": f'''
+            "state_flow": f"""
     private val _dataFlow = MutableStateFlow<String>("")
     val dataFlow: StateFlow<String> = _dataFlow.asStateFlow()
     
     fun updateData(newData: String) {{
         _dataFlow.value = newData
     }}
-''',
-            "shared_flow": f'''
+""",
+            "shared_flow": f"""
     private val _eventFlow = MutableSharedFlow<String>()
     val eventFlow: SharedFlow<String> = _eventFlow.asSharedFlow()
     
@@ -988,122 +1329,134 @@ class {worker_name}Worker @AssistedInject constructor(
             _eventFlow.emit(event)
         }}
     }}
-''',
-            "flow": f'''
+""",
+            "flow": f"""
     fun getDataFlow(): Flow<String> = flow {{
         // TODO: Implement your data emission logic
         emit("Sample data")
         delay(1000)
         emit("Updated data")
     }}
-'''
+""",
         }
-        
-        class_declaration = f"@HiltViewModel\nclass {class_name} @Inject constructor() : ViewModel()" if use_viewmodel_scope else f"class {class_name}"
-        
-        flow_content = f'''{imports}
+
+        class_declaration = (
+            f"@HiltViewModel\nclass {class_name} @Inject constructor() : ViewModel()"
+            if use_viewmodel_scope
+            else f"class {class_name}"
+        )
+
+        flow_content = f"""{imports}
 
 {class_declaration} {{
 {flow_implementations.get(flow_type, flow_implementations["state_flow"])}
 }}
-'''
-        
-        flow_path.write_text(flow_content, encoding='utf-8')
-        
+"""
+
+        flow_path.write_text(flow_content, encoding="utf-8")
+
         return {
             "content": [
                 {
                     "type": "text",
-                    "text": f"Created Coroutines/Flow implementation: {class_name}.kt with {flow_type}"
+                    "text": f"Created Coroutines/Flow implementation: {class_name}.kt with {flow_type}",
                 }
             ]
         }
-    
+
     async def _create_firebase_integration(self, arguments: dict) -> dict:
         """Create Firebase services integration"""
         services = arguments["services"]
         package_name = arguments["package_name"]
         include_crashlytics = arguments.get("include_crashlytics", True)
-        
-        firebase_path = self.project_path / f"app/src/main/java/{package_name.replace('.', '/')}/firebase/FirebaseManager.kt"
+
+        firebase_path = (
+            self.project_path
+            / f"app/src/main/java/{package_name.replace('.', '/')}/firebase/FirebaseManager.kt"
+        )
         firebase_path.parent.mkdir(parents=True, exist_ok=True)
-        
+
         imports = f"package {package_name}.firebase\n\n"
-        
+
         service_imports = {
             "auth": "import com.google.firebase.auth.FirebaseAuth\n",
             "firestore": "import com.google.firebase.firestore.FirebaseFirestore\n",
             "analytics": "import com.google.firebase.analytics.FirebaseAnalytics\n",
             "storage": "import com.google.firebase.storage.FirebaseStorage\n",
-            "messaging": "import com.google.firebase.messaging.FirebaseMessaging\n"
+            "messaging": "import com.google.firebase.messaging.FirebaseMessaging\n",
         }
-        
+
         for service in services:
             if service in service_imports:
                 imports += service_imports[service]
-        
+
         if include_crashlytics:
             imports += "import com.google.firebase.crashlytics.FirebaseCrashlytics\n"
-        
+
         imports += "import javax.inject.Inject\nimport javax.inject.Singleton\n"
-        
+
         service_properties = ""
         service_methods = ""
-        
+
         for service in services:
             if service == "auth":
                 service_properties += "    private val auth = FirebaseAuth.getInstance()\n"
-                service_methods += '''
+                service_methods += """
     fun signInWithEmail(email: String, password: String, callback: (Boolean) -> Unit) {
         auth.signInWithEmailAndPassword(email, password)
             .addOnCompleteListener { task ->
                 callback(task.isSuccessful)
             }
     }
-'''
+"""
             elif service == "firestore":
-                service_properties += "    private val firestore = FirebaseFirestore.getInstance()\n"
-                service_methods += '''
+                service_properties += (
+                    "    private val firestore = FirebaseFirestore.getInstance()\n"
+                )
+                service_methods += """
     fun saveToFirestore(collection: String, data: Map<String, Any>, callback: (Boolean) -> Unit) {
         firestore.collection(collection)
             .add(data)
             .addOnSuccessListener { callback(true) }
             .addOnFailureListener { callback(false) }
     }
-'''
-        
-        firebase_content = f'''{imports}
+"""
+
+        firebase_content = f"""{imports}
 
 @Singleton
 class FirebaseManager @Inject constructor() {{
 {service_properties}
 {service_methods}
 }}
-'''
-        
-        firebase_path.write_text(firebase_content, encoding='utf-8')
-        
+"""
+
+        firebase_path.write_text(firebase_content, encoding="utf-8")
+
         return {
             "content": [
                 {
                     "type": "text",
-                    "text": f"Created Firebase integration with services: {', '.join(services)}"
+                    "text": f"Created Firebase integration with services: {', '.join(services)}",
                 }
             ]
         }
-    
+
     async def _setup_data_store(self, arguments: dict) -> dict:
         """Set up Jetpack DataStore"""
         store_name = arguments["store_name"]
         package_name = arguments["package_name"]
         store_type = arguments.get("store_type", "preferences")
         keys = arguments.get("keys", [])
-        
-        datastore_path = self.project_path / f"app/src/main/java/{package_name.replace('.', '/')}/datastore/{store_name}DataStore.kt"
+
+        datastore_path = (
+            self.project_path
+            / f"app/src/main/java/{package_name.replace('.', '/')}/datastore/{store_name}DataStore.kt"
+        )
         datastore_path.parent.mkdir(parents=True, exist_ok=True)
-        
+
         if store_type == "preferences":
-            datastore_content = f'''package {package_name}.datastore
+            datastore_content = f"""package {package_name}.datastore
 
 import android.content.Context
 import androidx.datastore.core.DataStore
@@ -1136,9 +1489,9 @@ class {store_name}DataStore @Inject constructor(private val context: Context) {{
         }}
     }}''' for key in keys])}
 }}
-'''
+"""
         else:  # proto datastore
-            datastore_content = f'''package {package_name}.datastore
+            datastore_content = f"""package {package_name}.datastore
 
 import android.content.Context
 import androidx.datastore.core.DataStore
@@ -1155,31 +1508,49 @@ class {store_name}DataStore @Inject constructor(private val context: Context) {{
     // TODO: Implement proto DataStore methods
     
 }}
-'''
-        
-        datastore_path.write_text(datastore_content, encoding='utf-8')
-        
+"""
+
+        datastore_path.write_text(datastore_content, encoding="utf-8")
+
         return {
             "content": [
                 {
                     "type": "text",
-                    "text": f"Created {store_type} DataStore: {store_name}DataStore.kt"
+                    "text": f"Created {store_type} DataStore: {store_name}DataStore.kt",
                 }
             ]
         }
-    
+
     # Placeholder implementations for remaining methods
     async def _create_permission_handler(self, arguments: dict) -> dict:
-        return {"content": [{"type": "text", "text": "Permission handler created (implementation needed)"}]}
-    
+        return {
+            "content": [
+                {"type": "text", "text": "Permission handler created (implementation needed)"}
+            ]
+        }
+
     async def _setup_biometric_auth(self, arguments: dict) -> dict:
-        return {"content": [{"type": "text", "text": "Biometric auth setup created (implementation needed)"}]}
-    
+        return {
+            "content": [
+                {"type": "text", "text": "Biometric auth setup created (implementation needed)"}
+            ]
+        }
+
     async def _create_notification_system(self, arguments: dict) -> dict:
-        return {"content": [{"type": "text", "text": "Notification system created (implementation needed)"}]}
-    
+        return {
+            "content": [
+                {"type": "text", "text": "Notification system created (implementation needed)"}
+            ]
+        }
+
     async def _setup_camera_integration(self, arguments: dict) -> dict:
-        return {"content": [{"type": "text", "text": "Camera integration setup created (implementation needed)"}]}
-    
+        return {
+            "content": [
+                {"type": "text", "text": "Camera integration setup created (implementation needed)"}
+            ]
+        }
+
     async def _create_media_player(self, arguments: dict) -> dict:
-        return {"content": [{"type": "text", "text": "Media player created (implementation needed)"}]}
+        return {
+            "content": [{"type": "text", "text": "Media player created (implementation needed)"}]
+        }

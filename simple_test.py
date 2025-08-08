@@ -4,13 +4,16 @@ Simplified test suite for MCP server functionality
 """
 
 import asyncio
-import pytest
-import pytest_asyncio
-import tempfile
 import json
 import os
+import tempfile
 from pathlib import Path
+
+import pytest
+import pytest_asyncio
+
 from ai_integration_server import AIIntegratedMCPServer
+
 
 class TestMCPServerBasic:
     """Test basic MCP server functionality"""
@@ -41,41 +44,48 @@ class TestMCPServerBasic:
     @pytest.mark.asyncio
     async def test_gdpr_compliance_implementation(self, server):
         """Test GDPR compliance feature implementation"""
-        result = await server.handle_tool_call({
-            "name": "implement_gdpr_compliance",
-            "arguments": {
-                "package_name": "com.example.app",
-                "features": ["consent_management", "data_portability", "right_to_erasure"]
+        result = await server.handle_tool_call(
+            {
+                "name": "implement_gdpr_compliance",
+                "arguments": {
+                    "package_name": "com.example.app",
+                    "features": ["consent_management", "data_portability", "right_to_erasure"],
+                },
             }
-        })
+        )
         assert result.get("success") == True
 
     @pytest.mark.asyncio
     async def test_llm_query_local(self, server):
         """Test local LLM integration"""
-        result = await server.handle_tool_call({
-            "name": "query_llm",
-            "arguments": {
-                "prompt": "Generate a Kotlin data class for User",
-                "llm_provider": "local",
-                "privacy_mode": True
+        result = await server.handle_tool_call(
+            {
+                "name": "query_llm",
+                "arguments": {
+                    "prompt": "Generate a Kotlin data class for User",
+                    "llm_provider": "local",
+                    "privacy_mode": True,
+                },
             }
-        })
+        )
         assert result.get("success") == True
 
     @pytest.mark.asyncio
     async def test_code_generation_with_ai(self, server):
         """Test AI-powered code generation"""
-        result = await server.handle_tool_call({
-            "name": "generate_code_with_ai",
-            "arguments": {
-                "description": "Create a login screen with validation",
-                "code_type": "component",
-                "framework": "compose",
-                "compliance_requirements": ["gdpr"]
+        result = await server.handle_tool_call(
+            {
+                "name": "generate_code_with_ai",
+                "arguments": {
+                    "description": "Create a login screen with validation",
+                    "code_type": "component",
+                    "framework": "compose",
+                    "compliance_requirements": ["gdpr"],
+                },
             }
-        })
+        )
         assert result.get("success") == True
+
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])

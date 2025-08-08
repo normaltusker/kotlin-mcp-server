@@ -8,6 +8,7 @@ import sys
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Sequence
 
+
 # Simple MCP server implementation that works with standard MCP clients
 class MCPServer:
     def __init__(self, name: str):
@@ -18,17 +19,11 @@ class MCPServer:
         return {
             "protocolVersion": "2024-11-05",
             "capabilities": {
-                "resources": {
-                    "subscribe": False,
-                    "listChanged": False
-                },
+                "resources": {"subscribe": False, "listChanged": False},
                 "tools": {},
-                "logging": {}
+                "logging": {},
             },
-            "serverInfo": {
-                "name": self.name,
-                "version": "1.0.0"
-            }
+            "serverInfo": {"name": self.name, "version": "1.0.0"},
         }
 
     async def handle_list_resources(self) -> dict:
@@ -40,20 +35,26 @@ class MCPServer:
         # Add Android config files
         android_files = [
             "app/src/main/AndroidManifest.xml",
-            "app/build.gradle.kts", "app/build.gradle",
-            "build.gradle.kts", "build.gradle",
-            "gradle.properties", "settings.gradle.kts", "settings.gradle"
+            "app/build.gradle.kts",
+            "app/build.gradle",
+            "build.gradle.kts",
+            "build.gradle",
+            "gradle.properties",
+            "settings.gradle.kts",
+            "settings.gradle",
         ]
 
         for file_path in android_files:
             full_path = self.project_path / file_path
             if full_path.exists():
-                resources.append({
-                    "uri": f"file://{full_path}",
-                    "name": f"Android Config: {file_path}",
-                    "description": f"Android project configuration: {file_path}",
-                    "mimeType": "text/plain"
-                })
+                resources.append(
+                    {
+                        "uri": f"file://{full_path}",
+                        "name": f"Android Config: {file_path}",
+                        "description": f"Android project configuration: {file_path}",
+                        "mimeType": "text/plain",
+                    }
+                )
 
         # Add Kotlin source files
         kotlin_dirs = ["app/src/main/java", "app/src/main/kotlin"]
@@ -62,24 +63,28 @@ class MCPServer:
             if kotlin_path.exists():
                 for kt_file in kotlin_path.rglob("*.kt"):
                     rel_path = kt_file.relative_to(self.project_path)
-                    resources.append({
-                        "uri": f"file://{kt_file}",
-                        "name": f"Kotlin: {rel_path}",
-                        "description": f"Kotlin source: {rel_path}",
-                        "mimeType": "text/x-kotlin"
-                    })
+                    resources.append(
+                        {
+                            "uri": f"file://{kt_file}",
+                            "name": f"Kotlin: {rel_path}",
+                            "description": f"Kotlin source: {rel_path}",
+                            "mimeType": "text/x-kotlin",
+                        }
+                    )
 
         # Add layout files
         layout_dir = self.project_path / "app/src/main/res/layout"
         if layout_dir.exists():
             for layout_file in layout_dir.glob("*.xml"):
                 rel_path = layout_file.relative_to(self.project_path)
-                resources.append({
-                    "uri": f"file://{layout_file}",
-                    "name": f"Layout: {layout_file.name}",
-                    "description": f"Android layout: {rel_path}",
-                    "mimeType": "application/xml"
-                })
+                resources.append(
+                    {
+                        "uri": f"file://{layout_file}",
+                        "name": f"Layout: {layout_file.name}",
+                        "description": f"Android layout: {rel_path}",
+                        "mimeType": "application/xml",
+                    }
+                )
 
         return {"resources": resources}
 
@@ -93,23 +98,15 @@ class MCPServer:
             raise FileNotFoundError(f"Resource not found: {path}")
 
         try:
-            content = path.read_text(encoding='utf-8')
-            return {
-                "contents": [
-                    {
-                        "uri": uri,
-                        "mimeType": "text/plain",
-                        "text": content
-                    }
-                ]
-            }
+            content = path.read_text(encoding="utf-8")
+            return {"contents": [{"uri": uri, "mimeType": "text/plain", "text": content}]}
         except UnicodeDecodeError:
             return {
                 "contents": [
                     {
                         "uri": uri,
                         "mimeType": "application/octet-stream",
-                        "text": f"Binary file: {path.name}"
+                        "text": f"Binary file: {path.name}",
                     }
                 ]
             }
@@ -126,15 +123,15 @@ class MCPServer:
                             "task": {
                                 "type": "string",
                                 "description": "Gradle task (e.g. 'assembleDebug', 'test')",
-                                "default": "assembleDebug"
+                                "default": "assembleDebug",
                             },
                             "clean": {
                                 "type": "boolean",
                                 "description": "Run clean before task",
-                                "default": False
-                            }
-                        }
-                    }
+                                "default": False,
+                            },
+                        },
+                    },
                 },
                 {
                     "name": "run_tests",
@@ -146,10 +143,10 @@ class MCPServer:
                                 "type": "string",
                                 "enum": ["unit", "instrumented", "all"],
                                 "description": "Type of tests to run",
-                                "default": "unit"
+                                "default": "unit",
                             }
-                        }
-                    }
+                        },
+                    },
                 },
                 {
                     "name": "create_kotlin_file",
@@ -159,25 +156,25 @@ class MCPServer:
                         "properties": {
                             "file_path": {
                                 "type": "string",
-                                "description": "Relative path for new file"
+                                "description": "Relative path for new file",
                             },
-                            "package_name": {
-                                "type": "string",
-                                "description": "Package name"
-                            },
-                            "class_name": {
-                                "type": "string",
-                                "description": "Class name"
-                            },
+                            "package_name": {"type": "string", "description": "Package name"},
+                            "class_name": {"type": "string", "description": "Class name"},
                             "class_type": {
                                 "type": "string",
-                                "enum": ["activity", "fragment", "class", "data_class", "interface"],
+                                "enum": [
+                                    "activity",
+                                    "fragment",
+                                    "class",
+                                    "data_class",
+                                    "interface",
+                                ],
                                 "description": "Type of class",
-                                "default": "class"
-                            }
+                                "default": "class",
+                            },
                         },
-                        "required": ["file_path", "package_name", "class_name"]
-                    }
+                        "required": ["file_path", "package_name", "class_name"],
+                    },
                 },
                 {
                     "name": "create_layout_file",
@@ -187,17 +184,17 @@ class MCPServer:
                         "properties": {
                             "layout_name": {
                                 "type": "string",
-                                "description": "Layout file name (without .xml)"
+                                "description": "Layout file name (without .xml)",
                             },
                             "layout_type": {
                                 "type": "string",
                                 "enum": ["activity", "fragment", "item", "custom"],
                                 "description": "Layout type",
-                                "default": "activity"
-                            }
+                                "default": "activity",
+                            },
                         },
-                        "required": ["layout_name"]
-                    }
+                        "required": ["layout_name"],
+                    },
                 },
                 {
                     "name": "analyze_project",
@@ -209,24 +206,17 @@ class MCPServer:
                                 "type": "string",
                                 "enum": ["structure", "dependencies", "manifest", "all"],
                                 "description": "Analysis type",
-                                "default": "all"
+                                "default": "all",
                             }
-                        }
-                    }
-                }
+                        },
+                    },
+                },
             ]
         }
 
     async def handle_call_tool(self, name: str, arguments: dict) -> dict:
         if not self.project_path:
-            return {
-                "content": [
-                    {
-                        "type": "text",
-                        "text": "Error: No project path set"
-                    }
-                ]
-            }
+            return {"content": [{"type": "text", "text": "Error: No project path set"}]}
 
         try:
             if name == "gradle_build":
@@ -240,23 +230,9 @@ class MCPServer:
             elif name == "analyze_project":
                 return await self._analyze_project(arguments)
             else:
-                return {
-                    "content": [
-                        {
-                            "type": "text",
-                            "text": f"Unknown tool: {name}"
-                        }
-                    ]
-                }
+                return {"content": [{"type": "text", "text": f"Unknown tool: {name}"}]}
         except Exception as e:
-            return {
-                "content": [
-                    {
-                        "type": "text",
-                        "text": f"Error executing {name}: {str(e)}"
-                    }
-                ]
-            }
+            return {"content": [{"type": "text", "text": f"Error executing {name}: {str(e)}"}]}
 
     async def _gradle_build(self, arguments: dict) -> dict:
         task = arguments.get("task", "assembleDebug")
@@ -271,11 +247,7 @@ class MCPServer:
         for cmd in commands:
             try:
                 result = subprocess.run(
-                    cmd.split(),
-                    cwd=self.project_path,
-                    capture_output=True,
-                    text=True,
-                    timeout=300
+                    cmd.split(), cwd=self.project_path, capture_output=True, text=True, timeout=300
                 )
 
                 output = f"Command: {cmd}\nExit code: {result.returncode}\n"
@@ -290,14 +262,7 @@ class MCPServer:
             except Exception as e:
                 output_parts.append(f"Failed to execute {cmd}: {str(e)}")
 
-        return {
-            "content": [
-                {
-                    "type": "text",
-                    "text": "\n".join(output_parts)
-                }
-            ]
-        }
+        return {"content": [{"type": "text", "text": "\n".join(output_parts)}]}
 
     async def _run_tests(self, arguments: dict) -> dict:
         test_type = arguments.get("test_type", "unit")
@@ -305,7 +270,7 @@ class MCPServer:
         task_map = {
             "unit": "test",
             "instrumented": "connectedAndroidTest",
-            "all": "test connectedAndroidTest"
+            "all": "test connectedAndroidTest",
         }
 
         task = task_map.get(test_type, "test")
@@ -316,7 +281,7 @@ class MCPServer:
                 cwd=self.project_path,
                 capture_output=True,
                 text=True,
-                timeout=600
+                timeout=600,
             )
 
             output = f"Running {test_type} tests\n"
@@ -326,24 +291,10 @@ class MCPServer:
             if result.stderr:
                 output += f"Errors:\n{result.stderr}\n"
 
-            return {
-                "content": [
-                    {
-                        "type": "text",
-                        "text": output
-                    }
-                ]
-            }
+            return {"content": [{"type": "text", "text": output}]}
 
         except Exception as e:
-            return {
-                "content": [
-                    {
-                        "type": "text",
-                        "text": f"Failed to run tests: {str(e)}"
-                    }
-                ]
-            }
+            return {"content": [{"type": "text", "text": f"Failed to run tests: {str(e)}"}]}
 
     async def _create_kotlin_file(self, arguments: dict) -> dict:
         file_path = arguments["file_path"]
@@ -355,7 +306,7 @@ class MCPServer:
         full_path.parent.mkdir(parents=True, exist_ok=True)
 
         templates = {
-            "activity": f'''package {package_name}
+            "activity": f"""package {package_name}
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
@@ -366,8 +317,8 @@ class {class_name} : AppCompatActivity() {{
         // TODO: Set content view
     }}
 }}
-''',
-            "fragment": f'''package {package_name}
+""",
+            "fragment": f"""package {package_name}
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -386,48 +337,36 @@ class {class_name} : Fragment() {{
         return super.onCreateView(inflater, container, savedInstanceState)
     }}
 }}
-''',
-            "data_class": f'''package {package_name}
+""",
+            "data_class": f"""package {package_name}
 
 data class {class_name}(
     // TODO: Add properties
 )
-''',
-            "interface": f'''package {package_name}
+""",
+            "interface": f"""package {package_name}
 
 interface {class_name} {{
     // TODO: Add methods
 }}
-''',
-            "class": f'''package {package_name}
+""",
+            "class": f"""package {package_name}
 
 class {class_name} {{
     // TODO: Add implementation
 }}
-'''
+""",
         }
 
         content = templates.get(class_type, templates["class"])
 
         try:
-            full_path.write_text(content, encoding='utf-8')
+            full_path.write_text(content, encoding="utf-8")
             return {
-                "content": [
-                    {
-                        "type": "text",
-                        "text": f"Created Kotlin {class_type}: {file_path}"
-                    }
-                ]
+                "content": [{"type": "text", "text": f"Created Kotlin {class_type}: {file_path}"}]
             }
         except Exception as e:
-            return {
-                "content": [
-                    {
-                        "type": "text",
-                        "text": f"Failed to create file: {str(e)}"
-                    }
-                ]
-            }
+            return {"content": [{"type": "text", "text": f"Failed to create file: {str(e)}"}]}
 
     async def _create_layout_file(self, arguments: dict) -> dict:
         layout_name = arguments["layout_name"]
@@ -437,7 +376,7 @@ class {class_name} {{
         layout_path.parent.mkdir(parents=True, exist_ok=True)
 
         templates = {
-            "activity": '''<?xml version="1.0" encoding="utf-8"?>
+            "activity": """<?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout 
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -455,8 +394,8 @@ class {class_name} {{
         app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
-''',
-            "fragment": '''<?xml version="1.0" encoding="utf-8"?>
+""",
+            "fragment": """<?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
@@ -467,8 +406,8 @@ class {class_name} {{
         android:text="Fragment content" />
 
 </FrameLayout>
-''',
-            "item": '''<?xml version="1.0" encoding="utf-8"?>
+""",
+            "item": """<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -478,8 +417,8 @@ class {class_name} {{
     <!-- Item content -->
 
 </LinearLayout>
-''',
-            "custom": '''<?xml version="1.0" encoding="utf-8"?>
+""",
+            "custom": """<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -488,30 +427,16 @@ class {class_name} {{
     <!-- Custom content -->
 
 </LinearLayout>
-'''
+""",
         }
 
         content = templates.get(layout_type, templates["custom"])
 
         try:
-            layout_path.write_text(content, encoding='utf-8')
-            return {
-                "content": [
-                    {
-                        "type": "text",
-                        "text": f"Created layout: {layout_name}.xml"
-                    }
-                ]
-            }
+            layout_path.write_text(content, encoding="utf-8")
+            return {"content": [{"type": "text", "text": f"Created layout: {layout_name}.xml"}]}
         except Exception as e:
-            return {
-                "content": [
-                    {
-                        "type": "text",
-                        "text": f"Failed to create layout: {str(e)}"
-                    }
-                ]
-            }
+            return {"content": [{"type": "text", "text": f"Failed to create layout: {str(e)}"}]}
 
     async def _analyze_project(self, arguments: dict) -> dict:
         analysis_type = arguments.get("analysis_type", "all")
@@ -530,19 +455,15 @@ class {class_name} {{
             manifest = self._analyze_manifest()
             results.append(f"Manifest:\n{manifest}")
 
-        return {
-            "content": [
-                {
-                    "type": "text",
-                    "text": "\n\n".join(results)
-                }
-            ]
-        }
+        return {"content": [{"type": "text", "text": "\n\n".join(results)}]}
 
     def _analyze_structure(self) -> str:
         important_dirs = [
-            "app/src/main/java", "app/src/main/kotlin",
-            "app/src/main/res", "app/src/test", "app/src/androidTest"
+            "app/src/main/java",
+            "app/src/main/kotlin",
+            "app/src/main/res",
+            "app/src/test",
+            "app/src/androidTest",
         ]
 
         structure = []
@@ -557,7 +478,12 @@ class {class_name} {{
         return "\n".join(structure)
 
     def _analyze_dependencies(self) -> str:
-        gradle_files = ["app/build.gradle", "app/build.gradle.kts", "build.gradle", "build.gradle.kts"]
+        gradle_files = [
+            "app/build.gradle",
+            "app/build.gradle.kts",
+            "build.gradle",
+            "build.gradle.kts",
+        ]
 
         deps_info = []
         for gradle_file in gradle_files:
@@ -656,9 +582,14 @@ def main():
                     elif method == "tools/list":
                         response["result"] = asyncio.run(server.handle_list_tools())
                     elif method == "tools/call":
-                        response["result"] = asyncio.run(server.handle_call_tool(params["name"], params.get("arguments", {})))
+                        response["result"] = asyncio.run(
+                            server.handle_call_tool(params["name"], params.get("arguments", {}))
+                        )
                     else:
-                        response["error"] = {"code": -32601, "message": f"Method not found: {method}"}
+                        response["error"] = {
+                            "code": -32601,
+                            "message": f"Method not found: {method}",
+                        }
                 except Exception as e:
                     response["error"] = {"code": -32603, "message": str(e)}
                     print(f"Error handling {method}: {e}", file=sys.stderr)
