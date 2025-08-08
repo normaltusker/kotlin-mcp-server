@@ -1,0 +1,11 @@
+# Core dependencies
+aider-chat==0.85.5
+python-dotenv
+
+# Optional integrations for model routing and API compatibility
+openai>=1.3.5         # For OpenAI models directly
+litellm>=1.28.3       # For unified LLM interface (OpenAI, Azure, Anthropic, etc.)
+
+# Developer tooling (optional)
+requests              # For custom API calls if needed
+tqdm                  # For progress bars in scripts
