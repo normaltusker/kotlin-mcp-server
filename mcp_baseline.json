@@ -1,0 +1,1305 @@
+{
+  "monitoring_timestamp": 1754658268.4311218,
+  "servers": {
+    "Base": {
+      "server_name": "Base",
+      "timestamp": 1754658268.4321642,
+      "tools": [
+        {
+          "name": "gradle_build",
+          "description": "Build Android project using Gradle",
+          "has_schema": true,
+          "required_params": []
+        },
+        {
+          "name": "run_tests",
+          "description": "Run Android tests",
+          "has_schema": true,
+          "required_params": []
+        },
+        {
+          "name": "create_kotlin_file",
+          "description": "Create new Kotlin file with template",
+          "has_schema": true,
+          "required_params": [
+            "file_path",
+            "package_name",
+            "class_name"
+          ]
+        },
+        {
+          "name": "create_layout_file",
+          "description": "Create new Android layout XML",
+          "has_schema": true,
+          "required_params": [
+            "layout_name"
+          ]
+        },
+        {
+          "name": "analyze_project",
+          "description": "Analyze Android project structure",
+          "has_schema": true,
+          "required_params": []
+        }
+      ],
+      "basic_operations": {
+        "create_kotlin_file": {
+          "success": false,
+          "duration": 0.00021004676818847656,
+          "has_error": false
+        },
+        "create_layout_file": {
+          "success": false,
+          "duration": 2.86102294921875e-06,
+          "has_error": false
+        }
+      },
+      "performance_metrics": {
+        "tool_list_time": 4.76837158203125e-06,
+        "tool_count": 5
+      }
+    },
+    "Enhanced": {
+      "server_name": "Enhanced",
+      "timestamp": 1754658268.4329631,
+      "tools": [
+        {
+          "name": "gradle_build",
+          "description": "Build Android project using Gradle",
+          "has_schema": true,
+          "required_params": []
+        },
+        {
+          "name": "run_tests",
+          "description": "Run Android tests",
+          "has_schema": true,
+          "required_params": []
+        },
+        {
+          "name": "create_kotlin_file",
+          "description": "Create new Kotlin file with template",
+          "has_schema": true,
+          "required_params": [
+            "file_path",
+            "package_name",
+            "class_name"
+          ]
+        },
+        {
+          "name": "create_layout_file",
+          "description": "Create new Android layout XML",
+          "has_schema": true,
+          "required_params": [
+            "layout_name"
+          ]
+        },
+        {
+          "name": "analyze_project",
+          "description": "Analyze Android project structure",
+          "has_schema": true,
+          "required_params": []
+        },
+        {
+          "name": "create_compose_component",
+          "description": "Create Jetpack Compose UI components",
+          "has_schema": true,
+          "required_params": [
+            "file_path",
+            "component_name",
+            "package_name"
+          ]
+        },
+        {
+          "name": "create_custom_view",
+          "description": "Create custom Android View components",
+          "has_schema": true,
+          "required_params": [
+            "file_path",
+            "view_name",
+            "package_name"
+          ]
+        },
+        {
+          "name": "setup_mvvm_architecture",
+          "description": "Set up MVVM architecture pattern with ViewModel and Repository",
+          "has_schema": true,
+          "required_params": [
+            "feature_name",
+            "package_name"
+          ]
+        },
+        {
+          "name": "setup_dependency_injection",
+          "description": "Set up Hilt dependency injection",
+          "has_schema": true,
+          "required_params": [
+            "module_name",
+            "package_name"
+          ]
+        },
+        {
+          "name": "setup_room_database",
+          "description": "Set up Room database with entities and DAOs",
+          "has_schema": true,
+          "required_params": [
+            "database_name",
+            "package_name",
+            "entities"
+          ]
+        },
+        {
+          "name": "setup_retrofit_api",
+          "description": "Set up Retrofit API client with endpoints",
+          "has_schema": true,
+          "required_params": [
+            "api_name",
+            "package_name",
+            "base_url"
+          ]
+        },
+        {
+          "name": "create_complex_layout",
+          "description": "Create complex layouts with RecyclerView, ViewPager, etc.",
+          "has_schema": true,
+          "required_params": [
+            "layout_name",
+            "layout_complexity"
+          ]
+        },
+        {
+          "name": "generate_test_suite",
+          "description": "Generate comprehensive test suites",
+          "has_schema": true,
+          "required_params": [
+            "class_to_test"
+          ]
+        },
+        {
+          "name": "configure_build_variants",
+          "description": "Configure build variants and flavors",
+          "has_schema": true,
+          "required_params": [
+            "variants"
+          ]
+        },
+        {
+          "name": "setup_navigation_component",
+          "description": "Set up Android Navigation Component with destinations",
+          "has_schema": true,
+          "required_params": [
+            "graph_name",
+            "destinations"
+          ]
+        },
+        {
+          "name": "create_work_manager_worker",
+          "description": "Create WorkManager worker for background tasks",
+          "has_schema": true,
+          "required_params": [
+            "worker_name",
+            "package_name"
+          ]
+        },
+        {
+          "name": "setup_coroutines_flow",
+          "description": "Set up Kotlin Coroutines and Flow for async operations",
+          "has_schema": true,
+          "required_params": [
+            "class_name",
+            "package_name"
+          ]
+        },
+        {
+          "name": "create_firebase_integration",
+          "description": "Set up Firebase services integration",
+          "has_schema": true,
+          "required_params": [
+            "services",
+            "package_name"
+          ]
+        },
+        {
+          "name": "setup_data_store",
+          "description": "Set up Jetpack DataStore for modern data persistence",
+          "has_schema": true,
+          "required_params": [
+            "store_name",
+            "package_name"
+          ]
+        },
+        {
+          "name": "create_permission_handler",
+          "description": "Create runtime permission handling with modern patterns",
+          "has_schema": true,
+          "required_params": [
+            "permissions",
+            "package_name"
+          ]
+        },
+        {
+          "name": "setup_biometric_auth",
+          "description": "Set up biometric authentication",
+          "has_schema": true,
+          "required_params": [
+            "auth_class_name",
+            "package_name"
+          ]
+        },
+        {
+          "name": "create_notification_system",
+          "description": "Create modern notification system with channels",
+          "has_schema": true,
+          "required_params": [
+            "notification_class",
+            "package_name",
+            "channels"
+          ]
+        },
+        {
+          "name": "setup_camera_integration",
+          "description": "Set up CameraX integration for camera features",
+          "has_schema": true,
+          "required_params": [
+            "camera_class",
+            "package_name",
+            "features"
+          ]
+        },
+        {
+          "name": "create_media_player",
+          "description": "Create media player with ExoPlayer integration",
+          "has_schema": true,
+          "required_params": [
+            "player_class",
+            "package_name"
+          ]
+        },
+        {
+          "name": "setup_security_crypto",
+          "description": "Set up Android Security Crypto for data encryption",
+          "has_schema": true,
+          "required_params": [
+            "crypto_class",
+            "package_name"
+          ]
+        },
+        {
+          "name": "create_accessibility_features",
+          "description": "Create accessibility features and content descriptions",
+          "has_schema": true,
+          "required_params": [
+            "screen_name",
+            "package_name"
+          ]
+        },
+        {
+          "name": "setup_in_app_updates",
+          "description": "Set up Google Play In-App Updates",
+          "has_schema": true,
+          "required_params": [
+            "update_class",
+            "package_name"
+          ]
+        },
+        {
+          "name": "create_dynamic_features",
+          "description": "Create dynamic feature modules",
+          "has_schema": true,
+          "required_params": [
+            "feature_name"
+          ]
+        },
+        {
+          "name": "setup_ml_kit_integration",
+          "description": "Set up ML Kit for machine learning features",
+          "has_schema": true,
+          "required_params": [
+            "ml_features",
+            "package_name"
+          ]
+        },
+        {
+          "name": "create_file_manager",
+          "description": "Create comprehensive file manager with storage access",
+          "has_schema": true,
+          "required_params": [
+            "manager_name",
+            "package_name"
+          ]
+        },
+        {
+          "name": "setup_document_provider",
+          "description": "Set up document provider for file sharing",
+          "has_schema": true,
+          "required_params": [
+            "provider_name",
+            "package_name"
+          ]
+        },
+        {
+          "name": "create_media_scanner",
+          "description": "Create media scanner for indexing files",
+          "has_schema": true,
+          "required_params": [
+            "scanner_name",
+            "package_name"
+          ]
+        },
+        {
+          "name": "create_api_client",
+          "description": "Create comprehensive API client with error handling and caching",
+          "has_schema": true,
+          "required_params": [
+            "client_name",
+            "package_name",
+            "base_url"
+          ]
+        },
+        {
+          "name": "setup_graphql_client",
+          "description": "Set up GraphQL client with Apollo or custom implementation",
+          "has_schema": true,
+          "required_params": [
+            "client_name",
+            "package_name",
+            "graphql_endpoint"
+          ]
+        },
+        {
+          "name": "create_websocket_client",
+          "description": "Create WebSocket client for real-time communication",
+          "has_schema": true,
+          "required_params": [
+            "client_name",
+            "package_name",
+            "websocket_url"
+          ]
+        },
+        {
+          "name": "setup_third_party_apis",
+          "description": "Set up integration with popular third-party APIs",
+          "has_schema": true,
+          "required_params": [
+            "api_providers",
+            "package_name"
+          ]
+        },
+        {
+          "name": "create_api_cache_manager",
+          "description": "Create API response caching system",
+          "has_schema": true,
+          "required_params": [
+            "cache_name",
+            "package_name"
+          ]
+        },
+        {
+          "name": "setup_offline_sync",
+          "description": "Set up offline synchronization for API data",
+          "has_schema": true,
+          "required_params": [
+            "sync_manager_name",
+            "package_name"
+          ]
+        }
+      ],
+      "basic_operations": {
+        "create_kotlin_file": {
+          "success": false,
+          "duration": 0.00026488304138183594,
+          "has_error": false
+        },
+        "create_layout_file": {
+          "success": false,
+          "duration": 4.100799560546875e-05,
+          "has_error": false
+        }
+      },
+      "performance_metrics": {
+        "tool_list_time": 2.9802322387695312e-05,
+        "tool_count": 38
+      }
+    },
+    "Security": {
+      "server_name": "Security",
+      "timestamp": 1754658268.511391,
+      "tools": [
+        {
+          "name": "gradle_build",
+          "description": "Build Android project using Gradle",
+          "has_schema": true,
+          "required_params": []
+        },
+        {
+          "name": "run_tests",
+          "description": "Run Android tests",
+          "has_schema": true,
+          "required_params": []
+        },
+        {
+          "name": "create_kotlin_file",
+          "description": "Create new Kotlin file with template",
+          "has_schema": true,
+          "required_params": [
+            "file_path",
+            "package_name",
+            "class_name"
+          ]
+        },
+        {
+          "name": "create_layout_file",
+          "description": "Create new Android layout XML",
+          "has_schema": true,
+          "required_params": [
+            "layout_name"
+          ]
+        },
+        {
+          "name": "analyze_project",
+          "description": "Analyze Android project structure",
+          "has_schema": true,
+          "required_params": []
+        },
+        {
+          "name": "create_compose_component",
+          "description": "Create Jetpack Compose UI components",
+          "has_schema": true,
+          "required_params": [
+            "file_path",
+            "component_name",
+            "package_name"
+          ]
+        },
+        {
+          "name": "create_custom_view",
+          "description": "Create custom Android View components",
+          "has_schema": true,
+          "required_params": [
+            "file_path",
+            "view_name",
+            "package_name"
+          ]
+        },
+        {
+          "name": "setup_mvvm_architecture",
+          "description": "Set up MVVM architecture pattern with ViewModel and Repository",
+          "has_schema": true,
+          "required_params": [
+            "feature_name",
+            "package_name"
+          ]
+        },
+        {
+          "name": "setup_dependency_injection",
+          "description": "Set up Hilt dependency injection",
+          "has_schema": true,
+          "required_params": [
+            "module_name",
+            "package_name"
+          ]
+        },
+        {
+          "name": "setup_room_database",
+          "description": "Set up Room database with entities and DAOs",
+          "has_schema": true,
+          "required_params": [
+            "database_name",
+            "package_name",
+            "entities"
+          ]
+        },
+        {
+          "name": "setup_retrofit_api",
+          "description": "Set up Retrofit API client with endpoints",
+          "has_schema": true,
+          "required_params": [
+            "api_name",
+            "package_name",
+            "base_url"
+          ]
+        },
+        {
+          "name": "create_complex_layout",
+          "description": "Create complex layouts with RecyclerView, ViewPager, etc.",
+          "has_schema": true,
+          "required_params": [
+            "layout_name",
+            "layout_complexity"
+          ]
+        },
+        {
+          "name": "generate_test_suite",
+          "description": "Generate comprehensive test suites",
+          "has_schema": true,
+          "required_params": [
+            "class_to_test"
+          ]
+        },
+        {
+          "name": "configure_build_variants",
+          "description": "Configure build variants and flavors",
+          "has_schema": true,
+          "required_params": [
+            "variants"
+          ]
+        },
+        {
+          "name": "setup_navigation_component",
+          "description": "Set up Android Navigation Component with destinations",
+          "has_schema": true,
+          "required_params": [
+            "graph_name",
+            "destinations"
+          ]
+        },
+        {
+          "name": "create_work_manager_worker",
+          "description": "Create WorkManager worker for background tasks",
+          "has_schema": true,
+          "required_params": [
+            "worker_name",
+            "package_name"
+          ]
+        },
+        {
+          "name": "setup_coroutines_flow",
+          "description": "Set up Kotlin Coroutines and Flow for async operations",
+          "has_schema": true,
+          "required_params": [
+            "class_name",
+            "package_name"
+          ]
+        },
+        {
+          "name": "create_firebase_integration",
+          "description": "Set up Firebase services integration",
+          "has_schema": true,
+          "required_params": [
+            "services",
+            "package_name"
+          ]
+        },
+        {
+          "name": "setup_data_store",
+          "description": "Set up Jetpack DataStore for modern data persistence",
+          "has_schema": true,
+          "required_params": [
+            "store_name",
+            "package_name"
+          ]
+        },
+        {
+          "name": "create_permission_handler",
+          "description": "Create runtime permission handling with modern patterns",
+          "has_schema": true,
+          "required_params": [
+            "permissions",
+            "package_name"
+          ]
+        },
+        {
+          "name": "setup_biometric_auth",
+          "description": "Set up biometric authentication",
+          "has_schema": true,
+          "required_params": [
+            "auth_class_name",
+            "package_name"
+          ]
+        },
+        {
+          "name": "create_notification_system",
+          "description": "Create modern notification system with channels",
+          "has_schema": true,
+          "required_params": [
+            "notification_class",
+            "package_name",
+            "channels"
+          ]
+        },
+        {
+          "name": "setup_camera_integration",
+          "description": "Set up CameraX integration for camera features",
+          "has_schema": true,
+          "required_params": [
+            "camera_class",
+            "package_name",
+            "features"
+          ]
+        },
+        {
+          "name": "create_media_player",
+          "description": "Create media player with ExoPlayer integration",
+          "has_schema": true,
+          "required_params": [
+            "player_class",
+            "package_name"
+          ]
+        },
+        {
+          "name": "setup_security_crypto",
+          "description": "Set up Android Security Crypto for data encryption",
+          "has_schema": true,
+          "required_params": [
+            "crypto_class",
+            "package_name"
+          ]
+        },
+        {
+          "name": "create_accessibility_features",
+          "description": "Create accessibility features and content descriptions",
+          "has_schema": true,
+          "required_params": [
+            "screen_name",
+            "package_name"
+          ]
+        },
+        {
+          "name": "setup_in_app_updates",
+          "description": "Set up Google Play In-App Updates",
+          "has_schema": true,
+          "required_params": [
+            "update_class",
+            "package_name"
+          ]
+        },
+        {
+          "name": "create_dynamic_features",
+          "description": "Create dynamic feature modules",
+          "has_schema": true,
+          "required_params": [
+            "feature_name"
+          ]
+        },
+        {
+          "name": "setup_ml_kit_integration",
+          "description": "Set up ML Kit for machine learning features",
+          "has_schema": true,
+          "required_params": [
+            "ml_features",
+            "package_name"
+          ]
+        },
+        {
+          "name": "create_file_manager",
+          "description": "Create comprehensive file manager with storage access",
+          "has_schema": true,
+          "required_params": [
+            "manager_name",
+            "package_name"
+          ]
+        },
+        {
+          "name": "setup_document_provider",
+          "description": "Set up document provider for file sharing",
+          "has_schema": true,
+          "required_params": [
+            "provider_name",
+            "package_name"
+          ]
+        },
+        {
+          "name": "create_media_scanner",
+          "description": "Create media scanner for indexing files",
+          "has_schema": true,
+          "required_params": [
+            "scanner_name",
+            "package_name"
+          ]
+        },
+        {
+          "name": "create_api_client",
+          "description": "Create comprehensive API client with error handling and caching",
+          "has_schema": true,
+          "required_params": [
+            "client_name",
+            "package_name",
+            "base_url"
+          ]
+        },
+        {
+          "name": "setup_graphql_client",
+          "description": "Set up GraphQL client with Apollo or custom implementation",
+          "has_schema": true,
+          "required_params": [
+            "client_name",
+            "package_name",
+            "graphql_endpoint"
+          ]
+        },
+        {
+          "name": "create_websocket_client",
+          "description": "Create WebSocket client for real-time communication",
+          "has_schema": true,
+          "required_params": [
+            "client_name",
+            "package_name",
+            "websocket_url"
+          ]
+        },
+        {
+          "name": "setup_third_party_apis",
+          "description": "Set up integration with popular third-party APIs",
+          "has_schema": true,
+          "required_params": [
+            "api_providers",
+            "package_name"
+          ]
+        },
+        {
+          "name": "create_api_cache_manager",
+          "description": "Create API response caching system",
+          "has_schema": true,
+          "required_params": [
+            "cache_name",
+            "package_name"
+          ]
+        },
+        {
+          "name": "setup_offline_sync",
+          "description": "Set up offline synchronization for API data",
+          "has_schema": true,
+          "required_params": [
+            "sync_manager_name",
+            "package_name"
+          ]
+        },
+        {
+          "name": "encrypt_sensitive_data",
+          "description": "Encrypt sensitive data with compliance-grade encryption",
+          "has_schema": true,
+          "required_params": [
+            "data",
+            "data_type"
+          ]
+        },
+        {
+          "name": "implement_gdpr_compliance",
+          "description": "Implement GDPR compliance features in Android app",
+          "has_schema": true,
+          "required_params": [
+            "package_name",
+            "features"
+          ]
+        },
+        {
+          "name": "implement_hipaa_compliance",
+          "description": "Implement HIPAA compliance features for healthcare apps",
+          "has_schema": true,
+          "required_params": [
+            "package_name",
+            "features"
+          ]
+        },
+        {
+          "name": "setup_secure_storage",
+          "description": "Setup secure storage with encryption and access controls",
+          "has_schema": true,
+          "required_params": [
+            "storage_type",
+            "package_name"
+          ]
+        },
+        {
+          "name": "generate_privacy_policy",
+          "description": "Generate privacy policy based on app data usage",
+          "has_schema": true,
+          "required_params": [
+            "app_name",
+            "data_types"
+          ]
+        }
+      ],
+      "basic_operations": {
+        "create_kotlin_file": {
+          "success": false,
+          "duration": 0.00021386146545410156,
+          "has_error": false
+        },
+        "create_layout_file": {
+          "success": false,
+          "duration": 4.0531158447265625e-06,
+          "has_error": false
+        }
+      },
+      "performance_metrics": {
+        "tool_list_time": 9.512901306152344e-05,
+        "tool_count": 43
+      }
+    },
+    "AI": {
+      "server_name": "AI",
+      "timestamp": 1754658268.670698,
+      "tools": [
+        {
+          "name": "gradle_build",
+          "description": "Build Android project using Gradle",
+          "has_schema": true,
+          "required_params": []
+        },
+        {
+          "name": "run_tests",
+          "description": "Run Android tests",
+          "has_schema": true,
+          "required_params": []
+        },
+        {
+          "name": "create_kotlin_file",
+          "description": "Create new Kotlin file with template",
+          "has_schema": true,
+          "required_params": [
+            "file_path",
+            "package_name",
+            "class_name"
+          ]
+        },
+        {
+          "name": "create_layout_file",
+          "description": "Create new Android layout XML",
+          "has_schema": true,
+          "required_params": [
+            "layout_name"
+          ]
+        },
+        {
+          "name": "analyze_project",
+          "description": "Analyze Android project structure",
+          "has_schema": true,
+          "required_params": []
+        },
+        {
+          "name": "create_compose_component",
+          "description": "Create Jetpack Compose UI components",
+          "has_schema": true,
+          "required_params": [
+            "file_path",
+            "component_name",
+            "package_name"
+          ]
+        },
+        {
+          "name": "create_custom_view",
+          "description": "Create custom Android View components",
+          "has_schema": true,
+          "required_params": [
+            "file_path",
+            "view_name",
+            "package_name"
+          ]
+        },
+        {
+          "name": "setup_mvvm_architecture",
+          "description": "Set up MVVM architecture pattern with ViewModel and Repository",
+          "has_schema": true,
+          "required_params": [
+            "feature_name",
+            "package_name"
+          ]
+        },
+        {
+          "name": "setup_dependency_injection",
+          "description": "Set up Hilt dependency injection",
+          "has_schema": true,
+          "required_params": [
+            "module_name",
+            "package_name"
+          ]
+        },
+        {
+          "name": "setup_room_database",
+          "description": "Set up Room database with entities and DAOs",
+          "has_schema": true,
+          "required_params": [
+            "database_name",
+            "package_name",
+            "entities"
+          ]
+        },
+        {
+          "name": "setup_retrofit_api",
+          "description": "Set up Retrofit API client with endpoints",
+          "has_schema": true,
+          "required_params": [
+            "api_name",
+            "package_name",
+            "base_url"
+          ]
+        },
+        {
+          "name": "create_complex_layout",
+          "description": "Create complex layouts with RecyclerView, ViewPager, etc.",
+          "has_schema": true,
+          "required_params": [
+            "layout_name",
+            "layout_complexity"
+          ]
+        },
+        {
+          "name": "generate_test_suite",
+          "description": "Generate comprehensive test suites",
+          "has_schema": true,
+          "required_params": [
+            "class_to_test"
+          ]
+        },
+        {
+          "name": "configure_build_variants",
+          "description": "Configure build variants and flavors",
+          "has_schema": true,
+          "required_params": [
+            "variants"
+          ]
+        },
+        {
+          "name": "setup_navigation_component",
+          "description": "Set up Android Navigation Component with destinations",
+          "has_schema": true,
+          "required_params": [
+            "graph_name",
+            "destinations"
+          ]
+        },
+        {
+          "name": "create_work_manager_worker",
+          "description": "Create WorkManager worker for background tasks",
+          "has_schema": true,
+          "required_params": [
+            "worker_name",
+            "package_name"
+          ]
+        },
+        {
+          "name": "setup_coroutines_flow",
+          "description": "Set up Kotlin Coroutines and Flow for async operations",
+          "has_schema": true,
+          "required_params": [
+            "class_name",
+            "package_name"
+          ]
+        },
+        {
+          "name": "create_firebase_integration",
+          "description": "Set up Firebase services integration",
+          "has_schema": true,
+          "required_params": [
+            "services",
+            "package_name"
+          ]
+        },
+        {
+          "name": "setup_data_store",
+          "description": "Set up Jetpack DataStore for modern data persistence",
+          "has_schema": true,
+          "required_params": [
+            "store_name",
+            "package_name"
+          ]
+        },
+        {
+          "name": "create_permission_handler",
+          "description": "Create runtime permission handling with modern patterns",
+          "has_schema": true,
+          "required_params": [
+            "permissions",
+            "package_name"
+          ]
+        },
+        {
+          "name": "setup_biometric_auth",
+          "description": "Set up biometric authentication",
+          "has_schema": true,
+          "required_params": [
+            "auth_class_name",
+            "package_name"
+          ]
+        },
+        {
+          "name": "create_notification_system",
+          "description": "Create modern notification system with channels",
+          "has_schema": true,
+          "required_params": [
+            "notification_class",
+            "package_name",
+            "channels"
+          ]
+        },
+        {
+          "name": "setup_camera_integration",
+          "description": "Set up CameraX integration for camera features",
+          "has_schema": true,
+          "required_params": [
+            "camera_class",
+            "package_name",
+            "features"
+          ]
+        },
+        {
+          "name": "create_media_player",
+          "description": "Create media player with ExoPlayer integration",
+          "has_schema": true,
+          "required_params": [
+            "player_class",
+            "package_name"
+          ]
+        },
+        {
+          "name": "setup_security_crypto",
+          "description": "Set up Android Security Crypto for data encryption",
+          "has_schema": true,
+          "required_params": [
+            "crypto_class",
+            "package_name"
+          ]
+        },
+        {
+          "name": "create_accessibility_features",
+          "description": "Create accessibility features and content descriptions",
+          "has_schema": true,
+          "required_params": [
+            "screen_name",
+            "package_name"
+          ]
+        },
+        {
+          "name": "setup_in_app_updates",
+          "description": "Set up Google Play In-App Updates",
+          "has_schema": true,
+          "required_params": [
+            "update_class",
+            "package_name"
+          ]
+        },
+        {
+          "name": "create_dynamic_features",
+          "description": "Create dynamic feature modules",
+          "has_schema": true,
+          "required_params": [
+            "feature_name"
+          ]
+        },
+        {
+          "name": "setup_ml_kit_integration",
+          "description": "Set up ML Kit for machine learning features",
+          "has_schema": true,
+          "required_params": [
+            "ml_features",
+            "package_name"
+          ]
+        },
+        {
+          "name": "create_file_manager",
+          "description": "Create comprehensive file manager with storage access",
+          "has_schema": true,
+          "required_params": [
+            "manager_name",
+            "package_name"
+          ]
+        },
+        {
+          "name": "setup_document_provider",
+          "description": "Set up document provider for file sharing",
+          "has_schema": true,
+          "required_params": [
+            "provider_name",
+            "package_name"
+          ]
+        },
+        {
+          "name": "create_media_scanner",
+          "description": "Create media scanner for indexing files",
+          "has_schema": true,
+          "required_params": [
+            "scanner_name",
+            "package_name"
+          ]
+        },
+        {
+          "name": "create_api_client",
+          "description": "Create comprehensive API client with error handling and caching",
+          "has_schema": true,
+          "required_params": [
+            "client_name",
+            "package_name",
+            "base_url"
+          ]
+        },
+        {
+          "name": "setup_graphql_client",
+          "description": "Set up GraphQL client with Apollo or custom implementation",
+          "has_schema": true,
+          "required_params": [
+            "client_name",
+            "package_name",
+            "graphql_endpoint"
+          ]
+        },
+        {
+          "name": "create_websocket_client",
+          "description": "Create WebSocket client for real-time communication",
+          "has_schema": true,
+          "required_params": [
+            "client_name",
+            "package_name",
+            "websocket_url"
+          ]
+        },
+        {
+          "name": "setup_third_party_apis",
+          "description": "Set up integration with popular third-party APIs",
+          "has_schema": true,
+          "required_params": [
+            "api_providers",
+            "package_name"
+          ]
+        },
+        {
+          "name": "create_api_cache_manager",
+          "description": "Create API response caching system",
+          "has_schema": true,
+          "required_params": [
+            "cache_name",
+            "package_name"
+          ]
+        },
+        {
+          "name": "setup_offline_sync",
+          "description": "Set up offline synchronization for API data",
+          "has_schema": true,
+          "required_params": [
+            "sync_manager_name",
+            "package_name"
+          ]
+        },
+        {
+          "name": "encrypt_sensitive_data",
+          "description": "Encrypt sensitive data with compliance-grade encryption",
+          "has_schema": true,
+          "required_params": [
+            "data",
+            "data_type"
+          ]
+        },
+        {
+          "name": "implement_gdpr_compliance",
+          "description": "Implement GDPR compliance features in Android app",
+          "has_schema": true,
+          "required_params": [
+            "package_name",
+            "features"
+          ]
+        },
+        {
+          "name": "implement_hipaa_compliance",
+          "description": "Implement HIPAA compliance features for healthcare apps",
+          "has_schema": true,
+          "required_params": [
+            "package_name",
+            "features"
+          ]
+        },
+        {
+          "name": "setup_secure_storage",
+          "description": "Setup secure storage with encryption and access controls",
+          "has_schema": true,
+          "required_params": [
+            "storage_type",
+            "package_name"
+          ]
+        },
+        {
+          "name": "generate_privacy_policy",
+          "description": "Generate privacy policy based on app data usage",
+          "has_schema": true,
+          "required_params": [
+            "app_name",
+            "data_types"
+          ]
+        },
+        {
+          "name": "query_llm",
+          "description": "Query local or external LLM for code assistance",
+          "has_schema": true,
+          "required_params": [
+            "prompt"
+          ]
+        },
+        {
+          "name": "analyze_code_with_ai",
+          "description": "Analyze Kotlin/Android code using AI models",
+          "has_schema": true,
+          "required_params": [
+            "file_path",
+            "analysis_type"
+          ]
+        },
+        {
+          "name": "generate_code_with_ai",
+          "description": "Generate Kotlin/Android code using AI assistance",
+          "has_schema": true,
+          "required_params": [
+            "description",
+            "code_type"
+          ]
+        },
+        {
+          "name": "manage_project_files",
+          "description": "Advanced file management with security and backup",
+          "has_schema": true,
+          "required_params": [
+            "operation",
+            "target_path"
+          ]
+        },
+        {
+          "name": "setup_cloud_sync",
+          "description": "Setup cloud synchronization for project files",
+          "has_schema": true,
+          "required_params": [
+            "cloud_provider"
+          ]
+        },
+        {
+          "name": "integrate_external_api",
+          "description": "Integrate external APIs with security and monitoring",
+          "has_schema": true,
+          "required_params": [
+            "api_name",
+            "base_url"
+          ]
+        },
+        {
+          "name": "monitor_api_usage",
+          "description": "Monitor and analyze API usage patterns",
+          "has_schema": true,
+          "required_params": [
+            "api_name"
+          ]
+        },
+        {
+          "name": "integrate_ml_model",
+          "description": "Integrate ML models into Android applications",
+          "has_schema": true,
+          "required_params": [
+            "model_type",
+            "use_case"
+          ]
+        }
+      ],
+      "basic_operations": {
+        "create_kotlin_file": {
+          "success": false,
+          "duration": 0.00038886070251464844,
+          "has_error": false
+        },
+        "create_layout_file": {
+          "success": false,
+          "duration": 5.0067901611328125e-06,
+          "has_error": false
+        }
+      },
+      "performance_metrics": {
+        "tool_list_time": 0.0001399517059326172,
+        "tool_count": 51
+      }
+    }
+  }
+}

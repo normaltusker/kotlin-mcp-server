@@ -145,7 +145,7 @@ class AdvancedFileManager:
 
         if sync_strategy == "real_time":
             # Setup file system watcher
-            sync_id = f"sync_{hashlib.md5(f'{source}{destination}'.encode()).hexdigest()[:8]}"
+            sync_id = f"sync_{hashlib.md5(f'{source}{destination}'.encode(), usedforsecurity=False).hexdigest()[:8]}"
             self._setup_file_watcher(source_path, dest_path, sync_id)
 
         return {

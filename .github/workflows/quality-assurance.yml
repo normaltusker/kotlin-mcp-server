@@ -1,0 +1,171 @@
+name: MCP Server Quality Assurance
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  quality-checks:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.8, 3.9, "3.10", "3.11", "3.12"]
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Cache pip dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pytest pytest-asyncio pytest-cov flake8 black isort pylint mypy bandit psutil
+
+    - name: Run code formatting checks
+      run: |
+        # Check if code is formatted correctly
+        black --check --diff *.py || (echo "❌ Code formatting failed. Run 'black *.py' to fix." && exit 1)
+        
+        # Check import sorting
+        isort --check-only --diff *.py || (echo "❌ Import sorting failed. Run 'isort *.py' to fix." && exit 1)
+
+    - name: Run linting checks
+      run: |
+        # Flake8 style check
+        flake8 *.py --count --select=E9,F63,F7,F82 --show-source --statistics
+        flake8 *.py --count --exit-zero --max-complexity=12 --max-line-length=100 --statistics
+
+    - name: Run type checking
+      run: |
+        # MyPy type checking (allow failures for now)
+        mypy *.py --ignore-missing-imports || echo "⚠️  Type checking had issues (non-blocking)"
+
+    - name: Run security checks
+      run: |
+        # Bandit security check
+        bandit -r *.py -f txt || echo "⚠️  Security issues found (non-blocking)"
+
+    - name: Run unit tests
+      run: |
+        # Run basic tests
+        python -m pytest simple_test.py -v --tb=short
+        
+        # Run comprehensive tests
+        python -m pytest comprehensive_test.py -v --tb=short
+        
+        # Run new comprehensive test suite with coverage
+        python -m pytest test_mcp_comprehensive.py -v --cov=. --cov-report=xml --cov-report=term-missing
+
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./coverage.xml
+        flags: unittests
+        name: codecov-umbrella
+        fail_ci_if_error: false
+
+    - name: Run functionality validation
+      run: |
+        # Test server imports
+        python -c "from simple_mcp_server import MCPServer; print('✅ Base server import successful')"
+        python -c "from enhanced_mcp_server import EnhancedAndroidMCPServer; print('✅ Enhanced server import successful')"
+        python -c "from security_privacy_server import SecurityPrivacyMCPServer; print('✅ Security server import successful')"
+        python -c "from ai_integration_server import AIIntegratedMCPServer; print('✅ AI server import successful')"
+
+    - name: Run performance tests
+      run: |
+        # Basic performance validation
+        python -c "
+        import asyncio
+        import time
+        import tempfile
+        from pathlib import Path
+        from ai_integration_server import AIIntegratedMCPServer
+        
+        async def perf_test():
+            server = AIIntegratedMCPServer('ci-test')
+            server.project_path = Path(tempfile.mkdtemp())
+            
+            start = time.time()
+            await server.handle_list_tools()
+            duration = time.time() - start
+            
+            print(f'✅ Tool listing completed in {duration:.3f}s')
+            assert duration < 5.0, 'Tool listing too slow'
+            
+            import shutil
+            shutil.rmtree(server.project_path, ignore_errors=True)
+        
+        asyncio.run(perf_test())
+        "
+
+  integration-tests:
+    needs: quality-checks
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v4
+      with:
+        python-version: 3.11
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pytest pytest-asyncio psutil
+
+    - name: Run integration tests
+      run: |
+        # Run comprehensive CI pipeline
+        python ci_test_runner.py
+
+  security-audit:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v4
+      with:
+        python-version: 3.11
+
+    - name: Install security tools
+      run: |
+        python -m pip install --upgrade pip
+        pip install bandit safety
+
+    - name: Run security audit
+      run: |
+        # Check for known vulnerabilities
+        safety check --json || echo "⚠️  Vulnerability check completed"
+        
+        # Run comprehensive security scan
+        bandit -r *.py -f json || echo "⚠️  Security scan completed"
+
+    - name: Upload security results
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: security-reports
+        path: |
+          *.json
+          bandit-report.json
+        retention-days: 30
