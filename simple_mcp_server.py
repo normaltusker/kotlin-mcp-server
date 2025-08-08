@@ -6,7 +6,7 @@ import os
 import subprocess
 import sys
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Sequence
+from typing import Optional
 
 
 # Simple MCP server implementation that works with standard MCP clients
@@ -333,7 +333,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 
 class {class_name} : Fragment() {{
-    
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -383,7 +383,7 @@ class {class_name} {{
 
         templates = {
             "activity": """<?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout 
+<androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"

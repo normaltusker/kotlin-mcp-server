@@ -4,19 +4,11 @@ AI/ML and External Integration MCP Server Module
 Supports local and external LLM integration, file management, and API connectivity
 """
 
-import asyncio
-import json
 import os
-from pathlib import Path
-from typing import Any, Dict, List, Optional, Union
-
-import requests
+from typing import Any, Dict, List
 
 # Handle optional AI imports gracefully
 try:
-    import aiofiles
-    import aiohttp
-
     ASYNC_AVAILABLE = True
 except ImportError:
     ASYNC_AVAILABLE = False

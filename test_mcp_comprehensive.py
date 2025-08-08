@@ -5,13 +5,9 @@ Tests all functionality and ensures no breaking changes after enhancements
 """
 
 import asyncio
-import json
-import os
-import shutil
-import sqlite3
 import tempfile
 from pathlib import Path
-from unittest.mock import AsyncMock, Mock, patch
+from unittest.mock import Mock, patch
 
 import pytest
 import pytest_asyncio

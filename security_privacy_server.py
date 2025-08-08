@@ -4,16 +4,13 @@ Security and Privacy Enhanced MCP Server
 Supports GDPR, HIPAA, and other compliance frameworks
 """
 
-import asyncio
-import hashlib
 import json
 import logging
 import os
 import sqlite3
-import uuid
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Sequence
+from typing import Any, Dict, List
 
 # Handle optional cryptography imports gracefully
 try:
@@ -158,7 +155,7 @@ class SecurityPrivacyMCPServer(EnhancedAndroidMCPServer):
 
         self.audit_db.execute(
             """
-            INSERT INTO audit_log 
+            INSERT INTO audit_log
             (timestamp, user_id, action, resource, details, ip_address, compliance_flags)
             VALUES (?, ?, ?, ?, ?, ?, ?)
         """,
@@ -293,13 +290,13 @@ class SecurityPrivacyMCPServer(EnhancedAndroidMCPServer):
         """Encrypt sensitive data with compliance-grade encryption"""
         try:
             if self.encryption_key and CRYPTOGRAPHY_AVAILABLE:
-                encrypted_data = self.encryption_key.encrypt(data.encode())
+                self.encryption_key.encrypt(data.encode())
 
                 return {
                     "content": [
                         {
                             "type": "text",
-                            "text": f"Data encrypted successfully using AES-256 encryption",
+                            "text": "Data encrypted successfully using AES-256 encryption",
                         }
                     ],
                     "encrypted": True,
