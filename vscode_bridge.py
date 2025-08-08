@@ -16,7 +16,7 @@ class MCPBridgeHandler(BaseHTTPRequestHandler):
     def do_POST(self):
         content_length = int(self.headers['Content-Length'])
         post_data = self.rfile.read(content_length)
-
+        
         try:
             request_data = json.loads(post_data)
             tool_name = request_data.get('tool')
@@ -33,23 +33,23 @@ class MCPBridgeHandler(BaseHTTPRequestHandler):
 
             # Call the MCP server
             result = self.call_mcp_tool(tool_name, arguments, project_path)
-
+            
             self.send_response(200)
             self.send_header('Content-type', 'application/json')
             self.send_header('Access-Control-Allow-Origin', '*')
             self.end_headers()
-
+            
             response = {'result': result, 'project_path': project_path}
             self.wfile.write(json.dumps(response).encode())
-
+            
         except Exception as e:
             self.send_response(500)
             self.send_header('Content-type', 'application/json')
             self.end_headers()
-
+            
             error_response = {'error': str(e)}
             self.wfile.write(json.dumps(error_response).encode())
-
+    
     def do_GET(self):
         """Health check and project info endpoint"""
         if self.path == '/health':
@@ -78,7 +78,7 @@ class MCPBridgeHandler(BaseHTTPRequestHandler):
         self.send_header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
         self.send_header('Access-Control-Allow-Headers', 'Content-Type')
         self.end_headers()
-
+    
     def call_mcp_tool(self, tool_name, arguments, project_path):
         """Call the MCP server tool via command line"""
         cmd = ['kotlin-android-mcp', project_path]
@@ -93,7 +93,7 @@ class MCPBridgeHandler(BaseHTTPRequestHandler):
                 "arguments": arguments
             }
         }
-
+        
         try:
             # Set environment variable for the subprocess
             env = os.environ.copy()
@@ -107,15 +107,15 @@ class MCPBridgeHandler(BaseHTTPRequestHandler):
                 text=True,
                 env=env
             )
-
+            
             stdout, stderr = process.communicate(json.dumps(request))
-
+            
             if process.returncode == 0:
                 response = json.loads(stdout)
                 return response.get('result', {})
             else:
                 return {'error': stderr}
-
+                
         except Exception as e:
             return {'error': str(e)}
 
