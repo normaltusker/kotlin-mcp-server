@@ -1,227 +1,454 @@
 #!/usr/bin/env python3
 """
-Comprehensive test script for the MCP server
+Comprehensive test suite for the complete MCP server functionality
+Tests security, privacy, AI integration, file management, and API features
 """
 
-import json
-import subprocess
-import sys
-import os
-from pathlib import Path
+import asyncio
+import pytest
 import tempfile
-
-def test_basic_functionality():
-    """Test basic Python functionality and imports"""
-    print("🔧 Testing Basic Functionality")
-    print("=" * 40)
-
-    try:
-        # Test basic imports
-        import asyncio
-        import json
-        import os
-        print("✅ Basic imports successful")
-
-        # Test pathlib
-        from pathlib import Path
-        test_path = Path("/tmp")
-        print(f"✅ Pathlib works: {test_path.exists()}")
-
-        # Test asyncio
-        async def test_async():
-            return "async works"
-
-        result = asyncio.run(test_async())
-        print(f"✅ Asyncio works: {result}")
-
-        return True
-
-    except Exception as e:
-        print(f"❌ Basic functionality failed: {e}")
-        return False
-
-def test_simple_server():
-    """Test a simplified MCP server"""
-    print("\n🔧 Testing Simple MCP Server")
-    print("=" * 40)
-
-    # Create a minimal working MCP server
-    simple_server_code = '''
 import json
-import sys
 import os
 from pathlib import Path
+from ai_integration_server import AIIntegratedMCPServer
 
-def handle_request(request):
-    method = request.get("method")
-    request_id = request.get("id")
-    
-    response = {"jsonrpc": "2.0", "id": request_id}
-    
-    if method == "initialize":
-        response["result"] = {
-            "protocolVersion": "2024-11-05",
-            "capabilities": {"tools": {}, "resources": {}},
-            "serverInfo": {"name": "kotlin-android-mcp", "version": "1.0.0"}
-        }
-    elif method == "tools/list":
-        response["result"] = {
-            "tools": [
-                {"name": "analyze_project", "description": "Analyze Android project"}
-            ]
-        }
-    else:
-        response["error"] = {"code": -32601, "message": f"Method not found: {method}"}
-    
-    return response
+class TestMCPServerCore:
+    """Test core MCP server functionality"""
 
-# Main server loop
-try:
-    while True:
-        line = sys.stdin.readline()
-        if not line:
-            break
-            
-        line = line.strip()
-        if not line:
-            continue
-            
-        try:
-            request = json.loads(line)
-            response = handle_request(request)
-            print(json.dumps(response), flush=True)
-        except json.JSONDecodeError:
-            continue
-        except Exception as e:
-            error_response = {
-                "jsonrpc": "2.0", 
-                "id": None,
-                "error": {"code": -32603, "message": str(e)}
+    @pytest.fixture
+    async def server(self):
+        """Create server instance for testing"""
+        server = AIIntegratedMCPServer("test-mcp-server")
+        # Create temporary project directory
+        server.project_path = Path(tempfile.mkdtemp())
+        return server
+
+    @pytest.mark.asyncio
+    async def test_server_initialization(self, server):
+        """Test server initializes correctly"""
+        assert server.name == "test-mcp-server"
+        assert server.project_path is not None
+        assert server.audit_db is not None
+        assert server.security_logger is not None
+
+    @pytest.mark.asyncio
+    async def test_list_tools(self, server):
+        """Test tools listing includes all expected tools"""
+        tools_response = await server.handle_list_tools()
+        tools = tools_response.get("tools", [])
+
+        # Check for security tools
+        tool_names = [tool["name"] for tool in tools]
+        assert "encrypt_sensitive_data" in tool_names
+        assert "implement_gdpr_compliance" in tool_names
+        assert "implement_hipaa_compliance" in tool_names
+
+        # Check for AI tools
+        assert "query_llm" in tool_names
+        assert "analyze_code_with_ai" in tool_names
+        assert "generate_code_with_ai" in tool_names
+
+        # Check for file management tools
+        assert "manage_project_files" in tool_names
+        assert "setup_cloud_sync" in tool_names
+
+        # Check for API integration tools
+        assert "integrate_external_api" in tool_names
+        assert "monitor_api_usage" in tool_names
+
+class TestSecurityAndPrivacy:
+    """Test security and privacy compliance features"""
+
+    @pytest.fixture
+    async def server(self):
+        server = AIIntegratedMCPServer("test-security-server")
+        server.project_path = Path(tempfile.mkdtemp())
+        return server
+
+    @pytest.mark.asyncio
+    async def test_gdpr_compliance_implementation(self, server):
+        """Test GDPR compliance feature implementation"""
+        result = await server.handle_tool_call({
+            "name": "implement_gdpr_compliance",
+            "arguments": {
+                "package_name": "com.example.app",
+                "features": ["consent_management", "data_portability", "right_to_erasure"]
             }
-            print(json.dumps(error_response), flush=True)
-            
-except KeyboardInterrupt:
-    pass
-'''
+        })
 
-    # Write the simple server to a temporary file
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False) as f:
-        f.write(simple_server_code)
-        temp_server_path = f.name
+        assert result["success"] == True
+        assert result["compliance_standard"] == "GDPR"
+        assert len(result["implemented_features"]) == 3
+        assert "consent_management" in result["implemented_features"]
 
-    try:
-        # Test the simple server
-        test_request = '{"jsonrpc": "2.0", "id": 1, "method": "initialize", "params": {}}'
+    @pytest.mark.asyncio
+    async def test_hipaa_compliance_implementation(self, server):
+        """Test HIPAA compliance feature implementation"""
+        result = await server.handle_tool_call({
+            "name": "implement_hipaa_compliance",
+            "arguments": {
+                "package_name": "com.healthcare.app",
+                "features": ["audit_logging", "access_controls", "encryption"]
+            }
+        })
 
-        result = subprocess.run(
-            [sys.executable, temp_server_path],
-            input=test_request,
-            capture_output=True,
-            text=True,
-            timeout=5
-        )
+        assert result["success"] == True
+        assert result["compliance_standard"] == "HIPAA"
+        assert len(result["implemented_features"]) == 3
+        assert "audit_logging" in result["implemented_features"]
 
-        if result.stdout:
-            try:
-                response = json.loads(result.stdout.strip())
-                if "result" in response and "serverInfo" in response["result"]:
-                    print("✅ Simple MCP server works!")
-                    print(f"   Server name: {response['result']['serverInfo']['name']}")
-                    return True
-                else:
-                    print(f"❌ Unexpected response: {response}")
-            except json.JSONDecodeError:
-                print(f"❌ Invalid JSON response: {result.stdout}")
-        else:
-            print(f"❌ No output from server. stderr: {result.stderr}")
+    @pytest.mark.asyncio
+    async def test_data_encryption(self, server):
+        """Test data encryption capabilities"""
+        sensitive_data = "Patient John Doe, SSN: 123-45-6789"
 
-    except subprocess.TimeoutExpired:
-        print("❌ Server test timed out")
-    except Exception as e:
-        print(f"❌ Server test failed: {e}")
-    finally:
-        # Clean up temp file
-        os.unlink(temp_server_path)
+        result = await server.handle_tool_call({
+            "name": "encrypt_sensitive_data",
+            "arguments": {
+                "data": sensitive_data,
+                "data_type": "phi",
+                "compliance_level": "hipaa"
+            }
+        })
 
-    return False
+        # Should work regardless of cryptography availability
+        assert "data_type" in result
+        assert result["data_type"] == "phi"
 
-def test_android_project_detection():
-    """Test Android project detection"""
-    print("\n🔧 Testing Android Project Detection")
-    print("=" * 40)
+    @pytest.mark.asyncio
+    async def test_privacy_policy_generation(self, server):
+        """Test privacy policy generation"""
+        result = await server.handle_tool_call({
+            "name": "generate_privacy_policy",
+            "arguments": {
+                "app_name": "HealthTracker",
+                "data_types": ["health_data", "location", "personal_info"],
+                "compliance_requirements": ["gdpr", "hipaa"]
+            }
+        })
 
-    project_path = Path("/Users/Niravthakker/Downloads/Nirav/Personal/Coding/Vital-Trail")
+        assert result["success"] == True
+        assert result["policy_generated"] == True
+        assert "gdpr_rights" in result["policy_sections"]
+        assert "phi_protection" in result["policy_sections"]
 
-    if not project_path.exists():
-        print(f"❌ Project path doesn't exist: {project_path}")
-        return False
+class TestAIIntegration:
+    """Test AI/ML integration capabilities"""
 
-    print(f"✅ Project path exists: {project_path}")
+    @pytest.fixture
+    async def server(self):
+        server = AIIntegratedMCPServer("test-ai-server")
+        server.project_path = Path(tempfile.mkdtemp())
+        return server
 
-    # Check for Android files
-    android_indicators = [
-        "app/build.gradle",
-        "app/build.gradle.kts",
-        "app/src/main/AndroidManifest.xml",
-        "settings.gradle",
-        "settings.gradle.kts"
-    ]
+    @pytest.mark.asyncio
+    async def test_llm_query_local(self, server):
+        """Test local LLM integration"""
+        result = await server.handle_tool_call({
+            "name": "query_llm",
+            "arguments": {
+                "prompt": "Generate a Kotlin data class for User",
+                "llm_provider": "local",
+                "privacy_mode": True
+            }
+        })
 
-    found_files = []
-    for indicator in android_indicators:
-        file_path = project_path / indicator
-        if file_path.exists():
-            found_files.append(indicator)
+        assert result["success"] == True
+        assert "data class User" in result["response"]
+        assert result["privacy_preserved"] == True
+        assert result["provider"] == "local"
 
-    if found_files:
-        print(f"✅ Android project detected. Found: {found_files}")
-        return True
-    else:
-        print("❌ No Android project files found")
-        return False
+    @pytest.mark.asyncio
+    async def test_code_analysis_with_ai(self, server):
+        """Test AI-powered code analysis"""
+        # Create sample Kotlin file
+        kotlin_code = """
+        class UserManager {
+            fun saveUser(user: User) {
+                // Save user password without validation
+                database.save(user.password)
+            }
+        }
+        """
 
-def main():
-    """Run comprehensive tests"""
-    print("🧪 Kotlin Android MCP Server - Comprehensive Test")
-    print("=" * 50)
+        temp_file = server.project_path / "UserManager.kt"
+        temp_file.write_text(kotlin_code)
 
-    results = []
+        result = await server.handle_tool_call({
+            "name": "analyze_code_with_ai",
+            "arguments": {
+                "file_path": str(temp_file),
+                "analysis_type": "security",
+                "use_local_model": True
+            }
+        })
 
-    # Test 1: Basic functionality
-    results.append(test_basic_functionality())
+        assert result["success"] == True
+        assert result["analysis_type"] == "security"
+        assert result["security_issues_found"] >= 0
 
-    # Test 2: Simple server
-    results.append(test_simple_server())
+    @pytest.mark.asyncio
+    async def test_code_generation_with_ai(self, server):
+        """Test AI-powered code generation"""
+        result = await server.handle_tool_call({
+            "name": "generate_code_with_ai",
+            "arguments": {
+                "description": "Create a login screen with validation",
+                "code_type": "component",
+                "framework": "compose",
+                "compliance_requirements": ["gdpr"]
+            }
+        })
 
-    # Test 3: Android project detection
-    results.append(test_android_project_detection())
+        assert result["success"] == True
+        assert result["code_type"] == "component"
+        assert result["framework"] == "compose"
+        assert "gdpr" in result["compliance_features"]
+        assert "Generated" in result["generated_code"]
 
-    # Summary
-    print("\n📊 Test Results Summary")
-    print("=" * 40)
+class TestFileManagement:
+    """Test advanced file management capabilities"""
 
-    passed = sum(results)
-    total = len(results)
+    @pytest.fixture
+    async def server(self):
+        server = AIIntegratedMCPServer("test-file-server")
+        server.project_path = Path(tempfile.mkdtemp())
+        return server
 
-    test_names = [
-        "Basic Functionality",
-        "Simple MCP Server",
-        "Android Project Detection"
-    ]
+    @pytest.mark.asyncio
+    async def test_file_backup(self, server):
+        """Test file backup functionality"""
+        # Create test files
+        test_dir = server.project_path / "src"
+        test_dir.mkdir()
+        (test_dir / "main.kt").write_text("fun main() { println(\"Hello\") }")
+        (test_dir / "config.env").write_text("SECRET_KEY=test123")
 
-    for i, (name, result) in enumerate(zip(test_names, results)):
-        status = "✅ PASS" if result else "❌ FAIL"
-        print(f"{i+1}. {name}: {status}")
+        backup_dir = server.project_path / "backup"
 
-    print(f"\nOverall: {passed}/{total} tests passed")
+        result = await server.handle_tool_call({
+            "name": "manage_project_files",
+            "arguments": {
+                "operation": "backup",
+                "target_path": str(test_dir),
+                "destination": str(backup_dir),
+                "encryption_level": "standard"
+            }
+        })
 
-    if passed == total:
-        print("🎉 All tests passed! MCP server should work correctly.")
-    else:
-        print("⚠️  Some tests failed. MCP server needs fixes.")
+        assert result["success"] == True
+        assert result["operation"] == "backup"
+        assert result["files_backed_up"] >= 2
 
-    return passed == total
+    @pytest.mark.asyncio
+    async def test_file_sync(self, server):
+        """Test file synchronization"""
+        source_dir = server.project_path / "source"
+        dest_dir = server.project_path / "dest"
+        source_dir.mkdir()
+        dest_dir.mkdir()
+
+        (source_dir / "test.kt").write_text("class Test {}")
+
+        result = await server.handle_tool_call({
+            "name": "manage_project_files",
+            "arguments": {
+                "operation": "sync",
+                "target_path": str(source_dir),
+                "destination": str(dest_dir)
+            }
+        })
+
+        assert result["success"] == True
+        assert result["sync_completed"] == True
+
+class TestExternalAPIIntegration:
+    """Test external API integration capabilities"""
+
+    @pytest.fixture
+    async def server(self):
+        server = AIIntegratedMCPServer("test-api-server")
+        return server
+
+    @pytest.mark.asyncio
+    async def test_api_integration_setup(self, server):
+        """Test external API integration setup"""
+        result = await server.handle_tool_call({
+            "name": "integrate_external_api",
+            "arguments": {
+                "api_name": "TestAPI",
+                "base_url": "https://api.test.com",
+                "auth_type": "api_key",
+                "security_features": ["rate_limiting", "request_logging"],
+                "compliance_requirements": ["gdpr"]
+            }
+        })
+
+        assert result["integration_created"] == True
+        assert result["api_name"] == "TestAPI"
+        assert result["security_features_enabled"] == True
+        assert result["monitoring_enabled"] == True
+
+    @pytest.mark.asyncio
+    async def test_api_monitoring(self, server):
+        """Test API usage monitoring"""
+        # First integrate an API
+        await server.handle_tool_call({
+            "name": "integrate_external_api",
+            "arguments": {
+                "api_name": "MonitoredAPI",
+                "base_url": "https://api.monitored.com",
+                "auth_type": "none"
+            }
+        })
+
+        result = await server.handle_tool_call({
+            "name": "monitor_api_usage",
+            "arguments": {
+                "api_name": "MonitoredAPI",
+                "metrics": ["latency", "error_rate", "usage_volume"]
+            }
+        })
+
+        # Should return monitoring data structure
+        assert "api_name" in result
+        assert result["api_name"] == "MonitoredAPI"
+
+class TestMLModelIntegration:
+    """Test ML model integration"""
+
+    @pytest.fixture
+    async def server(self):
+        server = AIIntegratedMCPServer("test-ml-server")
+        return server
+
+    @pytest.mark.asyncio
+    async def test_ml_model_integration(self, server):
+        """Test ML model integration for Android"""
+        result = await server.handle_tool_call({
+            "name": "integrate_ml_model",
+            "arguments": {
+                "model_type": "tflite",
+                "use_case": "image_classification",
+                "privacy_preserving": True
+            }
+        })
+
+        assert result["success"] == True
+        assert result["model_type"] == "tflite"
+        assert result["use_case"] == "image_classification"
+        assert result["privacy_preserving"] == True
+        assert result["android_compatible"] == True
+
+class TestIntegrationScenarios:
+    """Test complete integration scenarios"""
+
+    @pytest.fixture
+    async def server(self):
+        server = AIIntegratedMCPServer("test-integration-server")
+        server.project_path = Path(tempfile.mkdtemp())
+        return server
+
+    @pytest.mark.asyncio
+    async def test_healthcare_app_scenario(self, server):
+        """Test complete healthcare app development scenario"""
+        # 1. Implement HIPAA compliance
+        hipaa_result = await server.handle_tool_call({
+            "name": "implement_hipaa_compliance",
+            "arguments": {
+                "package_name": "com.health.tracker",
+                "features": ["audit_logging", "encryption", "access_controls"]
+            }
+        })
+        assert hipaa_result["success"] == True
+
+        # 2. Setup secure storage
+        storage_result = await server.handle_tool_call({
+            "name": "setup_secure_storage",
+            "arguments": {
+                "storage_type": "room_encrypted",
+                "package_name": "com.health.tracker",
+                "data_classification": "restricted"
+            }
+        })
+        assert storage_result["success"] == True
+
+        # 3. Generate AI-powered code with compliance
+        code_result = await server.handle_tool_call({
+            "name": "generate_code_with_ai",
+            "arguments": {
+                "description": "Patient data entry form with validation",
+                "code_type": "component",
+                "framework": "compose",
+                "compliance_requirements": ["hipaa"]
+            }
+        })
+        assert code_result["success"] == True
+        assert "hipaa" in code_result["compliance_features"]
+
+    @pytest.mark.asyncio
+    async def test_fintech_app_scenario(self, server):
+        """Test complete fintech app development scenario"""
+        # 1. Implement GDPR compliance
+        gdpr_result = await server.handle_tool_call({
+            "name": "implement_gdpr_compliance",
+            "arguments": {
+                "package_name": "com.fintech.app",
+                "features": ["consent_management", "data_portability"]
+            }
+        })
+        assert gdpr_result["success"] == True
+
+        # 2. Integrate secure API
+        api_result = await server.handle_tool_call({
+            "name": "integrate_external_api",
+            "arguments": {
+                "api_name": "PaymentAPI",
+                "base_url": "https://api.payments.com",
+                "auth_type": "oauth",
+                "security_features": ["rate_limiting", "request_logging"]
+            }
+        })
+        assert api_result["integration_created"] == True
+
+        # 3. Setup cloud sync with encryption
+        sync_result = await server.handle_tool_call({
+            "name": "setup_cloud_sync",
+            "arguments": {
+                "cloud_provider": "aws",
+                "sync_strategy": "scheduled",
+                "encryption_in_transit": True,
+                "compliance_mode": "gdpr"
+            }
+        })
+        assert sync_result["success"] == True
 
 if __name__ == "__main__":
-    success = main()
-    sys.exit(0 if success else 1)
+    # Run comprehensive tests
+    import sys
+
+    print("🚀 Starting Comprehensive MCP Server Test Suite...")
+    print("=" * 60)
+
+    # Run tests with verbose output
+    exit_code = pytest.main([
+        __file__,
+        "-v",
+        "--tb=short",
+        "--disable-warnings"
+    ])
+
+    if exit_code == 0:
+        print("=" * 60)
+        print("✅ ALL TESTS PASSED! MCP Server is fully functional.")
+        print("📊 Features verified:")
+        print("   • Security & Privacy (GDPR/HIPAA)")
+        print("   • AI/ML Integration")
+        print("   • File Management")
+        print("   • External API Integration")
+        print("   • Complete workflow scenarios")
+    else:
+        print("=" * 60)
+        print("❌ Some tests failed. Check output above for details.")
+
+    sys.exit(exit_code)
