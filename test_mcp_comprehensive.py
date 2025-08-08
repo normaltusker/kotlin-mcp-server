@@ -28,28 +28,31 @@ def is_mcp_success(result: dict) -> bool:
     """Check if an MCP response indicates success (no error messages)"""
     if not result or "content" not in result:
         return False
-    
+
     content = result["content"]
     if not content or not isinstance(content, list):
         return False
-    
+
     # Check if any content contains explicit error messages
     for item in content:
         if isinstance(item, dict) and "text" in item:
             text = item["text"].lower()
             # Look for explicit error indicators
-            if any(error_phrase in text for error_phrase in [
-                "error executing",
-                "failed to",
-                "unknown tool:",
-                "unknown enhanced tool:",
-                "error:",
-                "attributeerror:",
-                "exception:",
-                "traceback"
-            ]):
+            if any(
+                error_phrase in text
+                for error_phrase in [
+                    "error executing",
+                    "failed to",
+                    "unknown tool:",
+                    "unknown enhanced tool:",
+                    "error:",
+                    "attributeerror:",
+                    "exception:",
+                    "traceback",
+                ]
+            ):
                 return False
-    
+
     return True
 
 
