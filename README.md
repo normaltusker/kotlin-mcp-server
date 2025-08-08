@@ -12,6 +12,10 @@ A Model Context Protocol (MCP) server that provides AI agents with comprehensive
 - 🧠 **Multiple AI Agent Support** – Works with Claude Desktop, VS Code extensions, and other MCP clients
 - 🎯 **Template Generation** – Create Activities, Fragments, Layouts with proper Kotlin structure
 - 📊 **Project Analysis** – Analyze dependencies, structure, and manifest configuration
+- 🏗️ **Complex App Development** – MVVM architecture, Jetpack Compose, Room database, Retrofit API
+- 🎨 **Advanced UI Components** – Custom views, complex layouts, Compose components
+- 🧪 **Comprehensive Testing** – Unit, integration, and UI test generation
+- ⚙️ **Build Configuration** – Multi-variant builds, dependency injection setup
 
 ---
 
@@ -56,6 +60,8 @@ The installer will:
 
 ## 🛠️ Available Tools
 
+### Basic Development Tools
+
 ### 1. **gradle_build** - Build Android Projects
 ```
 Build your Android project using Gradle
@@ -94,6 +100,113 @@ Parameters:
 Analyze Android project structure and configuration
 Parameters:
 - analysis_type: "structure", "dependencies", "manifest", or "all"
+```
+
+---
+
+## 🚀 Enhanced Tools for Complex Development
+
+### UI Development Tools
+
+### 6. **create_compose_component** - Jetpack Compose Components
+```
+Create modern Jetpack Compose UI components
+Parameters:
+- file_path: Path for the Compose file
+- component_name: Name of the Compose component
+- component_type: "screen", "component", "dialog", "bottom_sheet"
+- package_name: Package name
+- uses_state: Include state management (default: false)
+- uses_navigation: Include navigation (default: false)
+```
+
+### 7. **create_custom_view** - Custom Android Views
+```
+Create custom Android View components
+Parameters:
+- file_path: Path for the custom view
+- view_name: Name of the custom view
+- package_name: Package name
+- view_type: "view", "viewgroup", "compound"
+- has_attributes: Include custom attributes (default: false)
+```
+
+### 8. **create_complex_layout** - Advanced Layouts
+```
+Create complex layouts with RecyclerView, ViewPager, etc.
+Parameters:
+- layout_name: Layout file name
+- layout_complexity: "recyclerview", "viewpager", "coordinator", "motion"
+- include_adapter: Generate adapter code (default: true)
+- item_layout: Item layout name for lists
+```
+
+### Architecture Tools
+
+### 9. **setup_mvvm_architecture** - MVVM Pattern
+```
+Set up MVVM architecture with ViewModel and Repository
+Parameters:
+- feature_name: Name of the feature/module
+- package_name: Base package name
+- include_repository: Include Repository pattern (default: true)
+- include_use_cases: Include Use Cases/Clean Architecture (default: false)
+- data_source: "network", "database", "both"
+```
+
+### 10. **setup_dependency_injection** - Hilt DI
+```
+Set up Hilt dependency injection
+Parameters:
+- module_name: Name of the DI module
+- package_name: Package name
+- injection_type: "network", "database", "repository", "use_case"
+```
+
+### Data Layer Tools
+
+### 11. **setup_room_database** - Room Database
+```
+Set up Room database with entities and DAOs
+Parameters:
+- database_name: Name of the database
+- package_name: Package name
+- entities: List of entity names
+- include_migration: Include migration setup (default: false)
+```
+
+### 12. **setup_retrofit_api** - Retrofit Networking
+```
+Set up Retrofit API client with endpoints
+Parameters:
+- api_name: Name of the API service
+- package_name: Package name
+- base_url: API base URL
+- endpoints: API endpoints configuration
+- include_interceptors: Include logging/auth interceptors (default: true)
+```
+
+### Testing Tools
+
+### 13. **generate_test_suite** - Comprehensive Testing
+```
+Generate comprehensive test suites
+Parameters:
+- class_to_test: Class to generate tests for
+- test_type: "unit", "integration", "ui"
+- include_mockito: Include Mockito mocks (default: true)
+- test_coverage: "basic", "comprehensive"
+```
+
+### Build Configuration Tools
+
+### 14. **configure_build_variants** - Build Variants
+```
+Configure build variants and flavors
+Parameters:
+- variants: Build variant names
+- flavors: Product flavor names
+- configuration_type: "development", "staging", "production"
 ```
 
 ---
