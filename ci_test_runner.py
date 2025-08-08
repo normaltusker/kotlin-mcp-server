@@ -19,10 +19,10 @@ class CITestRunner:
 
     def run_command(self, command, description):
         """Run a command and report results"""
-        print(f"\n{'='*60}")
+        print(f"\n{'=' * 60}")
         print(f"Running: {description}")
         print(f"Command: {command}")
-        print(f"{'='*60}")
+        print(f"{'=' * 60}")
 
         try:
             # Use shlex.split for safer command execution
@@ -176,13 +176,13 @@ from ai_integration_server import AIIntegratedMCPServer
 async def performance_test():
     server = AIIntegratedMCPServer("perf-test")
     server.project_path = Path(tempfile.mkdtemp())
-    
+
     # Test tool listing speed
     start_time = time.time()
     for _ in range(10):
         await server.handle_list_tools()
     list_time = time.time() - start_time
-    
+
     # Test file creation speed
     start_time = time.time()
     for i in range(5):
@@ -193,13 +193,14 @@ async def performance_test():
             "class_type": "class"
         })
     create_time = time.time() - start_time
-    
+
     print(f"✅ Tool listing: {list_time:.2f}s for 10 calls")
     print(f"✅ File creation: {create_time:.2f}s for 5 files")
-    
+
     # Cleanup
     import shutil
     shutil.rmtree(server.project_path, ignore_errors=True)
+
 
 if __name__ == "__main__":
     asyncio.run(performance_test())

@@ -5,9 +5,10 @@
       "args": [
         "simple_mcp_server.py"
       ],
-      "cwd": "/Users/Niravthakker/Downloads/Nirav/Personal/Coding/kotlin-mcp-server-1",
+      "cwd": "${MCP_SERVER_DIR}",
       "env": {
-        "PROJECT_PATH": "${WORKSPACE_ROOT}"
+        "PROJECT_PATH": "${WORKSPACE_ROOT}",
+        "WORKSPACE_PATH": "${WORKSPACE_ROOT}"
       }
     }
   }

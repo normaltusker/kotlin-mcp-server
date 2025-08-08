@@ -4,13 +4,10 @@ VS Code Extension Bridge for MCP Server
 This creates a simple HTTP API that VS Code extensions can call
 """
 
-import asyncio
 import json
 import os
 import subprocess
-import urllib.parse
 from http.server import BaseHTTPRequestHandler, HTTPServer
-from pathlib import Path
 
 
 class MCPBridgeHandler(BaseHTTPRequestHandler):
@@ -123,14 +120,17 @@ class MCPBridgeHandler(BaseHTTPRequestHandler):
 
 def start_bridge_server(port=8080):
     """Start the HTTP bridge server"""
-    server_address = ("localhost", port)
+    host = os.getenv("MCP_BRIDGE_HOST", "localhost")
+    port = int(os.getenv("MCP_BRIDGE_PORT", port))
+
+    server_address = (host, port)
     httpd = HTTPServer(server_address, MCPBridgeHandler)
 
-    print(f"🌐 MCP Bridge Server running on http://localhost:{port}")
+    print(f"🌐 MCP Bridge Server running on http://{host}:{port}")
     print("📁 Workspace-aware Android MCP bridge for VS Code")
-    print("🔍 Health check: http://localhost:{port}/health")
+    print(f"🔍 Health check: http://{host}:{port}/health")
     print("\n📋 Usage in VS Code extension:")
-    print("   POST http://localhost:{port}/ with JSON: {tool: 'tool_name', arguments: {...}}")
+    print(f"   POST http://{host}:{port}/ with JSON: {{tool: 'tool_name', arguments: {{...}}}}")
     print("   The bridge will automatically use the current VS Code workspace")
 
     try:

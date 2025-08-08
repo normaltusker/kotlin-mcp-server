@@ -6,7 +6,6 @@ Monitors MCP server functionality to detect breaking changes after code enhancem
 
 import asyncio
 import json
-import subprocess
 import sys
 import tempfile
 import time

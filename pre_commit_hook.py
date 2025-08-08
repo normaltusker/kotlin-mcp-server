@@ -4,7 +4,6 @@ Pre-commit hook to ensure code quality before commits
 Automatically runs when code is committed to prevent breaking changes
 """
 
-import os
 import subprocess
 import sys
 from pathlib import Path
@@ -18,25 +17,26 @@ def run_quick_checks():
     project_root = Path(__file__).parent
 
     # Quick lint checks
+    main_files = "simple_mcp_server.py enhanced_mcp_server.py security_privacy_server.py ai_integration_server.py vscode_bridge.py"
     checks = [
         # Python syntax check
         (
-            "python -m py_compile simple_mcp_server.py enhanced_mcp_server.py security_privacy_server.py ai_integration_server.py",
+            f"python3 -m py_compile {main_files}",
             "Python syntax validation",
         ),
-        # Import check
+        # Import check for main modules
         (
-            'python -c "import simple_mcp_server, enhanced_mcp_server, security_privacy_server, ai_integration_server"',
+            'python3 -c "import simple_mcp_server, enhanced_mcp_server, security_privacy_server, ai_integration_server, vscode_bridge"',
             "Module import validation",
         ),
         # Quick flake8 check (only errors)
         (
-            "flake8 --select=E9,F63,F7,F82 simple_mcp_server.py enhanced_mcp_server.py security_privacy_server.py ai_integration_server.py",
+            f"python3 -m flake8 --select=E9,F63,F7,F82 {main_files}",
             "Critical syntax errors",
         ),
         # Basic security check
         (
-            "bandit -ll simple_mcp_server.py enhanced_mcp_server.py security_privacy_server.py ai_integration_server.py",
+            f"python3 -m bandit -lll {main_files}",
             "High-severity security issues",
         ),
     ]
@@ -78,7 +78,7 @@ def main():
     else:
         print("\n❌ Pre-commit checks failed!")
         print("Please fix the issues above before committing.")
-        print("Run 'python ci_test_runner.py' for detailed analysis.")
+        print("Run 'python3 ci_test_runner.py' for detailed analysis.")
         sys.exit(1)
 
 

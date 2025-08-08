@@ -5,8 +5,6 @@ Handles installation and configuration for different deployment scenarios
 """
 
 import json
-import os
-import shutil
 import sys
 from pathlib import Path
 
@@ -18,7 +16,6 @@ def create_symlink_installation():
     local_bin.mkdir(parents=True, exist_ok=True)
 
     script_dir = Path(__file__).parent.absolute()
-    server_script = script_dir / "simple_mcp_server.py"
 
     symlink_path = local_bin / "kotlin-android-mcp"
 
@@ -40,28 +37,31 @@ python3 simple_mcp_server.py "$@"
 def update_config_file(config_file, installation_type, script_dir=None):
     """Update configuration file based on installation type"""
 
+    # Use relative path or environment variable for portability
+    cwd_path = "${MCP_SERVER_DIR}" if script_dir is None else str(script_dir)
+
     configs = {
         "portable": {
             "command": "python3",
             "args": ["simple_mcp_server.py"],
-            "cwd": str(script_dir) if script_dir else ".",
+            "cwd": cwd_path,
         },
         "installable": {"command": "kotlin-android-mcp", "args": []},
         "module": {
             "command": "python3",
             "args": ["-m", "kotlin_android_mcp"],
-            "cwd": str(script_dir) if script_dir else ".",
+            "cwd": cwd_path,
         },
     }
 
     config = configs.get(installation_type, configs["portable"])
 
-    # Don't set PROJECT_PATH at install time - let it be dynamic
+    # Use environment variable placeholders for dynamic configuration
     mcp_config = {
         "mcpServers": {"kotlin-android": {**config, "env": {"PROJECT_PATH": "${WORKSPACE_ROOT}"}}}
     }
 
-    # Create multiple config examples
+    # Create multiple config examples with proper variable placeholders
     configs_to_create = {
         "mcp_config.json": mcp_config,
         "mcp_config_claude.json": {
@@ -135,7 +135,7 @@ def main():
     if choice == "1":
         # Portable installation
         config_files = update_config_file(script_dir / "mcp_config.json", "portable", script_dir)
-        print(f"✅ Portable configuration created")
+        print("✅ Portable configuration created")
         print(f"📁 Server directory: {script_dir}")
 
     elif choice == "2":
@@ -152,7 +152,7 @@ def main():
     elif choice == "3":
         # Python module installation
         config_files = update_config_file(script_dir / "mcp_config.json", "module", script_dir)
-        print(f"✅ Module configuration created")
+        print("✅ Module configuration created")
         print("🔧 Can be run with: python -m kotlin_android_mcp")
 
     else:
@@ -178,7 +178,7 @@ def main():
     print("   Use 'mcp_config.json' with ${WORKSPACE_ROOT} placeholder")
     print("   Update PROJECT_PATH environment variable as needed")
 
-    print(f"\n🧪 Test the server:")
+    print("\n🧪 Test the server:")
     if choice == "2":
         print("   kotlin-android-mcp /path/to/android/project")
     else:

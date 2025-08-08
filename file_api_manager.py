@@ -7,7 +7,6 @@ Demonstrates comprehensive file handling and API integration capabilities
 import asyncio
 import hashlib
 import json
-import os
 import shutil
 import zipfile
 from datetime import datetime
@@ -207,8 +206,7 @@ class AdvancedFileManager:
 
         for file_path in target.rglob("*.enc"):
             if file_path.is_file():
-                original_path = file_path.with_suffix("")
-                # Decrypt file logic here
+                # Decrypt file logic here (original_path would be file_path.with_suffix(""))
                 decrypted_count += 1
 
         return {"files_decrypted": decrypted_count}

@@ -103,5 +103,43 @@ class TestMCPServerBasic:
         assert is_mcp_success(result)
 
 
+class TestVSCodeBridgeBasic:
+    """Basic tests for VS Code Bridge Server"""
+
+    def test_bridge_server_import(self):
+        """Test bridge server module can be imported"""
+        try:
+            import vscode_bridge
+
+            assert hasattr(vscode_bridge, "MCPBridgeHandler")
+            assert hasattr(vscode_bridge, "start_bridge_server")
+        except ImportError as e:
+            pytest.fail(f"Failed to import vscode_bridge: {e}")
+
+    def test_bridge_handler_class(self):
+        """Test MCPBridgeHandler class exists and has required methods"""
+        from vscode_bridge import MCPBridgeHandler
+
+        # Check class exists
+        assert MCPBridgeHandler is not None
+
+        # Check required methods exist
+        assert hasattr(MCPBridgeHandler, "do_GET")
+        assert hasattr(MCPBridgeHandler, "do_POST")
+        assert hasattr(MCPBridgeHandler, "do_OPTIONS")
+
+    def test_bridge_server_startup_function(self):
+        """Test bridge server startup function exists"""
+        from vscode_bridge import start_bridge_server
+        import inspect
+
+        # Check function exists and is callable
+        assert callable(start_bridge_server)
+
+        # Check function signature
+        sig = inspect.signature(start_bridge_server)
+        assert "port" in sig.parameters
+
+
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])

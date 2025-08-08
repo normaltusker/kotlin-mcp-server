@@ -6,6 +6,8 @@ Tests all functionality and ensures no breaking changes after enhancements
 
 import asyncio
 import tempfile
+import threading
+import time
 from pathlib import Path
 from unittest.mock import Mock, patch
 
@@ -18,6 +20,7 @@ from security_privacy_server import SecurityPrivacyMCPServer
 
 # Import all server classes
 from simple_mcp_server import MCPServer
+from vscode_bridge import MCPBridgeHandler
 
 
 def is_mcp_success(result: dict) -> bool:
@@ -647,6 +650,264 @@ class TestPerformanceAndStability:
         except ImportError:
             # Skip memory test if psutil is not available
             pytest.skip("psutil not available for memory testing")
+
+
+class TestVSCodeBridgeServer:
+    """Test VS Code Bridge Server HTTP API functionality"""
+
+    @pytest.fixture(scope="class")
+    def bridge_server_port(self):
+        """Get an available port for testing"""
+        import socket
+
+        sock = socket.socket()
+        sock.bind(("", 0))
+        port = sock.getsockname()[1]
+        sock.close()
+        return port
+
+    @pytest.fixture(scope="class")
+    def bridge_server_thread(self, bridge_server_port):
+        """Start bridge server in a separate thread for testing"""
+        import os
+        from http.server import HTTPServer
+
+        # Set test environment variables
+        os.environ["MCP_BRIDGE_HOST"] = "localhost"
+        os.environ["MCP_BRIDGE_PORT"] = str(bridge_server_port)
+        os.environ["VSCODE_WORKSPACE_FOLDER"] = str(Path(tempfile.mkdtemp()))
+
+        # Create server
+        server_address = ("localhost", bridge_server_port)
+        httpd = HTTPServer(server_address, MCPBridgeHandler)
+
+        # Start server in thread
+        server_thread = threading.Thread(target=httpd.serve_forever, daemon=True)
+        server_thread.start()
+
+        # Wait for server to start
+        time.sleep(0.5)
+
+        yield {
+            "port": bridge_server_port,
+            "base_url": f"http://localhost:{bridge_server_port}",
+            "httpd": httpd,
+        }
+
+        # Cleanup
+        httpd.shutdown()
+        httpd.server_close()
+
+    def test_bridge_server_health_check(self, bridge_server_thread):
+        """Test bridge server health endpoint"""
+        try:
+            import requests
+        except ImportError:
+            pytest.skip("requests library not available")
+
+        base_url = bridge_server_thread["base_url"]
+
+        # Test health endpoint
+        response = requests.get(f"{base_url}/health", timeout=5)
+        assert response.status_code == 200
+
+        data = response.json()
+        assert data["status"] == "healthy"
+        assert "current_workspace" in data
+        assert "available_tools" in data
+        assert isinstance(data["available_tools"], list)
+
+        # Check expected tools are listed
+        expected_tools = ["gradle_build", "run_tests", "create_kotlin_file", "analyze_project"]
+        for tool in expected_tools:
+            assert tool in data["available_tools"]
+
+    def test_bridge_server_404_for_unknown_paths(self, bridge_server_thread):
+        """Test bridge server returns 404 for unknown paths"""
+        try:
+            import requests
+        except ImportError:
+            pytest.skip("requests library not available")
+
+        base_url = bridge_server_thread["base_url"]
+
+        # Test unknown endpoint
+        response = requests.get(f"{base_url}/unknown", timeout=5)
+        assert response.status_code == 404
+
+    def test_bridge_server_tool_execution(self, bridge_server_thread):
+        """Test bridge server tool execution via POST"""
+        try:
+            import requests
+        except ImportError:
+            pytest.skip("requests library not available")
+
+        base_url = bridge_server_thread["base_url"]
+
+        # Test valid tool call
+        tool_request = {"tool": "list_tools", "arguments": {}}
+
+        response = requests.post(
+            base_url, json=tool_request, headers={"Content-Type": "application/json"}, timeout=10
+        )
+
+        assert response.status_code == 200
+
+        # Response should be JSON
+        data = response.json()
+        assert isinstance(data, dict)
+
+        # Should contain tools list or success indicator
+        # (Exact response format depends on MCP implementation)
+        assert "tools" in data or "content" in data or "result" in data
+
+    def test_bridge_server_invalid_tool(self, bridge_server_thread):
+        """Test bridge server handles invalid tool gracefully"""
+        try:
+            import requests
+        except ImportError:
+            pytest.skip("requests library not available")
+
+        base_url = bridge_server_thread["base_url"]
+
+        # Test invalid tool call
+        tool_request = {"tool": "nonexistent_tool", "arguments": {}}
+
+        response = requests.post(
+            base_url, json=tool_request, headers={"Content-Type": "application/json"}, timeout=10
+        )
+
+        assert response.status_code == 200
+
+        # Should return error in response
+        data = response.json()
+        assert isinstance(data, dict)
+        assert "result" in data
+        result = data["result"]
+        assert "error" in result
+
+    def test_bridge_server_malformed_request(self, bridge_server_thread):
+        """Test bridge server handles malformed requests"""
+        try:
+            import requests
+        except ImportError:
+            pytest.skip("requests library not available")
+
+        base_url = bridge_server_thread["base_url"]
+
+        # Test malformed JSON
+        response = requests.post(
+            base_url, data="invalid json", headers={"Content-Type": "application/json"}, timeout=5
+        )
+
+        assert response.status_code == 500
+
+        # Should return error in response
+        data = response.json()
+        assert isinstance(data, dict)
+        assert "error" in data
+
+    def test_bridge_server_missing_arguments(self, bridge_server_thread):
+        """Test bridge server handles missing arguments"""
+        try:
+            import requests
+        except ImportError:
+            pytest.skip("requests library not available")
+
+        base_url = bridge_server_thread["base_url"]
+
+        # Test request without required fields
+        incomplete_request = {
+            "arguments": {}
+            # Missing 'tool' field
+        }
+
+        response = requests.post(
+            base_url,
+            json=incomplete_request,
+            headers={"Content-Type": "application/json"},
+            timeout=5,
+        )
+
+        assert response.status_code == 200
+
+        # Should return error in response
+        data = response.json()
+        assert isinstance(data, dict)
+        assert "result" in data
+        result = data["result"]
+        assert "error" in result
+
+    def test_bridge_server_cors_headers(self, bridge_server_thread):
+        """Test bridge server includes CORS headers"""
+        try:
+            import requests
+        except ImportError:
+            pytest.skip("requests library not available")
+
+        base_url = bridge_server_thread["base_url"]
+
+        # Test OPTIONS request
+        response = requests.options(base_url, timeout=5)
+        assert response.status_code == 200
+
+        # Should include CORS headers
+        headers = response.headers
+        assert "Access-Control-Allow-Origin" in headers
+        assert "Access-Control-Allow-Methods" in headers
+        assert "Access-Control-Allow-Headers" in headers
+
+    def test_bridge_server_workspace_detection(self, bridge_server_thread):
+        """Test bridge server detects workspace correctly"""
+        try:
+            import requests
+        except ImportError:
+            pytest.skip("requests library not available")
+
+        base_url = bridge_server_thread["base_url"]
+
+        # Get health check to see workspace info
+        response = requests.get(f"{base_url}/health", timeout=5)
+        assert response.status_code == 200
+
+        data = response.json()
+        workspace = data.get("current_workspace")
+
+        # Should have workspace path
+        assert workspace is not None
+        assert isinstance(workspace, str)
+        assert len(workspace) > 0
+
+    @pytest.mark.asyncio
+    async def test_bridge_server_concurrent_requests(self, bridge_server_thread):
+        """Test bridge server handles concurrent requests"""
+        try:
+            import asyncio
+            import aiohttp
+        except ImportError:
+            pytest.skip("aiohttp library not available")
+
+        base_url = bridge_server_thread["base_url"]
+
+        async def make_request(session, request_id):
+            """Make a single request"""
+            try:
+                async with session.get(f"{base_url}/health") as response:
+                    assert response.status == 200
+                    data = await response.json()
+                    assert data["status"] == "healthy"
+                    return request_id
+            except Exception as e:
+                pytest.fail(f"Request {request_id} failed: {e}")
+
+        # Make multiple concurrent requests
+        async with aiohttp.ClientSession() as session:
+            tasks = [make_request(session, i) for i in range(5)]
+            results = await asyncio.gather(*tasks)
+
+            # All requests should succeed
+            assert len(results) == 5
+            assert all(isinstance(r, int) for r in results)
 
 
 if __name__ == "__main__":
