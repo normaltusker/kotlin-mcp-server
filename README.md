@@ -518,6 +518,42 @@ Use the configuration from `mcp_config_vscode.json`
 
 ---
 
+## ⚙️ **Configuration**
+
+This section provides detailed instructions on how to configure the MCP server for different IDEs.
+
+### **Visual Studio Code**
+
+1.  **Open Settings:**
+    *   Press `Cmd + ,` (Mac) or `Ctrl + ,` (Windows/Linux) to open the settings.
+2.  **Open `settings.json`:**
+    *   Click the `{}` icon in the top-right corner to open the `settings.json` file.
+3.  **Add MCP Server Configuration:**
+    *   Add the following configuration to your `settings.json` file, replacing the placeholder with the actual path to the `mcp_config_vscode.json` file:
+
+        ```json
+        "mcp.server.configFiles": [
+            "/path/to/your/kotlin-mcp-server/mcp_config_vscode.json"
+        ]
+        ```
+
+### **JetBrains IDEs (IntelliJ, Android Studio)**
+
+1.  **Install the MCP Plugin:**
+    *   Go to `Preferences > Plugins` and search for "MCP" to install the official plugin.
+2.  **Configure the Server:**
+    *   Go to `Preferences > Tools > MCP Server`.
+    *   Click the `+` icon to add a new server configuration.
+    *   **Name:** `Kotlin Android MCP Server`
+    *   **Configuration File:** Select the `mcp_config.json` file from the project directory.
+    *   **Environment Variables:** Add a `PROJECT_PATH` variable and set it to the root of your Android project.
+
+### **Other IDEs**
+
+For other IDEs that support the Model Context Protocol, you can typically configure the server in the settings or preferences. Use the `mcp_config.json` file and ensure the `PROJECT_PATH` environment variable is set correctly.
+
+---
+
 ## 📊 **Monitoring & Analytics**
 
 The server provides comprehensive monitoring:

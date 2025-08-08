@@ -6,6 +6,7 @@ Tests security, privacy, AI integration, file management, and API features
 
 import asyncio
 import pytest
+import pytest_asyncio
 import tempfile
 import json
 import os
@@ -15,7 +16,7 @@ from ai_integration_server import AIIntegratedMCPServer
 class TestMCPServerCore:
     """Test core MCP server functionality"""
 
-    @pytest.fixture
+    @pytest_asyncio.fixture
     async def server(self):
         """Create server instance for testing"""
         server = AIIntegratedMCPServer("test-mcp-server")
@@ -59,7 +60,7 @@ class TestMCPServerCore:
 class TestSecurityAndPrivacy:
     """Test security and privacy compliance features"""
 
-    @pytest.fixture
+    @pytest_asyncio.fixture
     async def server(self):
         server = AIIntegratedMCPServer("test-security-server")
         server.project_path = Path(tempfile.mkdtemp())
@@ -135,7 +136,7 @@ class TestSecurityAndPrivacy:
 class TestAIIntegration:
     """Test AI/ML integration capabilities"""
 
-    @pytest.fixture
+    @pytest_asyncio.fixture
     async def server(self):
         server = AIIntegratedMCPServer("test-ai-server")
         server.project_path = Path(tempfile.mkdtemp())
@@ -209,7 +210,7 @@ class TestAIIntegration:
 class TestFileManagement:
     """Test advanced file management capabilities"""
 
-    @pytest.fixture
+    @pytest_asyncio.fixture
     async def server(self):
         server = AIIntegratedMCPServer("test-file-server")
         server.project_path = Path(tempfile.mkdtemp())
@@ -265,7 +266,7 @@ class TestFileManagement:
 class TestExternalAPIIntegration:
     """Test external API integration capabilities"""
 
-    @pytest.fixture
+    @pytest_asyncio.fixture
     async def server(self):
         server = AIIntegratedMCPServer("test-api-server")
         return server
@@ -317,7 +318,7 @@ class TestExternalAPIIntegration:
 class TestMLModelIntegration:
     """Test ML model integration"""
 
-    @pytest.fixture
+    @pytest_asyncio.fixture
     async def server(self):
         server = AIIntegratedMCPServer("test-ml-server")
         return server
@@ -343,7 +344,7 @@ class TestMLModelIntegration:
 class TestIntegrationScenarios:
     """Test complete integration scenarios"""
 
-    @pytest.fixture
+    @pytest_asyncio.fixture
     async def server(self):
         server = AIIntegratedMCPServer("test-integration-server")
         server.project_path = Path(tempfile.mkdtemp())

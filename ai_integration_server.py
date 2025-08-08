@@ -212,6 +212,10 @@ class Generated{code_type.title()} {{
                                   destination: str = None, **kwargs) -> Dict[str, Any]:
         """Advanced file management with security and backup"""
         file_manager = self.file_managers['local']
+        if operation == "sync":
+            return await file_manager.handle_file_operations(
+                operation, source=target_path, destination=destination, **kwargs
+            )
         return await file_manager.handle_file_operations(
             operation, target_path=target_path, destination=destination, **kwargs
         )

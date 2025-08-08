@@ -1182,4 +1182,4 @@ class {store_name}DataStore @Inject constructor(private val context: Context) {{
         return {"content": [{"type": "text", "text": "Camera integration setup created (implementation needed)"}]}
     
     async def _create_media_player(self, arguments: dict) -> dict:
-        return {"content": [{"type": "text", "text": "Media player created
+        return {"content": [{"type": "text", "text": "Media player created (implementation needed)"}]}

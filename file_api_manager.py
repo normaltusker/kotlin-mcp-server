@@ -181,6 +181,9 @@ class AdvancedFileManager:
                     # Sync the modified file
                     asyncio.create_task(self._sync_single_file(event.src_path))
 
+            async def _sync_single_file(self, path):
+                pass
+
         handler = SyncHandler(source, dest)
         observer = Observer()
         observer.schedule(handler, str(source), recursive=True)
@@ -333,10 +336,10 @@ class ExternalAPIManager:
         client = await self._create_http_client(api_config)
 
         # Setup monitoring and metrics
-        if "request_logging" in security_features:
+        if "request_logging" in (security_features or []):
             self._setup_request_logging(api_name)
 
-        if "rate_limiting" in security_features:
+        if "rate_limiting" in (security_features or []):
             self._setup_rate_limiting(api_name, api_config["rate_limits"])
 
         # Store configuration
@@ -353,9 +356,22 @@ class ExternalAPIManager:
         return {
             "integration_created": True,
             "api_name": api_name,
-            "security_features_enabled": len(security_features) > 0,
+            "security_features_enabled": len(security_features or []) > 0,
             "endpoints_configured": 0,
             "monitoring_enabled": True
+        }
+
+    async def monitor_api_usage(self, api_name: str, metrics: List[str]) -> Dict[str, Any]:
+        """Monitor API usage"""
+        if api_name not in self.api_configs:
+            return {"success": False, "error": f"API '{api_name}' not found."}
+
+        # In a real implementation, this would involve more complex monitoring.
+        # For this example, we'll just return the stored metrics.
+        return {
+            "success": True,
+            "api_name": api_name,
+            "metrics": self.usage_metrics.get(api_name, {}),
         }
 
     async def _create_http_client(self, config: Dict) -> aiohttp.ClientSession:
@@ -426,4 +442,3 @@ class ExternalAPIManager:
             "basic": {"username": config.get("username"), "password": config.get("password")}
         }
         return auth_configs.get(auth_type, {})
-

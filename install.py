@@ -140,7 +140,10 @@ def main():
     print("2. System installation (add to PATH)")
     print("3. Python module (importable)")
 
-    choice = input("Enter choice (1-3) [1]: ").strip() or "1"
+    if len(sys.argv) > 1 and sys.argv[1] in ["1", "2", "3"]:
+        choice = sys.argv[1]
+    else:
+        choice = "1"
 
     if choice == "1":
         # Portable installation
