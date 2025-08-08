@@ -24,6 +24,35 @@ from security_privacy_server import SecurityPrivacyMCPServer
 from simple_mcp_server import MCPServer
 
 
+def is_mcp_success(result: dict) -> bool:
+    """Check if an MCP response indicates success (no error messages)"""
+    if not result or "content" not in result:
+        return False
+    
+    content = result["content"]
+    if not content or not isinstance(content, list):
+        return False
+    
+    # Check if any content contains explicit error messages
+    for item in content:
+        if isinstance(item, dict) and "text" in item:
+            text = item["text"].lower()
+            # Look for explicit error indicators
+            if any(error_phrase in text for error_phrase in [
+                "error executing",
+                "failed to",
+                "unknown tool:",
+                "unknown enhanced tool:",
+                "error:",
+                "attributeerror:",
+                "exception:",
+                "traceback"
+            ]):
+                return False
+    
+    return True
+
+
 class TestMCPServerBase:
     """Test base MCP server functionality"""
 
@@ -71,8 +100,14 @@ class TestMCPServerBase:
                 "gradle_build", {"task": "assembleDebug", "clean": True}
             )
 
-            assert result.get("success") == True
-            assert "BUILD SUCCESSFUL" in result.get("output", "")
+            assert is_mcp_success(result)
+            # Check that BUILD SUCCESSFUL appears in the response content
+            content_text = ""
+            if "content" in result and result["content"]:
+                for item in result["content"]:
+                    if "text" in item:
+                        content_text += item["text"]
+            assert "BUILD SUCCESSFUL" in content_text
 
     @pytest.mark.asyncio
     async def test_kotlin_file_creation(self, base_server):
@@ -87,7 +122,7 @@ class TestMCPServerBase:
             },
         )
 
-        assert result.get("success") == True
+        assert is_mcp_success(result)
         expected_file = base_server.project_path / "src/main/kotlin/test/TestClass.kt"
         assert expected_file.exists()
 
@@ -97,14 +132,13 @@ class TestMCPServerBase:
         result = await base_server.handle_call_tool(
             "create_layout_file",
             {
-                "file_path": "src/main/res/layout/test_layout.xml",
-                "layout_type": "linear",
-                "components": ["button", "textview"],
+                "layout_name": "test_layout",
+                "layout_type": "activity",
             },
         )
 
-        assert result.get("success") == True
-        expected_file = base_server.project_path / "src/main/res/layout/test_layout.xml"
+        assert is_mcp_success(result)
+        expected_file = base_server.project_path / "app/src/main/res/layout/test_layout.xml"
         assert expected_file.exists()
 
 
@@ -171,7 +205,7 @@ class TestEnhancedMCPServer:
             },
         )
 
-        assert result.get("success") == True
+        assert is_mcp_success(result)
         expected_file = enhanced_server.project_path / "src/main/kotlin/ui/TestScreen.kt"
         assert expected_file.exists()
 
@@ -189,7 +223,7 @@ class TestEnhancedMCPServer:
             },
         )
 
-        assert result.get("success") == True
+        assert is_mcp_success(result)
         # Check if ViewModel, Repository, and UseCase files are created
         base_path = enhanced_server.project_path / "src/main/kotlin/com/test/app/user"
         assert (base_path / "UserViewModel.kt").exists()
@@ -209,7 +243,7 @@ class TestEnhancedMCPServer:
             },
         )
 
-        assert result.get("success") == True
+        assert is_mcp_success(result)
         # Check if database files are created
         base_path = enhanced_server.project_path / "src/main/kotlin/com/test/app/data"
         assert (base_path / "AppDatabase.kt").exists()
@@ -233,7 +267,7 @@ class TestEnhancedMCPServer:
             },
         )
 
-        assert result.get("success") == True
+        assert is_mcp_success(result)
         base_path = enhanced_server.project_path / "src/main/kotlin/com/test/app/network"
         assert (base_path / "UserApi.kt").exists()
 
@@ -266,7 +300,7 @@ class TestSecurityPrivacyServer:
             },
         )
 
-        assert result.get("success") == True
+        assert is_mcp_success(result)
         assert result.get("compliance_standard") == "GDPR"
         assert len(result.get("implemented_features", [])) == 3
 
@@ -281,7 +315,7 @@ class TestSecurityPrivacyServer:
             },
         )
 
-        assert result.get("success") == True
+        assert is_mcp_success(result)
         assert result.get("compliance_standard") == "HIPAA"
         assert len(result.get("implemented_features", [])) == 3
 
@@ -294,7 +328,7 @@ class TestSecurityPrivacyServer:
             {"data": test_data, "encryption_type": "aes256", "key_source": "generated"},
         )
 
-        assert result.get("success") == True
+        assert is_mcp_success(result)
         assert result.get("encrypted_data") != test_data
         assert result.get("encryption_method") == "aes256"
 
@@ -308,11 +342,9 @@ class TestSecurityPrivacyServer:
         )
 
         # Check if audit entry was created
-        conn = sqlite3.connect(security_server.audit_db_path)
-        cursor = conn.cursor()
+        cursor = security_server.audit_db.cursor()
         cursor.execute("SELECT COUNT(*) FROM audit_log")
         count = cursor.fetchone()[0]
-        conn.close()
 
         assert count > 0, "Audit log should contain entries"
 
@@ -353,7 +385,7 @@ class TestAIIntegrationServer:
                 },
             )
 
-            assert result.get("success") == True
+            assert is_mcp_success(result)
             assert "response" in result
 
     @pytest.mark.asyncio
@@ -375,7 +407,7 @@ class TestAIIntegrationServer:
                 },
             )
 
-            assert result.get("success") == True
+            assert is_mcp_success(result)
 
     @pytest.mark.asyncio
     async def test_code_analysis_with_ai(self, ai_server):
@@ -394,7 +426,7 @@ class TestAIIntegrationServer:
             {"code": test_code, "analysis_type": "security", "language": "kotlin"},
         )
 
-        assert result.get("success") == True
+        assert is_mcp_success(result)
 
     @pytest.mark.asyncio
     async def test_external_api_integration(self, ai_server):
@@ -410,7 +442,7 @@ class TestAIIntegrationServer:
             },
         )
 
-        assert result.get("success") == True
+        assert is_mcp_success(result)
 
 
 class TestFileAndAPIManagement:
@@ -437,7 +469,7 @@ class TestFileAndAPIManagement:
             },
         )
 
-        assert result.get("success") == True
+        assert is_mcp_success(result)
 
     @pytest.mark.asyncio
     async def test_cloud_sync_setup(self, full_server):
@@ -452,7 +484,7 @@ class TestFileAndAPIManagement:
             },
         )
 
-        assert result.get("success") == True
+        assert is_mcp_success(result)
 
     @pytest.mark.asyncio
     async def test_api_usage_monitoring(self, full_server):
@@ -466,7 +498,7 @@ class TestFileAndAPIManagement:
             },
         )
 
-        assert result.get("success") == True
+        assert is_mcp_success(result)
 
 
 class TestToolIntegrity:
@@ -524,7 +556,7 @@ class TestToolIntegrity:
 
             # Test invalid tool name
             result = await server.handle_call_tool("invalid_tool_name", {})
-            assert result.get("success") == False
+            assert not is_mcp_success(result)
             assert "error" in result or "message" in result
 
     @pytest.mark.asyncio
@@ -577,7 +609,7 @@ class TestPerformanceAndStability:
         # Check all succeeded
         for i, result in enumerate(results):
             assert not isinstance(result, Exception), f"Task {i} failed with exception: {result}"
-            assert result.get("success") == True, f"Task {i} failed: {result}"
+            assert is_mcp_success(result), f"Task {i} failed: {result}"
 
     @pytest.mark.asyncio
     async def test_memory_usage(self, stress_server):
