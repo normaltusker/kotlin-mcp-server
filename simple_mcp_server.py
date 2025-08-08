@@ -230,9 +230,15 @@ class MCPServer:
             elif name == "analyze_project":
                 return await self._analyze_project(arguments)
             else:
-                return {"content": [{"type": "text", "text": f"Unknown tool: {name}"}]}
+                return {
+                    "content": [{"type": "text", "text": f"Unknown tool: {name}"}],
+                    "error": f"Unknown tool: {name}"
+                }
         except Exception as e:
-            return {"content": [{"type": "text", "text": f"Error executing {name}: {str(e)}"}]}
+            return {
+                "content": [{"type": "text", "text": f"Error executing {name}: {str(e)}"}],
+                "error": f"Error executing {name}: {str(e)}"
+            }
 
     async def _gradle_build(self, arguments: dict) -> dict:
         task = arguments.get("task", "assembleDebug")
