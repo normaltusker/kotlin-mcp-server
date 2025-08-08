@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "kotlin-android": {
+      "command": "kotlin-android-mcp",
+      "args": [],
+      "env": {
+        "PROJECT_PATH": "${workspaceFolder}"
+      }
+    }
+  }
+}

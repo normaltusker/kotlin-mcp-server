@@ -1,187 +1,229 @@
-# Android MCP Assistant
+# Kotlin Android MCP Server
 
-This project enables a Local Model Context Protocol (MCP)-based assistant to interact with your Kotlin Android project using any LLM of your choice — OpenAI, Gemini, or OpenRouter — at runtime.
-
----
-
-## ✅ Features
-
-- 🔄 **Runtime Model Switching** – Easily switch between GPT-4, Gemini Pro, and Mistral via CLI.
-- 📂 **Full Project Context** – The LLM sees your Kotlin Android app structure (activities, layouts, Gradle, etc.).
-- ✍️ **File Editing by LLM** – Add/modify Kotlin code directly using the selected language model.
-- 🧠 **Grounded Conversations** – Ask for changes or new screens, and the AI responds in the context of your app.
+A Model Context Protocol (MCP) server that provides AI agents with comprehensive access to Kotlin-based Android development projects. This server enables context-aware assistance for Android development through any MCP-compatible AI agent like Claude Desktop, VS Code extensions, and more.
 
 ---
 
-## ⚠️ What You Can Add
+## ✨ Features
 
-These optional components enhance functionality and are supported:
-
-| Capability                       | How to Add |
-|----------------------------------|------------|
-| 🧠 Kotlin syntax intelligence     | Add [`kotlin-language-server`](https://github.com/fwcd/kotlin-language-server) and `mcp-lsp` |
-| ⚙️ Gradle build/test integration | Add `mcp-process` and configure commands like `./gradlew assembleDebug` |
-| 💬 GUI Assistant Chat            | Connect to [OpenWebUI](https://github.com/open-webui/open-webui) or use [`aider`](https://github.com/paul-gauthier/aider) |
-| 🧪 AI-based Code Suggestions     | Combine LSP + MCP for full developer co-pilot capabilities |
+- 🔄 **Workspace-Aware** – Automatically detects and works with your current Android project
+- 📂 **Full Project Context** – AI agents can access your Kotlin files, layouts, Gradle configs, and AndroidManifest.xml
+- 🛠️ **Android Development Tools** – Build, test, and generate code directly through AI commands
+- 🧠 **Multiple AI Agent Support** – Works with Claude Desktop, VS Code extensions, and other MCP clients
+- 🎯 **Template Generation** – Create Activities, Fragments, Layouts with proper Kotlin structure
+- 📊 **Project Analysis** – Analyze dependencies, structure, and manifest configuration
 
 ---
 
-## 🚀 Usage
+## 🚀 Quick Start
+
+### Installation
 
 ```bash
-python3 mcp_launcher.py openai /absolute/path/to/your/project
-python3 mcp_launcher.py gemini /Users/me/dev/MyAndroidApp
+# Clone and setup
+git clone <your-repo-url>
+cd kotlin-mcp-server
+
+# Run the installer
+python3 install.py
 ```
 
-Or define your project path in `.env`:
+The installer will:
+- Install all dependencies
+- Create workspace-aware configurations for different AI agents
+- Set up the server as a global command (`kotlin-android-mcp`)
 
-```env
-PROJECT_PATH=/Users/me/dev/MyAndroidApp
+### Integration with AI Agents
+
+#### Claude Desktop
+1. Copy the configuration from `mcp_config_claude.json`
+2. Add it to your Claude Desktop config file:
+   ```bash
+   open ~/Library/Application\ Support/Claude/claude_desktop_config.json
+   ```
+3. Restart Claude Desktop
+4. The server will automatically use your current workspace
+
+#### VS Code Extensions
+- Use `mcp_config_vscode.json` for VS Code-based integrations
+- Start the bridge server: `python3 vscode_bridge.py`
+
+#### Other MCP Clients
+- Use `mcp_config.json` with your preferred MCP client
+- The server uses workspace environment variables for portability
+
+---
+
+## 🛠️ Available Tools
+
+### 1. **gradle_build** - Build Android Projects
+```
+Build your Android project using Gradle
+Parameters:
+- task: Gradle task to run (default: "assembleDebug")
+- clean: Run clean before build (default: false)
 ```
 
-Then run:
+### 2. **run_tests** - Execute Tests
+```
+Run Android unit tests or instrumented tests
+Parameters:
+- test_type: "unit", "instrumented", or "all" (default: "unit")
+```
 
-```bash
-python3 mcp_launcher.py openrouter
+### 3. **create_kotlin_file** - Generate Kotlin Classes
+```
+Create new Kotlin files with proper templates
+Parameters:
+- file_path: Relative path for the new file
+- package_name: Package name for the class
+- class_name: Name of the class
+- class_type: "activity", "fragment", "class", "data_class", or "interface"
+```
+
+### 4. **create_layout_file** - Generate Android Layouts
+```
+Create new Android layout XML files
+Parameters:
+- layout_name: Name of the layout file (without .xml)
+- layout_type: "activity", "fragment", "item", or "custom"
+```
+
+### 5. **analyze_project** - Project Analysis
+```
+Analyze Android project structure and configuration
+Parameters:
+- analysis_type: "structure", "dependencies", "manifest", or "all"
 ```
 
 ---
 
-## 📁 Directory Layout
+## 📂 Resources
 
-```
-.
-├── .env                  # API keys and project path
-├── mcp_launcher.py       # Main launcher script
-├── android-project/      # Optional placeholder project directory
-├── servers/
-│   ├── mcp-filesystem/   # For reading/writing project files
-│   ├── mcp-process/      # (Optional) For running shell commands like Gradle
-│   └── kotlin-language-server/  # (Optional) LSP for Kotlin syntax + types
+The server provides access to your Android project files as MCP resources:
+
+- **Android Configuration Files**: `AndroidManifest.xml`, `build.gradle`, `settings.gradle`
+- **Kotlin Source Files**: All `.kt` files in `src/main/java`, `src/main/kotlin`
+- **Layout Files**: All XML files in `res/layout/`
+- **Test Files**: Kotlin files in test directories
+
+---
+
+## 💡 Usage Examples
+
+Once integrated with an AI agent, you can use natural language commands like:
+
+- *"Analyze my Android project structure"*
+- *"Create a new LoginActivity with proper Kotlin structure"*
+- *"Build my app in debug mode"*
+- *"Run my unit tests and show the results"*
+- *"Show me all my layout files"*
+- *"Create a new fragment for user profile"*
+- *"Generate a data class for User with id, name, and email properties"*
+
+---
+
+## 🔧 Configuration Files
+
+The installer creates multiple configuration files for different use cases:
+
+- **`mcp_config_claude.json`** - For Claude Desktop (uses `${workspaceRoot}`)
+- **`mcp_config_vscode.json`** - For VS Code extensions (uses `${workspaceFolder}`)
+- **`mcp_config.json`** - Generic configuration (uses `${WORKSPACE_ROOT}`)
+
+### Example Claude Desktop Configuration
+```json
+{
+  "mcpServers": {
+    "kotlin-android": {
+      "command": "kotlin-android-mcp",
+      "args": [],
+      "env": {
+        "PROJECT_PATH": "${workspaceRoot}"
+      }
+    }
+  }
+}
 ```
 
 ---
 
-## 🧑‍💻 Requirements
+## 🧪 Testing
 
-- Python 3.8+
-- Aider, LiteLLM, or OpenWebUI for chat
-- IntelliJ with Kotlin plugin for editing
+Verify your installation works correctly:
+
+```bash
+# Run comprehensive tests
+python3 comprehensive_test.py
+
+# Test specific functionality
+echo '{"jsonrpc": "2.0", "id": 1, "method": "tools/list", "params": {}}' | python3 simple_mcp_server.py /path/to/android/project
+```
 
 ---
 
-## 🧪 Recommended Tools
+## 🏗️ Architecture
 
-- [`aider`](https://github.com/paul-gauthier/aider)
-- [`mcp-filesystem`](https://github.com/modelcontext/mcp-filesystem)
-- [`mcp-process`](https://github.com/modelcontext/mcp-process)
-- [`kotlin-language-server`](https://github.com/fwcd/kotlin-language-server)
-- [`mcp-lsp`](https://github.com/modelcontext/mcp-lsp)
+### Core Components
 
----
+- **`simple_mcp_server.py`** - Main MCP server implementation
+- **`install.py`** - Installation and configuration script
+- **`vscode_bridge.py`** - HTTP bridge for VS Code integration
+- **`comprehensive_test.py`** - Test suite for validation
+- **`__main__.py`** - Module entry point (allows `python -m kotlin_android_mcp`)
 
-## 📦 License
+### Project Structure
 
-MIT
-
-
----
-
-## 🛠️ Gradle Build Support via `mcp-process`
-
-To allow the assistant to run commands like `./gradlew build`, do the following:
-
-1. Clone the MCP process server:
-```bash
-git clone https://github.com/modelcontext/mcp-process servers/mcp-process
+The clean project structure after setup:
+```
+kotlin-mcp-server/
+├── 📄 Core Files
+│   ├── simple_mcp_server.py     # Main MCP server
+│   ├── install.py               # Installation script
+│   ├── requirements.txt         # Dependencies
+│   └── __main__.py             # Module entry point
+│
+├── 🔧 Configuration Files
+│   ├── mcp_config.json         # Generic MCP configuration
+│   ├── mcp_config_claude.json  # Claude Desktop specific
+│   └── mcp_config_vscode.json  # VS Code specific
+│
+├── 🧪 Testing & Integration
+│   ├── comprehensive_test.py   # Complete test suite
+│   └── vscode_bridge.py        # HTTP bridge for VS Code
+│
+└── 📚 Documentation
+    └── README.md               # This file
 ```
 
-2. Use the included wrapper script:
-```bash
-chmod +x servers/mcp-process/mcp-gradle-wrapper.sh
-./servers/mcp-process/mcp-gradle-wrapper.sh /path/to/project "./gradlew assembleDebug"
+### Supported Android Project Structure
+
+The server works with standard Android project structures:
+```
+android-project/
+├── app/
+│   ├── build.gradle(.kts)
+│   └── src/
+│       ├── main/
+│       │   ├── AndroidManifest.xml
+│       │   ├── java/com/example/
+│       │   ├── kotlin/com/example/
+│       │   └── res/layout/
+│       ├── test/
+│       └── androidTest/
+├── build.gradle(.kts)
+└── settings.gradle(.kts)
 ```
 
-You can then allow your assistant to run build/test commands using subprocess or integrate it in your aider prompt.
-
----
-
-## 🧠 Kotlin Syntax Intelligence with LSP
-
-Enable Kotlin code understanding by wiring in a Language Server:
-
-1. Clone Kotlin LSP:
-```bash
-git clone https://github.com/fwcd/kotlin-language-server servers/kotlin-language-server
-cd servers/kotlin-language-server
-./gradlew installDist
-```
-
-2. Run the language server:
-```bash
-./build/install/kotlin-language-server/bin/kotlin-language-server
-```
-
-3. Integrate it with [mcp-lsp](https://github.com/modelcontext/mcp-lsp) (optional but recommended):
-```bash
-git clone https://github.com/modelcontext/mcp-lsp servers/mcp-lsp
-cd servers/mcp-lsp
-npm install
-npm run start
-```
-
-Configure it to point to the above Kotlin language server binary.
-
----
-
-## 🤖 Aider Integration
-
-Aider automatically detects the current working directory and Git context. You’re already wired to use Aider from the launcher.
-
-To invoke:
+### Alternative Installation Methods
 
 ```bash
-python3 mcp_launcher.py openai /path/to/your/project
+# Method 1: Direct execution
+python3 simple_mcp_server.py /path/to/android/project
+
+# Method 2: Module execution (after installation)
+python3 -m kotlin_android_mcp /path/to/android/project
+
+# Method 3: System command (after installation)
+kotlin-android-mcp /path/to/android/project
 ```
-
-Then, in the chat:
-
-> 💬 "Run a Gradle build and check for lint issues"
-
-You can respond:
-```bash
-./servers/mcp-process/mcp-gradle-wrapper.sh /path/to/project "./gradlew lint"
-```
-
-Or automate subprocess calling in `mcp_launcher.py` using `mcp-process`.
-
----
-
-
-
----
-
-## 🐳 Docker Support (Optional)
-
-You can build and run the entire MCP assistant setup in a portable Docker container.
-
-### 1. Build the image
-```bash
-docker-compose build
-```
-
-### 2. Start the container
-```bash
-docker-compose run mcp-assistant
-```
-
-This gives you an environment with:
-- Python 3.11
-- Aider preinstalled
-- Node.js & npm
-- OpenJDK 17
-- Git + curl + bash
-
-Perfect for experimenting, testing or sharing with others.
-
----
