@@ -4,8 +4,6 @@ Enhanced Kotlin Android MCP Server for Complex App Development
 Supports advanced UI development, architecture patterns, and modern Android features
 """
 
-from pathlib import Path
-
 # Import the base server
 from simple_mcp_server import MCPServer
 
@@ -1064,7 +1062,6 @@ fun {component_name}Preview() {{
         package_name = arguments["package_name"]
         include_repository = arguments.get("include_repository", True)
         include_use_cases = arguments.get("include_use_cases", False)
-        data_source = arguments.get("data_source", "network")
 
         created_files = []
 
@@ -1073,7 +1070,7 @@ fun {component_name}Preview() {{
 
         viewmodel_path = (
             Path(self.project_path)
-            / f"src/main/kotlin/{package_name.replace('.', '/')}/{feature_name.lower()}/{feature_name}ViewModel.kt"
+            / f"src/main/kotlin/{package_name.replace('.', '/')}/{feature_name.lower()}/{feature_name.capitalize()}ViewModel.kt"
         )
         viewmodel_path.parent.mkdir(parents=True, exist_ok=True)
 
@@ -1089,18 +1086,18 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
 @HiltViewModel
-class {feature_name}ViewModel @Inject constructor(
-    private val repository: {feature_name}Repository
+class {feature_name.capitalize()}ViewModel @Inject constructor(
+    private val repository: {feature_name.capitalize()}Repository
 ) : ViewModel() {{
 
-    private val _uiState = MutableStateFlow({feature_name}UiState())
-    val uiState: StateFlow<{feature_name}UiState> = _uiState.asStateFlow()
+    private val _uiState = MutableStateFlow({feature_name.capitalize()}UiState())
+    val uiState: StateFlow<{feature_name.capitalize()}UiState> = _uiState.asStateFlow()
 
-    fun load{feature_name}Data() {{
+    fun load{feature_name.capitalize()}Data() {{
         viewModelScope.launch {{
             _uiState.value = _uiState.value.copy(isLoading = true)
             try {{
-                val data = repository.get{feature_name}Data()
+                val data = repository.get{feature_name.capitalize()}Data()
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
                     data = data
@@ -1115,7 +1112,7 @@ class {feature_name}ViewModel @Inject constructor(
     }}
 }}
 
-data class {feature_name}UiState(
+data class {feature_name.capitalize()}UiState(
     val isLoading: Boolean = false,
     val data: List<Any> = emptyList(),
     val error: String? = null
@@ -1129,7 +1126,7 @@ data class {feature_name}UiState(
         if include_repository:
             repo_path = (
                 Path(self.project_path)
-                / f"src/main/kotlin/{package_name.replace('.', '/')}/{feature_name.lower()}/{feature_name}Repository.kt"
+                / f"src/main/kotlin/{package_name.replace('.', '/')}/{feature_name.lower()}/{feature_name.capitalize()}Repository.kt"
             )
             repo_path.parent.mkdir(parents=True, exist_ok=True)
 
@@ -1139,18 +1136,18 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class {feature_name}Repository @Inject constructor(
-    private val remoteDataSource: {feature_name}RemoteDataSource,
-    private val localDataSource: {feature_name}LocalDataSource
+class {feature_name.capitalize()}Repository @Inject constructor(
+    private val remoteDataSource: {feature_name.capitalize()}RemoteDataSource,
+    private val localDataSource: {feature_name.capitalize()}LocalDataSource
 ) {{
 
-    suspend fun get{feature_name}Data(): List<Any> {{
+    suspend fun get{feature_name.capitalize()}Data(): List<Any> {{
         return try {{
-            val remoteData = remoteDataSource.fetch{feature_name}Data()
-            localDataSource.cache{feature_name}Data(remoteData)
+            val remoteData = remoteDataSource.fetch{feature_name.capitalize()}Data()
+            localDataSource.cache{feature_name.capitalize()}Data(remoteData)
             remoteData
         }} catch (e: Exception) {{
-            localDataSource.getCached{feature_name}Data()
+            localDataSource.getCached{feature_name.capitalize()}Data()
         }}
     }}
 }}
@@ -1163,7 +1160,7 @@ class {feature_name}Repository @Inject constructor(
         if include_use_cases:
             usecase_path = (
                 Path(self.project_path)
-                / f"src/main/kotlin/{package_name.replace('.', '/')}/{feature_name.lower()}/{feature_name}UseCase.kt"
+                / f"src/main/kotlin/{package_name.replace('.', '/')}/{feature_name.lower()}/{feature_name.capitalize()}UseCase.kt"
             )
             usecase_path.parent.mkdir(parents=True, exist_ok=True)
 
@@ -1173,12 +1170,12 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class {feature_name}UseCase @Inject constructor(
-    private val repository: {feature_name}Repository
+class {feature_name.capitalize()}UseCase @Inject constructor(
+    private val repository: {feature_name.capitalize()}Repository
 ) {{
 
     suspend fun execute(): List<Any> {{
-        return repository.get{feature_name}Data()
+        return repository.get{feature_name.capitalize()}Data()
     }}
 }}
 """
@@ -1190,7 +1187,7 @@ class {feature_name}UseCase @Inject constructor(
             "content": [
                 {
                     "type": "text",
-                    "text": f"Created MVVM architecture for {feature_name}:\\n"
+                    "text": f"Created MVVM architecture for {feature_name.capitalize()}:\\n"
                     + "\\n".join(created_files),
                 }
             ]
@@ -1199,13 +1196,13 @@ class {feature_name}UseCase @Inject constructor(
     # Modern Android Development Methods
     async def _setup_navigation_component(self, arguments: dict) -> dict:
         """Set up Android Navigation Component"""
+        from pathlib import Path
+
         graph_name = arguments["graph_name"]
         destinations = arguments["destinations"]
-        use_safe_args = arguments.get("use_safe_args", True)
-        deep_links = arguments.get("deep_links", [])
 
         # Create navigation graph XML
-        nav_path = self.project_path / f"app/src/main/res/navigation/{graph_name}.xml"
+        nav_path = Path(self.project_path) / f"app/src/main/res/navigation/{graph_name}.xml"
         nav_path.parent.mkdir(parents=True, exist_ok=True)
 
         nav_content = f"""<?xml version="1.0" encoding="utf-8"?>
@@ -1239,26 +1236,16 @@ class {feature_name}UseCase @Inject constructor(
 
     async def _create_work_manager_worker(self, arguments: dict) -> dict:
         """Create WorkManager worker"""
+        from pathlib import Path
+
         worker_name = arguments["worker_name"]
         package_name = arguments["package_name"]
-        work_type = arguments.get("work_type", "one_time")
-        constraints = arguments.get("constraints", [])
 
         worker_path = (
-            self.project_path
+            Path(self.project_path)
             / f"app/src/main/java/{package_name.replace('.', '/')}/worker/{worker_name}Worker.kt"
         )
         worker_path.parent.mkdir(parents=True, exist_ok=True)
-
-        constraints_code = ""
-        if constraints:
-            constraints_code = f"""
-        val constraints = Constraints.Builder()
-            {chr(10).join([f'.setRequiredNetworkType(NetworkType.CONNECTED)' if 'network' in constraints else '',
-                          f'.setRequiresBatteryNotLow(true)' if 'battery' in constraints else '',
-                          f'.setRequiresCharging(true)' if 'charging' in constraints else ''])}
-            .build()
-"""
 
         worker_content = f"""package {package_name}.worker
 
@@ -1278,7 +1265,6 @@ class {worker_name}Worker @AssistedInject constructor(
     override suspend fun doWork(): Result {{
         return try {{
             // TODO: Implement your background work here
-
             Result.success()
         }} catch (e: Exception) {{
             Result.failure()
@@ -1286,20 +1272,9 @@ class {worker_name}Worker @AssistedInject constructor(
     }}
 
     companion object {{
-        fun start{work_type.replace('_', '').title()}Work(context: Context) {{{constraints_code}
-            val workRequest = {
-                'OneTimeWorkRequestBuilder' if work_type == 'one_time' else
-                'PeriodicWorkRequestBuilder' if work_type == 'periodic' else
-                'OneTimeWorkRequestBuilder'
-            }<{worker_name}Worker>(){
-                f'''
-                .setConstraints(constraints)''' if constraints else ''
-            }{
-                f'''
-                .setRepeatInterval(15, TimeUnit.MINUTES)''' if work_type == 'periodic' else ''
-            }
+        fun startWork(context: Context) {{
+            val workRequest = OneTimeWorkRequestBuilder<{worker_name}Worker>()
                 .build()
-
             WorkManager.getInstance(context).enqueue(workRequest)
         }}
     }}
@@ -1338,25 +1313,25 @@ class {worker_name}Worker @AssistedInject constructor(
             imports += "import javax.inject.Inject\n"
 
         flow_implementations = {
-            "state_flow": f"""
+            "state_flow": """
     private val _dataFlow = MutableStateFlow<String>("")
     val dataFlow: StateFlow<String> = _dataFlow.asStateFlow()
 
-    fun updateData(newData: String) {{
+    fun updateData(newData: String) {
         _dataFlow.value = newData
-    }}
+    }
 """,
-            "shared_flow": f"""
+            "shared_flow": """
     private val _eventFlow = MutableSharedFlow<String>()
     val eventFlow: SharedFlow<String> = _eventFlow.asSharedFlow()
 
-    fun emitEvent(event: String) {{
-        viewModelScope.launch {{
+    fun emitEvent(event: String) {
+        viewModelScope.launch {
             _eventFlow.emit(event)
-        }}
-    }}
+        }
+    }
 """,
-            "flow": f"""
+            "flow": """
     fun getDataFlow(): Flow<String> = flow {{
         // TODO: Implement your data emission logic
         emit("Sample data")
@@ -1697,7 +1672,6 @@ interface {entity}Dao {{
         """Setup Retrofit API"""
         api_name = arguments.get("api_name", "ApiService")
         package_name = arguments.get("package_name", "com.example.network")
-        base_url = arguments.get("base_url", "https://api.example.com")
         endpoints = arguments.get("endpoints", [])
 
         # Create directory structure
