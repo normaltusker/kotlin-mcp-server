@@ -4,13 +4,7 @@ Enhanced Kotlin Android MCP Server for Complex App Development
 Supports advanced UI development, architecture patterns, and modern Android features
 """
 
-import asyncio
-import json
-import os
-import subprocess
-import sys
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Sequence
 
 # Import the base server
 from simple_mcp_server import MCPServer
@@ -1000,7 +994,7 @@ fun {component_name}Screen({nav_param.lstrip(", ")}) {{{state_code}
             text = "{component_name} Screen",
             style = MaterialTheme.typography.headlineMedium
         )
-        
+
         // TODO: Add your screen content here
     }}
 }}
@@ -1029,7 +1023,7 @@ fun {component_name}({nav_param.lstrip(", ")}) {{{state_code}
                 text = "{component_name}",
                 style = MaterialTheme.typography.titleMedium
             )
-            
+
             // TODO: Add your component content here
         }}
     }}
@@ -1098,10 +1092,10 @@ import javax.inject.Inject
 class {feature_name}ViewModel @Inject constructor(
     private val repository: {feature_name}Repository
 ) : ViewModel() {{
-    
+
     private val _uiState = MutableStateFlow({feature_name}UiState())
     val uiState: StateFlow<{feature_name}UiState> = _uiState.asStateFlow()
-    
+
     fun load{feature_name}Data() {{
         viewModelScope.launch {{
             _uiState.value = _uiState.value.copy(isLoading = true)
@@ -1149,7 +1143,7 @@ class {feature_name}Repository @Inject constructor(
     private val remoteDataSource: {feature_name}RemoteDataSource,
     private val localDataSource: {feature_name}LocalDataSource
 ) {{
-    
+
     suspend fun get{feature_name}Data(): List<Any> {{
         return try {{
             val remoteData = remoteDataSource.fetch{feature_name}Data()
@@ -1182,7 +1176,7 @@ import javax.inject.Singleton
 class {feature_name}UseCase @Inject constructor(
     private val repository: {feature_name}Repository
 ) {{
-    
+
     suspend fun execute(): List<Any> {{
         return repository.get{feature_name}Data()
     }}
@@ -1228,7 +1222,7 @@ class {feature_name}UseCase @Inject constructor(
         android:name="com.example.{dest}Fragment"
         android:label="{dest}"
         tools:layout="@layout/fragment_{dest.lower()}" />
-        
+
 """
 
         nav_content += "</navigation>"
@@ -1284,18 +1278,18 @@ class {worker_name}Worker @AssistedInject constructor(
     override suspend fun doWork(): Result {{
         return try {{
             // TODO: Implement your background work here
-            
+
             Result.success()
         }} catch (e: Exception) {{
             Result.failure()
         }}
     }}
-    
+
     companion object {{
         fun start{work_type.replace('_', '').title()}Work(context: Context) {{{constraints_code}
             val workRequest = {
-                'OneTimeWorkRequestBuilder' if work_type == 'one_time' else 
-                'PeriodicWorkRequestBuilder' if work_type == 'periodic' else 
+                'OneTimeWorkRequestBuilder' if work_type == 'one_time' else
+                'PeriodicWorkRequestBuilder' if work_type == 'periodic' else
                 'OneTimeWorkRequestBuilder'
             }<{worker_name}Worker>(){
                 f'''
@@ -1305,7 +1299,7 @@ class {worker_name}Worker @AssistedInject constructor(
                 .setRepeatInterval(15, TimeUnit.MINUTES)''' if work_type == 'periodic' else ''
             }
                 .build()
-                
+
             WorkManager.getInstance(context).enqueue(workRequest)
         }}
     }}
@@ -1347,7 +1341,7 @@ class {worker_name}Worker @AssistedInject constructor(
             "state_flow": f"""
     private val _dataFlow = MutableStateFlow<String>("")
     val dataFlow: StateFlow<String> = _dataFlow.asStateFlow()
-    
+
     fun updateData(newData: String) {{
         _dataFlow.value = newData
     }}
@@ -1355,7 +1349,7 @@ class {worker_name}Worker @AssistedInject constructor(
             "shared_flow": f"""
     private val _eventFlow = MutableSharedFlow<String>()
     val eventFlow: SharedFlow<String> = _eventFlow.asSharedFlow()
-    
+
     fun emitEvent(event: String) {{
         viewModelScope.launch {{
             _eventFlow.emit(event)
@@ -1503,18 +1497,18 @@ private val Context.{store_name.lower()}DataStore: DataStore<Preferences> by pre
 
 @Singleton
 class {store_name}DataStore @Inject constructor(private val context: Context) {{
-    
+
     companion object {{
         {chr(10).join([f'val {key.upper()}_KEY = stringPreferencesKey("{key}")' for key in keys])}
     }}
-    
+
     {chr(10).join([f'''
     suspend fun save{key.title()}(value: String) {{
         context.{store_name.lower()}DataStore.edit {{ preferences ->
             preferences[{key.upper()}_KEY] = value
         }}
     }}
-    
+
     fun get{key.title()}(): Flow<String> {{
         return context.{store_name.lower()}DataStore.data.map {{ preferences ->
             preferences[{key.upper()}_KEY] ?: ""
@@ -1536,9 +1530,9 @@ import javax.inject.Singleton
 
 @Singleton
 class {store_name}DataStore @Inject constructor(private val context: Context) {{
-    
+
     // TODO: Implement proto DataStore methods
-    
+
 }}
 """
 
@@ -1633,7 +1627,7 @@ abstract class {database_name} : RoomDatabase() {{
     companion object {{
         @Volatile
         private var INSTANCE: {database_name}? = null
-        
+
         fun getDatabase(context: Context): {database_name} {{
             return INSTANCE ?: synchronized(this) {{
                 val instance = Room.databaseBuilder(
@@ -1677,13 +1671,13 @@ import kotlinx.coroutines.flow.Flow
 interface {entity}Dao {{
     @Query("SELECT * FROM {entity.lower()}")
     fun getAll(): Flow<List<{entity}>>
-    
+
     @Insert
     suspend fun insert({entity.lower()}: {entity})
-    
+
     @Update
     suspend fun update({entity.lower()}: {entity})
-    
+
     @Delete
     suspend fun delete({entity.lower()}: {entity})
 }}
