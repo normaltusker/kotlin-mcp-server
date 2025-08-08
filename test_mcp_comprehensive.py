@@ -883,6 +883,7 @@ class TestVSCodeBridgeServer:
         """Test bridge server handles concurrent requests"""
         try:
             import asyncio
+
             import aiohttp
         except ImportError:
             pytest.skip("aiohttp library not available")

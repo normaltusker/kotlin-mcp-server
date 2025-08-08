@@ -108,9 +108,10 @@ def validate_environment():
 
 def test_bridge_server():
     """Test VS Code bridge server can start and respond"""
+    import socket
     import subprocess
     import time
-    import socket
+
     import requests
 
     try:

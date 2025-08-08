@@ -130,8 +130,9 @@ class TestVSCodeBridgeBasic:
 
     def test_bridge_server_startup_function(self):
         """Test bridge server startup function exists"""
-        from vscode_bridge import start_bridge_server
         import inspect
+
+        from vscode_bridge import start_bridge_server
 
         # Check function exists and is callable
         assert callable(start_bridge_server)

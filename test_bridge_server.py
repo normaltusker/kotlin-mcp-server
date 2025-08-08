@@ -76,8 +76,9 @@ class TestBridgeServerIntegration:
         """Start bridge server for integration testing"""
         requests = pytest.importorskip("requests")
 
-        from vscode_bridge import MCPBridgeHandler
         from http.server import HTTPServer
+
+        from vscode_bridge import MCPBridgeHandler
 
         # Set up test environment
         test_workspace = tempfile.mkdtemp()
@@ -248,8 +249,9 @@ class TestBridgeServerPerformance:
     def test_startup_time(self):
         """Test bridge server starts quickly"""
         import time
-        from vscode_bridge import MCPBridgeHandler
         from http.server import HTTPServer
+
+        from vscode_bridge import MCPBridgeHandler
 
         # Find available port
         sock = socket.socket()
