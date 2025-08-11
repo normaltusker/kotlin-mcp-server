@@ -279,7 +279,6 @@ def main():
     print("\n📁 Checking Server Files...")
     server_files = [
         script_dir / "kotlin_mcp_server.py",
-        script_dir / "kotlin_mcp_server.py",
         script_dir / "vscode_bridge.py",
     ]
 
