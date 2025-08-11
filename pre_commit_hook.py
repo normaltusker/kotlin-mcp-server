@@ -58,20 +58,20 @@ def run_quick_checks():
             import shlex
 
             command_list = shlex.split(command)
-            
+
             # Additional security: validate command executables
-            if command_list[0] not in ['python3', 'python', 'pytest', 'black', 'flake8']:
+            if command_list[0] not in ["python3", "python", "pytest", "black", "flake8"]:
                 print(f"❌ {description} - BLOCKED: Unauthorized command: {command_list[0]}")
                 failed_checks.append(description)
                 continue
-            
+
             result = subprocess.run(
-                command_list, 
-                cwd=project_root, 
-                capture_output=True, 
-                text=True, 
+                command_list,
+                cwd=project_root,
+                capture_output=True,
+                text=True,
                 timeout=30,
-                shell=False  # Explicitly disable shell execution
+                shell=False,  # Explicitly disable shell execution
             )
 
             if result.returncode == 0:
