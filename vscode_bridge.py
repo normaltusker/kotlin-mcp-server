@@ -81,8 +81,32 @@ class MCPBridgeHandler(BaseHTTPRequestHandler):
         self.end_headers()
 
     def call_mcp_tool(self, tool_name, arguments, project_path):
-        """Call the MCP server tool via command line"""
-        cmd = ["kotlin-android-mcp", project_path]
+        """Call the MCP server tool via command line with security validation"""
+
+        # Validate project_path to prevent command injection
+        try:
+            from pathlib import Path
+
+            validated_path = Path(project_path).resolve()
+
+            # Basic security checks
+            if not validated_path.exists():
+                return {"error": f"Project path does not exist: {project_path}"}
+
+            if not validated_path.is_dir():
+                return {"error": f"Project path is not a directory: {project_path}"}
+
+            # Convert back to string for subprocess
+            safe_project_path = str(validated_path)
+
+        except (OSError, ValueError) as e:
+            return {"error": f"Invalid project path: {e}"}
+
+        # Validate tool_name to prevent injection
+        if not tool_name.replace("_", "").replace("-", "").isalnum():
+            return {"error": f"Invalid tool name: {tool_name}"}
+
+        cmd = ["kotlin-android-mcp", safe_project_path]
 
         # Create a mock JSON-RPC request
         request = {
@@ -95,7 +119,7 @@ class MCPBridgeHandler(BaseHTTPRequestHandler):
         try:
             # Set environment variable for the subprocess
             env = os.environ.copy()
-            env["PROJECT_PATH"] = project_path
+            env["PROJECT_PATH"] = safe_project_path
 
             process = subprocess.Popen(
                 cmd,
@@ -104,9 +128,10 @@ class MCPBridgeHandler(BaseHTTPRequestHandler):
                 stderr=subprocess.PIPE,
                 text=True,
                 env=env,
+                shell=False,  # Explicitly disable shell execution
             )
 
-            stdout, stderr = process.communicate(json.dumps(request))
+            stdout, stderr = process.communicate(json.dumps(request), timeout=30)
 
             if process.returncode == 0:
                 response = json.loads(stdout)
@@ -114,6 +139,11 @@ class MCPBridgeHandler(BaseHTTPRequestHandler):
             else:
                 return {"error": stderr}
 
+        except subprocess.TimeoutExpired:
+            process.kill()
+            return {"error": "Command timeout"}
+        except json.JSONDecodeError as e:
+            return {"error": f"Invalid JSON response: {e}"}
         except Exception as e:
             return {"error": str(e)}
 

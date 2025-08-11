@@ -29,8 +29,21 @@ class CITestRunner:
             import shlex
 
             command_list = shlex.split(command)
+
+            # Additional security: validate command executables
+            allowed_commands = ["python3", "python", "pytest", "black", "flake8", "pip", "coverage"]
+            if command_list[0] not in allowed_commands:
+                print(f"❌ {description} - BLOCKED: Unauthorized command: {command_list[0]}")
+                self.failed_checks.append(f"{description} (blocked)")
+                return False
+
             result = subprocess.run(
-                command_list, cwd=self.project_root, capture_output=True, text=True, timeout=300
+                command_list,
+                cwd=self.project_root,
+                capture_output=True,
+                text=True,
+                timeout=300,
+                shell=False,  # Explicitly disable shell execution
             )
 
             if result.returncode == 0:

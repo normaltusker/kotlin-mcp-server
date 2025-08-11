@@ -44,6 +44,23 @@ A comprehensive Model Context Protocol (MCP) server that provides AI agents with
 
 ## 🚀 **Quick Start & Installation**
 
+### ✨ **What's New in v2.0**
+
+**🎯 Zero-Configuration Setup**: Our enhanced installation script eliminates all manual configuration steps!
+
+**Before (v1.x):**
+- ❌ Manual path editing in config files
+- ❌ Environment variable setup required  
+- ❌ Platform-specific configuration steps
+- ❌ Risk of configuration errors
+
+**After (v2.0):**
+- ✅ **One Command Setup**: `python3 install.py`
+- ✅ **Automatic Path Detection**: No manual editing needed
+- ✅ **Platform-Specific Configs**: Optimized for Claude, VS Code, etc.
+- ✅ **Interactive & Non-Interactive**: Works for all user types
+- ✅ **Smart Environment Variables**: Uses `${workspaceFolder}`, `${workspaceRoot}` correctly
+
 ### 📋 **System Requirements**
 
 - **Python 3.8+** (3.9+ recommended)
@@ -59,16 +76,60 @@ git clone <your-repo-url>
 cd kotlin-mcp-server
 ```
 
-#### **2. Install Python Dependencies**
+#### **2. Automated Installation & Configuration**
+
+The project includes an enhanced installation script that handles all configuration automatically:
+
+```bash
+# Interactive installation (recommended for first-time users)
+python3 install.py
+
+# Non-interactive installation with specific configuration
+python3 install.py [install_type] [project_path] [server_name] [use_env_vars]
+
+# Show all available options
+python3 install.py --help
+```
+
+**Installation Types:**
+- `1` - **Portable**: Run directly from project directory
+- `2` - **System**: Install command to PATH (`kotlin-android-mcp`)  
+- `3` - **Module**: Enable `python -m kotlin_mcp_server`
+
+**Configuration Examples:**
+
+```bash
+# Interactive setup (asks for your preferences)
+python3 install.py 1
+
+# Portable with fixed Android project path
+python3 install.py 1 /Users/yourname/AndroidStudioProjects/MyApp
+
+# System installation with dynamic environment variables
+python3 install.py 2 none my-android-server true
+
+# Module installation with custom server name
+python3 install.py 3 /path/to/project kotlin-dev false
+```
+
+**What the installer does:**
+- ✅ **Installs all Python dependencies** from `requirements.txt`
+- ✅ **Creates platform-specific config files** (Claude, VS Code, generic)
+- ✅ **Sets up proper file permissions** for scripts
+- ✅ **Configures environment variables** based on your choices
+- ✅ **Eliminates manual path updates** in configuration files
+- ✅ **Provides clear integration instructions** for your setup
+
+#### **3. Manual Installation (Alternative)**
+
+If you prefer manual installation:
+
 ```bash
 # Install core dependencies
 pip install -r requirements.txt
 
 # Optional: Install AI/ML dependencies for advanced features
 pip install openai anthropic transformers torch
-
-# Or use the automated installer
-python3 install.py
 
 # Verify installation
 python3 -c "import kotlin_mcp_server; print('✅ Installation successful')"
@@ -84,11 +145,36 @@ python3 -c "import kotlin_mcp_server; print('✅ Installation successful')"
 - **Code Quality:** `black`, `flake8`, `pylint`, `mypy`
 - **Security Tools:** `bandit`, `safety`
 
-#### **3. Install Required IDE Extensions/Plugins**
-See the [Plugin Requirements](#-required-pluginsextensions) section below for IDE-specific extensions.
+#### **4. IDE Integration Setup**
 
-#### **4. Environment Configuration**
-Create a `.env` file in the project root:
+After installation, the script generates ready-to-use configuration files:
+
+- **`mcp_config_claude.json`** - For Claude Desktop
+- **`mcp_config_vscode.json`** - For VS Code and Cursor  
+- **`mcp_config.json`** - For other MCP clients
+
+**Integration Instructions:**
+
+🔹 **Claude Desktop**: Copy content from `mcp_config_claude.json` to:
+   - **Mac**: `~/Library/Application Support/Claude/claude_desktop_config.json`
+   - **Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
+   - **Linux**: `~/.config/claude/claude_desktop_config.json`
+
+🔹 **VS Code/Cursor**: Add to your VS Code `settings.json`:
+   ```json
+   {
+     "mcp.server.configFiles": [
+       "/absolute/path/to/mcp_config_vscode.json"
+     ]
+   }
+   ```
+
+🔹 **Other IDEs**: Use `mcp_config.json` with your MCP client
+
+#### **5. Environment Configuration (Advanced)**
+
+For advanced users who need custom environment setup:
+Create a `.env` file in the project root (only needed for advanced configurations):
 
 ```bash
 # Copy the example file and customize
@@ -98,12 +184,8 @@ cp .env.example .env
 nano .env  # or your preferred editor
 ```
 
-**Required Variables to Update:**
+**Optional Variables:**
 ```bash
-# MUST UPDATE THESE PATHS
-WORKSPACE_PATH=/Users/yourusername/AndroidStudioProjects/YourApp
-MCP_SERVER_DIR=/Users/yourusername/Documents/kotlin-mcp-server
-
 # Security (generate strong password)
 MCP_ENCRYPTION_PASSWORD=$(openssl rand -base64 32)
 COMPLIANCE_MODE=gdpr,hipaa
@@ -113,45 +195,31 @@ OPENAI_API_KEY=your-openai-api-key-here
 ANTHROPIC_API_KEY=your-anthropic-api-key-here
 ```
 
-**Find Your Paths:**
+**💡 Note**: The installation script automatically configures project paths and server settings, so manual environment configuration is only needed for advanced features like AI integration or custom security settings.
+
+#### **6. Install Required IDE Extensions/Plugins**
+See the [Plugin Requirements](#-required-pluginsextensions) section below for IDE-specific extensions.
+
+#### **7. Test Installation**
 ```bash
-# For MCP_SERVER_DIR
-cd /path/to/kotlin-mcp-server && pwd
+# Test the server with your configured setup
+# If you used a fixed project path during installation:
+python3 kotlin_mcp_server.py
 
-# For WORKSPACE_PATH  
-cd /path/to/your/android/project && pwd
-```
+# If you're using dynamic/environment variables:
+python3 kotlin_mcp_server.py /path/to/android/project
 
-#### **5. Configure Your IDE**
-Follow the IDE-specific configuration instructions in the [Configuration](#%EF%B8%8F-configuration--plugin-requirements) section.
+# For system installation:
+kotlin-android-mcp
 
-**⚠️ Important Configuration Steps:**
+# For module installation:
+python3 -m kotlin_mcp_server
 
-1. **Update Config Files:** The provided config files contain placeholders that MUST be updated:
-   - Replace `${MCP_SERVER_DIR}` with your actual kotlin-mcp-server path
-   - Update environment variables with your actual values
-
-2. **Find Your MCP Server Path:**
-   ```bash
-   cd /path/to/kotlin-mcp-server
-   pwd  # Copy this output
-   ```
-
-3. **Update Config Files:** See [`CONFIG_TEMPLATE.md`](CONFIG_TEMPLATE.md) for detailed instructions.
-
-#### **6. Test Installation**
-```bash
-# Validate your configuration first
+# Validate configuration (optional)
 python3 validate_config.py
 
-# Run basic functionality test
-python simple_test.py
-
-# Run comprehensive tests
+# Run comprehensive tests (optional)
 python test_mcp_comprehensive.py
-
-# Verify server starts correctly
-python kotlin_mcp_server.py /path/to/project
 
 # Test VS Code bridge server (optional)
 python3 vscode_bridge.py &
@@ -163,7 +231,10 @@ kill %1  # Stop background bridge server
 
 ### ⚡ **Quick Setup Commands**
 ```bash
-# One-line setup for development
+# Complete setup with one command (interactive)
+python3 install.py
+
+# Quick setup for development environment
 make setup-dev
 
 # Quick validation
@@ -175,6 +246,20 @@ make ci
 # Test VS Code bridge server (optional)
 python3 vscode_bridge.py --test-mode
 ```
+
+### 🎯 **Installation Summary**
+
+The enhanced installation process has **eliminated the need for manual configuration**:
+
+✅ **Before (Manual)**: Users had to manually edit config files, find paths, update environment variables  
+✅ **After (Automated)**: One command creates everything ready-to-use
+
+**Key Improvements:**
+- 🚀 **Zero Manual Configuration**: No more path updates or variable editing
+- 🎛️ **Interactive & Non-Interactive**: Works in both modes for all users
+- 🔧 **Platform-Specific Configs**: Generates optimized files for each IDE/client
+- 📋 **Clear Instructions**: Provides exact integration steps for your setup
+- ✨ **Smart Defaults**: Handles environment variables intelligently
 
 ---
 
@@ -1589,11 +1674,11 @@ No additional plugins required - uses built-in MCP support.
    ```
 
 2. **Configure MCP Server:**
-   Add to VS Code `settings.json` (`Cmd/Ctrl + Shift + P` → "Preferences: Open Settings (JSON)"):
+   The installation script generates `mcp_config_vscode.json` with the correct paths. Simply add to VS Code `settings.json` (`Cmd/Ctrl + Shift + P` → "Preferences: Open Settings (JSON)"):
    ```json
    {
      "mcp.server.configFiles": [
-       "${YOUR_MCP_SERVER_PATH}/mcp_config_vscode.json"
+       "/absolute/path/to/your/kotlin-mcp-server/mcp_config_vscode.json"
      ],
      "python.defaultInterpreterPath": "/usr/bin/python3",
      "python.linting.enabled": true,
@@ -1602,16 +1687,7 @@ No additional plugins required - uses built-in MCP support.
    }
    ```
 
-   **⚠️ Important:** Replace `${YOUR_MCP_SERVER_PATH}` with the actual absolute path.
-
-   **Example:**
-   ```json
-   {
-     "mcp.server.configFiles": [
-       "/Users/yourusername/Documents/kotlin-mcp-server/mcp_config_vscode.json"
-     ]
-   }
-   ```
+   **💡 Pro Tip:** The installation script provides the exact path you need to use.
 
 3. **Workspace Settings (.vscode/settings.json):**
    ```json
@@ -1630,23 +1706,24 @@ No additional plugins required - uses built-in MCP support.
    - Install "Python" plugin if not already available
 
 2. **Configure MCP Server:**
+   The installation script generates `mcp_config.json` with proper configuration. In your IDE:
    - Go to `File > Settings > Tools > MCP Server`
    - Click `+` to add new server:
-     - **Name:** `Kotlin Android MCP Server`
-     - **Configuration File:** Select `mcp_config.json`
-     - **Environment Variables:**
-       - `PROJECT_PATH`: `${PROJECT_DIR}`
-       - `PYTHON_PATH`: `/usr/bin/python3`
+     - **Name:** Your custom server name (as configured during installation)
+     - **Configuration File:** Select the generated `mcp_config.json`
+     - **Auto Start:** Enable
 
 3. **Android Studio Specific:**
    ```xml
    <!-- Add to .idea/workspace.xml -->
    <component name="MCPServerManager">
      <option name="servers">
-       <server name="kotlin-android" configFile="mcp_config.json" autoStart="true"/>
+       <server name="your-server-name" configFile="mcp_config.json" autoStart="true"/>
      </option>
    </component>
    ```
+
+   **💡 Note:** Replace `your-server-name` with the server name you chose during installation.
 
 #### **Claude Desktop**
 
@@ -1656,40 +1733,25 @@ No additional plugins required - uses built-in MCP support.
    - **Linux:** `~/.config/claude/claude_desktop_config.json`
 
 2. **Configuration Content:**
+   Simply copy the content from the generated `mcp_config_claude.json` file to your Claude Desktop configuration file. The installation script has already configured all paths and settings correctly.
+
+   **Example of generated configuration:**
    ```json
    {
      "mcpServers": {
-       "kotlin-android": {
+       "your-server-name": {
          "command": "python3",
-         "args": ["${YOUR_MCP_SERVER_PATH}/kotlin_mcp_server.py"],
+         "args": ["kotlin_mcp_server.py"],
+         "cwd": "/absolute/path/to/kotlin-mcp-server",
          "env": {
-           "WORKSPACE_PATH": "${workspaceRoot}",
-           "MCP_ENCRYPTION_PASSWORD": "your-secure-password",
-           "COMPLIANCE_MODE": "gdpr,hipaa"
+           "PROJECT_PATH": "${workspaceRoot}"
          }
        }
      }
    }
    ```
 
-   **⚠️ Important:** Replace `${YOUR_MCP_SERVER_PATH}` with the actual absolute path to your kotlin-mcp-server directory.
-
-   **Example:**
-   ```json
-   {
-     "mcpServers": {
-       "kotlin-android": {
-         "command": "python3",
-         "args": ["/Users/yourusername/Documents/kotlin-mcp-server/kotlin_mcp_server.py"],
-         "env": {
-           "WORKSPACE_PATH": "${workspaceRoot}",
-           "MCP_ENCRYPTION_PASSWORD": "your-secure-password",
-           "COMPLIANCE_MODE": "gdpr,hipaa"
-         }
-       }
-     }
-   }
-   ```
+   **✅ Ready to Use:** No manual path updates needed - everything is pre-configured!
 
 #### **Cursor IDE**
 
@@ -1698,7 +1760,14 @@ No additional plugins required - uses built-in MCP support.
    - Python, Pylint, Black Formatter, isort
 
 2. **Configuration:**
-   Use same `settings.json` configuration as VS Code
+   Use the same `mcp_config_vscode.json` configuration as VS Code. Add to Cursor's `settings.json`:
+   ```json
+   {
+     "mcp.server.configFiles": [
+       "/absolute/path/to/your/kotlin-mcp-server/mcp_config_vscode.json"
+     ]
+   }
+   ```
 
 #### **VS Code Bridge Server (Alternative Integration)**
 
@@ -1824,23 +1893,37 @@ pip install -e .
 
 ### **Configuration Issues**
 
-#### **Hardcoded Path Problems**
-The config files contain placeholders that MUST be replaced:
+#### **Using the New Installer (Recommended)**
+Most configuration issues are now resolved automatically:
 
 ```bash
-# 1. Find your actual paths
+# Regenerate configuration with the enhanced installer
+python3 install.py
+
+# For specific setup types:
+python3 install.py 1 /your/android/project my-server false
+python3 install.py --help  # See all options
+```
+
+#### **Legacy Manual Configuration Issues** 
+If you're still using manual configuration from older versions:
+
+```bash
+# 1. Update to the new installer (recommended)
+python3 install.py
+
+# 2. Or manually find your actual paths (legacy method)
 cd /path/to/kotlin-mcp-server && pwd
 cd /path/to/android/project && pwd
 
-# 2. Update config files - replace ${MCP_SERVER_DIR} with actual path
+# 3. Update config files - replace ${MCP_SERVER_DIR} with actual path
 # Example: Change this
 "cwd": "${MCP_SERVER_DIR}"
-# To this (your actual path)
+# To this (your actual path)  
 "cwd": "/Users/yourusername/Documents/kotlin-mcp-server"
-
-# 3. Use CONFIG_TEMPLATE.md for detailed instructions
-cat CONFIG_TEMPLATE.md
 ```
+
+**💡 Pro Tip**: The new installer eliminates these manual steps entirely!
 
 #### **Environment Variable Issues**
 ```bash

@@ -418,9 +418,111 @@ class MCPServer:
 
         return {"resources": resources}
 
+    def _validate_file_path(self, file_path: str, base_path: Path = None) -> Path:
+        """
+        Validate and sanitize file paths to prevent path traversal attacks.
+
+        Args:
+            file_path (str): User-provided file path
+            base_path (Path): Base directory to restrict access to (defaults to project_path)
+
+        Returns:
+            Path: Validated and resolved path
+
+        Raises:
+            ValueError: If path contains dangerous patterns or escapes base directory
+        """
+        if base_path is None:
+            base_path = self.project_path
+
+        # Normalize path and resolve any symbolic links
+        try:
+            # Convert to Path object and resolve
+            path = Path(file_path)
+
+            # Check for dangerous path components
+            for part in path.parts:
+                if part in ["..", ".", ""]:
+                    continue
+                if part.startswith(".") and len(part) > 1:
+                    # Allow hidden files but log access
+                    self._log_audit_event("file_access", f"hidden_file:{part}")
+
+            # Resolve relative to base path
+            if path.is_absolute():
+                resolved_path = path.resolve()
+            else:
+                resolved_path = (base_path / path).resolve()
+
+            # Ensure the resolved path is within the base directory
+            try:
+                resolved_path.relative_to(base_path.resolve())
+            except ValueError:
+                raise ValueError(f"Path traversal detected: {file_path} escapes base directory")
+
+            return resolved_path
+
+        except (OSError, RuntimeError) as e:
+            raise ValueError(f"Invalid file path: {file_path} - {str(e)}")
+
+    def _validate_command_args(self, command_args: list) -> list:
+        """
+        Validate and sanitize command arguments to prevent injection attacks.
+
+        Args:
+            command_args (list): List of command arguments
+
+        Returns:
+            list: Sanitized command arguments
+
+        Raises:
+            ValueError: If dangerous patterns are detected
+        """
+        # Define allowed patterns for different argument types
+        allowed_gradle_tasks = {
+            "clean",
+            "build",
+            "assembleDebug",
+            "assembleRelease",
+            "test",
+            "testDebug",
+            "testRelease",
+            "lint",
+            "check",
+            "connectedAndroidTest",
+            "installDebug",
+            "installRelease",
+            "uninstallAll",
+        }
+
+        sanitized_args = []
+        for arg in command_args:
+            # Remove any shell metacharacters
+            if any(char in arg for char in ["&", "|", ";", "$", "`", "(", ")", "<", ">", '"', "'"]):
+                raise ValueError(f"Dangerous characters detected in argument: {arg}")
+
+            # For gradle tasks, validate against whitelist
+            if arg.startswith("./gradlew") or arg == "gradlew":
+                sanitized_args.append(arg)
+            elif arg in allowed_gradle_tasks:
+                sanitized_args.append(arg)
+            elif arg.startswith("-") and len(arg) > 1:
+                # Allow flags but validate them
+                if arg in ["-v", "--version", "--help", "-h", "--stacktrace", "--info", "--debug"]:
+                    sanitized_args.append(arg)
+                else:
+                    raise ValueError(f"Disallowed flag: {arg}")
+            else:
+                # For other arguments, basic sanitization
+                sanitized_arg = arg.strip()
+                if sanitized_arg:
+                    sanitized_args.append(sanitized_arg)
+
+        return sanitized_args
+
     async def handle_read_resource(self, uri: str) -> dict:
         """
-        Read and return the contents of a specific resource.
+        Read and return the contents of a specific resource with security validation.
 
         This method handles file:// URIs and returns the file contents
         as text or indicates binary files appropriately.
@@ -432,19 +534,30 @@ class MCPServer:
             dict: MCP response with file contents
 
         Raises:
-            ValueError: For unsupported URI schemes
+            ValueError: For unsupported URI schemes or security violations
             FileNotFoundError: If the file doesn't exist
         """
         # Validate URI scheme - we only support file:// URIs
         if not uri.startswith("file://"):
             raise ValueError(f"Unsupported URI scheme: {uri}")
 
-        # Extract file path from URI
-        path = Path(uri[7:])  # Remove file:// prefix
+        # Extract and validate file path from URI
+        raw_path = uri[7:]  # Remove file:// prefix
+
+        # Validate path to prevent traversal attacks
+        try:
+            path = self._validate_file_path(raw_path)
+        except ValueError as e:
+            # Log security violation
+            self._log_audit_event("security_violation", f"path_traversal_attempt:{raw_path}")
+            raise ValueError(f"Security violation: {str(e)}")
 
         # Check if file exists before attempting to read
         if not path.exists():
             raise FileNotFoundError(f"Resource not found: {path}")
+
+        # Log file access for audit purposes
+        self._log_audit_event("file_read", str(path))
 
         try:
             # Attempt to read as UTF-8 text
@@ -1236,13 +1349,14 @@ class MCPServer:
 
     async def _gradle_build(self, arguments: dict) -> dict:
         """
-        Execute Gradle build tasks for Android project.
+        Execute Gradle build tasks for Android project with security validation.
 
         This method:
         1. Extracts build parameters (task, clean flag)
-        2. Constructs appropriate Gradle commands
-        3. Executes commands with timeout protection
-        4. Captures and formats output for the client
+        2. Validates and sanitizes commands to prevent injection
+        3. Constructs appropriate Gradle commands
+        4. Executes commands with timeout protection
+        5. Captures and formats output for the client
 
         Args:
             arguments (dict): Contains 'task' and 'clean' parameters
@@ -1254,26 +1368,45 @@ class MCPServer:
         task = arguments.get("task", "assembleDebug")  # Default to debug build
         clean = arguments.get("clean", False)  # Clean build optional
 
+        # Validate and sanitize the task argument
+        try:
+            if clean:
+                clean_cmd = self._validate_command_args(["./gradlew", "clean"])
+            else:
+                clean_cmd = None
+
+            build_cmd = self._validate_command_args(["./gradlew", task])
+
+        except ValueError as e:
+            self._log_audit_event("security_violation", f"gradle_command_injection_attempt:{task}")
+            return {"content": [{"type": "text", "text": f"Security error: {str(e)}"}]}
+
+        # Log gradle task execution
+        self._log_audit_event("gradle_build", f"task:{task}:clean:{clean}")
+
         # Build command sequence
         commands = []
-        if clean:
-            commands.append("./gradlew clean")  # Clean previous build artifacts
-        commands.append(f"./gradlew {task}")  # Execute requested task
+        if clean_cmd:
+            commands.append(clean_cmd)
+        commands.append(build_cmd)
 
         output_parts = []
-        for cmd in commands:
+        for cmd_parts in commands:
             try:
                 # Execute Gradle command with timeout protection (5 minutes)
+                # Use list of arguments instead of shell=True to prevent injection
                 result = subprocess.run(
-                    cmd.split(),
+                    cmd_parts,  # Already validated and sanitized
                     cwd=self.project_path,  # Execute in project directory
                     capture_output=True,  # Capture stdout and stderr
                     text=True,  # Return strings instead of bytes
                     timeout=300,  # 5-minute timeout for long builds
+                    shell=False,  # Explicitly disable shell execution
                 )
 
                 # Format command output for client display
-                output = f"Command: {cmd}\nExit code: {result.returncode}\n"
+                cmd_str = " ".join(cmd_parts)
+                output = f"Command: {cmd_str}\nExit code: {result.returncode}\n"
                 output += f"Output:\n{result.stdout}\n"
                 if result.stderr:
                     output += f"Errors:\n{result.stderr}\n"
@@ -1281,9 +1414,13 @@ class MCPServer:
                 output_parts.append(output)
 
             except subprocess.TimeoutExpired:
-                output_parts.append(f"Command timed out: {cmd}")
+                cmd_str = " ".join(cmd_parts)
+                output_parts.append(f"Command timed out: {cmd_str}")
+                self._log_audit_event("gradle_timeout", f"command:{cmd_str}")
             except Exception as e:
-                output_parts.append(f"Failed to execute {cmd}: {str(e)}")
+                cmd_str = " ".join(cmd_parts)
+                output_parts.append(f"Failed to execute {cmd_str}: {str(e)}")
+                self._log_audit_event("gradle_error", f"command:{cmd_str}:error:{str(e)}")
 
         return {"content": [{"type": "text", "text": "\n".join(output_parts)}]}
 
@@ -1494,10 +1631,11 @@ class MCPServer:
 
         This method:
         1. Extracts file creation parameters
-        2. Creates necessary directory structure
-        3. Selects appropriate Kotlin template (Activity, Fragment, data class, etc.)
-        4. Generates file content with proper package declaration
-        5. Writes file to the project structure
+        2. Validates file path for security
+        3. Creates necessary directory structure
+        4. Selects appropriate Kotlin template (Activity, Fragment, data class, etc.)
+        5. Generates file content with proper package declaration
+        6. Writes file to the project structure
 
         Supports templates for:
         - Activities (Android UI controllers)
@@ -1518,9 +1656,43 @@ class MCPServer:
         class_name = arguments["class_name"]  # Name of the class/interface
         class_type = arguments.get("class_type", "class")  # Type of Kotlin construct
 
-        # Resolve full file path and ensure directory structure exists
-        full_path = self.project_path / file_path
-        full_path.parent.mkdir(parents=True, exist_ok=True)  # Create directories if needed
+        # Validate file path to prevent path traversal attacks
+        try:
+            validated_path = self._validate_file_path(file_path)
+        except ValueError as e:
+            self._log_audit_event("security_violation", f"file_creation_path_traversal:{file_path}")
+            return {"content": [{"type": "text", "text": f"Security error: {str(e)}"}]}
+
+        # Validate package name (basic alphanumeric and dots only)
+        if not package_name.replace(".", "").replace("_", "").isalnum():
+            return {
+                "content": [
+                    {
+                        "type": "text",
+                        "text": "Invalid package name: only alphanumeric characters, dots, and underscores allowed",
+                    }
+                ]
+            }
+
+        # Validate class name (basic alphanumeric and underscores only)
+        if not class_name.replace("_", "").isalnum() or not class_name[0].isupper():
+            return {
+                "content": [
+                    {
+                        "type": "text",
+                        "text": "Invalid class name: must start with uppercase letter and contain only alphanumeric characters and underscores",
+                    }
+                ]
+            }
+
+        # Create directory structure with secure permissions
+        try:
+            validated_path.parent.mkdir(parents=True, exist_ok=True, mode=0o755)
+        except OSError as e:
+            return {"content": [{"type": "text", "text": f"Failed to create directory: {str(e)}"}]}
+
+        # Log file creation attempt
+        self._log_audit_event("file_create", f"{file_path}:{class_type}:{class_name}")
 
         # Kotlin file templates for different class types
         # Each template includes proper imports and basic structure
@@ -1558,24 +1730,19 @@ import androidx.fragment.app.Fragment
  * TODO: Add fragment description and functionality
  */
 class {class_name} : Fragment() {{
-
+    
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {{
-        // TODO: Inflate the fragment layout
-        // return inflater.inflate(R.layout.fragment_{class_name.lower()}, container, false)
+        // TODO: Inflate fragment layout
+        // return inflater.inflate(R.layout.fragment_main, container, false)
         return super.onCreateView(inflater, container, savedInstanceState)
-    }}
-    
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {{
-        super.onViewCreated(view, savedInstanceState)
-        // TODO: Initialize UI components and set up listeners
     }}
 }}
 """,
-            "data_class": f"""package {package_name}
+            "data": f"""package {package_name}
 
 /**
  * {class_name} - Immutable data container
@@ -1616,11 +1783,14 @@ class {class_name} {{
         content = templates.get(class_type, templates["class"])
 
         try:
-            full_path.write_text(content, encoding="utf-8")
+            # Write file with secure permissions
+            validated_path.write_text(content, encoding="utf-8")
+            validated_path.chmod(0o644)  # Read-write for owner, read-only for others
             return {
                 "content": [{"type": "text", "text": f"Created Kotlin {class_type}: {file_path}"}]
             }
         except Exception as e:
+            self._log_audit_event("file_create_error", f"{file_path}:{str(e)}")
             return {"content": [{"type": "text", "text": f"Failed to create file: {str(e)}"}]}
 
     async def _create_layout_file(self, arguments: dict) -> dict:
@@ -1920,7 +2090,7 @@ fun {component_name}(
 {('    var state by remember { mutableStateOf("") }' if uses_state else '')}
     
     Column(
-        modifier = modifier.fillMaxSize().padding(16.dp),
+        modifier = modifier.fillMaxSize().padding(16{'.'+'dp'}),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {{
@@ -1954,7 +2124,7 @@ fun {component_name}Preview() {{
         """
         Creates custom Android View components for traditional View-based UI.
 
-        Generates custom View classes extending Android's View system:
+        Generates custom View classes extending Android View system:
         - Basic View components for custom drawing and interaction
         - ViewGroup components for container layouts
         - Compound views combining multiple existing views
@@ -2015,11 +2185,7 @@ class {view_name} @JvmOverloads constructor(
 {('        initAttributes(attrs)' if has_attributes else '')}
     }}
 
-{('''    private fun initAttributes(attrs: AttributeSet?) {
-        attrs?.let {
-            // TODO: Parse custom attributes
-        }
-    }''' if has_attributes else '')}
+{('    private fun initAttributes(attrs: AttributeSet?) {\n        attrs?.let {\n            // TODO: Parse custom attributes\n        }\n    }' if has_attributes else '')}
 
     // TODO: Add custom view implementation
 }}
@@ -2038,7 +2204,7 @@ class {view_name} @JvmOverloads constructor(
         """
         Sets up complete MVVM (Model-View-ViewModel) architecture for Android feature.
 
-        Creates a modern Android architecture following Google's recommendations:
+        Creates a modern Android architecture following Google recommendations:
         - ViewModel with StateFlow for UI state management
         - Repository pattern for data access abstraction
         - Use cases for business logic encapsulation (optional)
@@ -2152,7 +2318,7 @@ class {feature_name}Repository @Inject constructor(
         """
         Sets up Hilt dependency injection framework for Android project.
 
-        Configures modern dependency injection using Google's Hilt framework:
+        Configures modern dependency injection using Google Hilt framework:
         - Application-level Hilt setup with @HiltAndroidApp
         - Module creation for providing dependencies
         - Scope configuration for proper lifecycle management

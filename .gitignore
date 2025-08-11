@@ -64,6 +64,7 @@ tmp/
 *.tmp
 *.bak
 *.backup
+backup_test/
 
 # Coverage reports
 htmlcov/
