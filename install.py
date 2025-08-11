@@ -243,13 +243,18 @@ def update_config_file(config_file, installation_type, script_dir=None, user_con
     # Determine working directory for the MCP server
     # For portable/module: use absolute script directory
     # For installable: use environment variable placeholder
-    cwd_path = "${MCP_SERVER_DIR}" if script_dir is None else str(script_dir)
+    if script_dir is None:
+        cwd_path = "${MCP_SERVER_DIR}"
+        server_script_path = "kotlin_mcp_server.py"
+    else:
+        cwd_path = str(script_dir)
+        server_script_path = str(script_dir / "kotlin_mcp_server.py")
 
     # Define command configurations for different installation types
     configs = {
         "portable": {
             "command": "python3",  # Use system Python
-            "args": ["kotlin_mcp_server.py"],  # Execute server script directly
+            "args": [server_script_path],  # Execute server script with absolute path
             "cwd": cwd_path,  # Set working directory
         },
         "installable": {
