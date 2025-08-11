@@ -382,7 +382,7 @@ class MCPServer:
 
         try:
             result = subprocess.run(
-                f"./gradlew {task}".split(),
+                ["./gradlew", task],
                 cwd=self.project_path,
                 capture_output=True,
                 text=True,
