@@ -350,7 +350,7 @@ class MCPServer:
     async def _format_code(self, arguments: dict) -> dict:
         try:
             result = subprocess.run(
-                "./gradlew ktlintFormat".split(),
+                ["./gradlew", "ktlintFormat"],
                 cwd=self.project_path,
                 capture_output=True,
                 text=True,
