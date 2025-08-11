@@ -278,9 +278,8 @@ def main():
 
     print("\n📁 Checking Server Files...")
     server_files = [
-        script_dir / "simple_mcp_server.py",
-        script_dir / "enhanced_mcp_server.py",
-        script_dir / "ai_integration_server.py",
+        script_dir / "kotlin_mcp_server.py",
+        script_dir / "kotlin_mcp_server.py",
         script_dir / "vscode_bridge.py",
     ]
 
@@ -303,7 +302,7 @@ def main():
     if all_ok:
         print("🎉 Configuration Validation PASSED!")
         print("\n🚀 Next Steps:")
-        print("   1. Test the server: python3 simple_mcp_server.py --test")
+        print("   1. Test the server: python3 kotlin_mcp_server.py --test")
         print("   2. Configure your IDE using the updated config files")
         print("   3. Start using the MCP server!")
     else:

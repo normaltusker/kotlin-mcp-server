@@ -17,7 +17,7 @@ def run_quick_checks():
     project_root = Path(__file__).parent
 
     # Quick lint checks
-    main_files = "simple_mcp_server.py enhanced_mcp_server.py security_privacy_server.py ai_integration_server.py vscode_bridge.py"
+    main_files = "kotlin_mcp_server.py vscode_bridge.py test_kotlin_mcp_server.py ci_test_runner.py validate_config.py install.py breaking_change_monitor.py"
     checks = [
         # Python syntax check
         (
@@ -26,7 +26,7 @@ def run_quick_checks():
         ),
         # Import check for main modules
         (
-            'python3 -c "import simple_mcp_server, enhanced_mcp_server, security_privacy_server, ai_integration_server, vscode_bridge"',
+            'python3 -c "import kotlin_mcp_server, vscode_bridge"',
             "Module import validation",
         ),
         # Quick flake8 check (only errors)
@@ -38,6 +38,16 @@ def run_quick_checks():
         (
             f"python3 -m bandit -lll {main_files}",
             "High-severity security issues",
+        ),
+        # isort check for import sorting
+        (
+            f"python3 -m isort --check-only --diff {main_files}",
+            "Import sorting check",
+        ),
+        # Black check for code formatting
+        (
+            f"python3 -m black --check --diff {main_files}",
+            "Code formatting check",
         ),
     ]
 

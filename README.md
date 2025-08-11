@@ -64,9 +64,25 @@ cd kotlin-mcp-server
 # Install core dependencies
 pip install -r requirements.txt
 
+# Optional: Install AI/ML dependencies for advanced features
+pip install openai anthropic transformers torch
+
 # Or use the automated installer
 python3 install.py
+
+# Verify installation
+python3 -c "import kotlin_mcp_server; print('✅ Installation successful')"
 ```
+
+**Key Dependencies Installed:**
+- **Core MCP:** `python-dotenv`, `pydantic`
+- **Security:** `cryptography`, `bcrypt`, `PyJWT`
+- **Database:** `aiosqlite`, `sqlalchemy`
+- **HTTP Clients:** `aiohttp`, `httpx`
+- **File Management:** `aiofiles`, `watchdog`
+- **Testing:** `pytest`, `pytest-asyncio`, `coverage`
+- **Code Quality:** `black`, `flake8`, `pylint`, `mypy`
+- **Security Tools:** `bandit`, `safety`
 
 #### **3. Install Required IDE Extensions/Plugins**
 See the [Plugin Requirements](#-required-pluginsextensions) section below for IDE-specific extensions.
@@ -164,7 +180,797 @@ python3 vscode_bridge.py --test-mode
 
 ## 📚 **Comprehensive Usage Guide**
 
-### 🔒 **Security & Privacy Features**
+### � **Complete Tool Reference**
+
+The Kotlin MCP Server provides 31 comprehensive tools for Android development, organized by category:
+
+#### **Core Development Tools**
+
+##### 1. `gradle_build` - Build Android Projects
+Executes Gradle build tasks for your Android project.
+
+```json
+{
+  "name": "gradle_build",
+  "arguments": {
+    "task": "assembleDebug",
+    "clean_build": false,
+    "parallel": true
+  }
+}
+```
+**Parameters:**
+- `task` (string): Gradle task to execute (e.g., "assembleDebug", "build", "test")
+- `clean_build` (boolean, optional): Whether to clean before building
+- `parallel` (boolean, optional): Enable parallel execution
+
+**Usage Examples:**
+```bash
+# Build debug APK
+{"name": "gradle_build", "arguments": {"task": "assembleDebug"}}
+
+# Clean and build release
+{"name": "gradle_build", "arguments": {"task": "assembleRelease", "clean_build": true}}
+
+# Run all tests
+{"name": "gradle_build", "arguments": {"task": "test"}}
+```
+
+##### 2. `run_tests` - Execute Test Suites
+Runs unit tests, integration tests, or UI tests with comprehensive reporting.
+
+```json
+{
+  "name": "run_tests",
+  "arguments": {
+    "test_type": "unit",
+    "test_class": "UserRepositoryTest",
+    "generate_report": true
+  }
+}
+```
+**Parameters:**
+- `test_type` (string): "unit", "integration", "ui", or "all"
+- `test_class` (string, optional): Specific test class to run
+- `generate_report` (boolean, optional): Generate HTML test report
+
+##### 3. `create_kotlin_file` - Generate Kotlin Files
+Creates structured Kotlin files with proper package declaration and imports.
+
+```json
+{
+  "name": "create_kotlin_file",
+  "arguments": {
+    "file_path": "src/main/kotlin/com/example/User.kt",
+    "class_name": "User",
+    "class_type": "data_class",
+    "properties": ["id: String", "name: String", "email: String"],
+    "package_name": "com.example.model"
+  }
+}
+```
+**Parameters:**
+- `file_path` (string): Relative path for the new file
+- `class_name` (string): Name of the main class
+- `class_type` (string): "class", "data_class", "sealed_class", "object", "interface"
+- `properties` (array, optional): List of properties for data classes
+- `package_name` (string, optional): Package declaration
+
+##### 4. `create_layout_file` - Generate XML Layouts
+Creates Android XML layout files with proper structure.
+
+```json
+{
+  "name": "create_layout_file",
+  "arguments": {
+    "file_path": "src/main/res/layout/activity_main.xml",
+    "layout_type": "activity",
+    "root_element": "LinearLayout",
+    "include_common_attributes": true
+  }
+}
+```
+
+##### 5. `analyze_project` - Project Analysis
+Provides comprehensive analysis of your Android project structure, dependencies, and architecture.
+
+```json
+{
+  "name": "analyze_project",
+  "arguments": {
+    "analysis_type": "architecture",
+    "include_dependencies": true,
+    "check_best_practices": true
+  }
+}
+```
+**Analysis Types:**
+- `architecture`: Overall project structure and patterns
+- `dependencies`: Gradle dependencies and versions
+- `security`: Security vulnerabilities and best practices
+- `performance`: Performance bottlenecks and optimizations
+
+##### 6. `format_code` - Code Formatting
+Formats Kotlin code according to style guidelines.
+
+```json
+{
+  "name": "format_code",
+  "arguments": {
+    "file_path": "src/main/kotlin/MainActivity.kt",
+    "style_guide": "ktlint"
+  }
+}
+```
+
+##### 7. `run_lint` - Static Code Analysis
+Runs lint analysis to detect code issues.
+
+```json
+{
+  "name": "run_lint",
+  "arguments": {
+    "lint_tool": "detekt",
+    "fail_on_warnings": false,
+    "generate_report": true
+  }
+}
+```
+
+##### 8. `generate_docs` - Documentation Generation
+Generates project documentation in various formats.
+
+```json
+{
+  "name": "generate_docs",
+  "arguments": {
+    "doc_type": "kdoc",
+    "output_format": "html",
+    "include_private": false
+  }
+}
+```
+
+#### **UI Development Tools**
+
+##### 9. `create_compose_component` - Jetpack Compose Components
+Generates Jetpack Compose UI components with best practices.
+
+```json
+{
+  "name": "create_compose_component",
+  "arguments": {
+    "component_name": "UserCard",
+    "component_type": "composable",
+    "file_path": "src/main/kotlin/ui/components/UserCard.kt",
+    "parameters": [
+      "user: User",
+      "onClick: () -> Unit"
+    ],
+    "include_preview": true,
+    "material_design": "material3"
+  }
+}
+```
+**Component Types:**
+- `composable`: Standard composable function
+- `stateful`: Composable with internal state
+- `stateless`: Pure UI composable
+- `layout`: Layout composable with children
+
+##### 10. `create_custom_view` - Custom Android Views
+Creates custom View classes with proper lifecycle management.
+
+```json
+{
+  "name": "create_custom_view",
+  "arguments": {
+    "view_name": "CircularProgressView",
+    "base_class": "View",
+    "file_path": "src/main/kotlin/ui/views/CircularProgressView.kt",
+    "custom_attributes": [
+      {"name": "progressColor", "type": "color"},
+      {"name": "strokeWidth", "type": "dimension"}
+    ]
+  }
+}
+```
+
+#### **Architecture & Pattern Tools**
+
+##### 11. `setup_mvvm_architecture` - MVVM Implementation
+Sets up complete MVVM architecture with ViewModel, Repository, and UI layers.
+
+```json
+{
+  "name": "setup_mvvm_architecture",
+  "arguments": {
+    "feature_name": "UserProfile",
+    "package_name": "com.example.userprofile",
+    "include_repository": true,
+    "include_use_cases": true,
+    "state_management": "compose"
+  }
+}
+```
+**Generated Files:**
+- ViewModel with state management
+- Repository with data source abstraction
+- Use cases for business logic
+- UI composables or fragments
+- State classes and sealed classes for events
+
+##### 12. `setup_dependency_injection` - DI Framework Setup
+Configures dependency injection using Hilt or Dagger.
+
+```json
+{
+  "name": "setup_dependency_injection",
+  "arguments": {
+    "di_framework": "hilt",
+    "modules": ["DatabaseModule", "NetworkModule", "RepositoryModule"],
+    "application_class": "MyApplication"
+  }
+}
+```
+
+##### 13. `setup_room_database` - Database Setup
+Creates Room database implementation with entities, DAOs, and migrations.
+
+```json
+{
+  "name": "setup_room_database",
+  "arguments": {
+    "database_name": "AppDatabase",
+    "entities": [
+      {
+        "name": "User",
+        "fields": [
+          {"name": "id", "type": "String", "primaryKey": true},
+          {"name": "name", "type": "String"},
+          {"name": "email", "type": "String"}
+        ]
+      }
+    ],
+    "version": 1,
+    "enable_encryption": true
+  }
+}
+```
+
+##### 14. `setup_retrofit_api` - Network Layer
+Sets up Retrofit API interfaces with proper error handling and interceptors.
+
+```json
+{
+  "name": "setup_retrofit_api",
+  "arguments": {
+    "base_url": "https://api.example.com/",
+    "endpoints": [
+      {
+        "name": "getUser",
+        "method": "GET",
+        "path": "users/{id}",
+        "response_type": "User"
+      }
+    ],
+    "include_interceptors": ["logging", "auth", "retry"],
+    "enable_cache": true
+  }
+}
+```
+
+#### **Security & Compliance Tools**
+
+##### 15. `encrypt_sensitive_data` - Data Encryption
+Encrypts sensitive data using industry-standard encryption.
+
+```json
+{
+  "name": "encrypt_sensitive_data",
+  "arguments": {
+    "data": "Patient: John Doe, SSN: 123-45-6789",
+    "data_type": "phi",
+    "compliance_level": "hipaa",
+    "encryption_algorithm": "AES-256"
+  }
+}
+```
+
+##### 16. `implement_gdpr_compliance` - GDPR Implementation
+Implements complete GDPR compliance framework.
+
+```json
+{
+  "name": "implement_gdpr_compliance",
+  "arguments": {
+    "package_name": "com.example.app",
+    "features": [
+      "consent_management",
+      "data_portability",
+      "right_to_erasure",
+      "privacy_policy",
+      "data_breach_notification"
+    ],
+    "supported_languages": ["en", "de", "fr"],
+    "include_ui": true
+  }
+}
+```
+**Generated Components:**
+- Consent management UI and logic
+- Data export functionality
+- User data deletion workflows
+- Privacy policy templates
+- Audit logging system
+
+##### 17. `implement_hipaa_compliance` - HIPAA Implementation
+Implements HIPAA-compliant security measures.
+
+```json
+{
+  "name": "implement_hipaa_compliance",
+  "arguments": {
+    "package_name": "com.healthcare.app",
+    "features": [
+      "audit_logging",
+      "access_controls",
+      "encryption",
+      "secure_messaging",
+      "risk_assessment"
+    ],
+    "minimum_password_strength": "high",
+    "session_timeout": 900
+  }
+}
+```
+
+##### 18. `setup_secure_storage` - Secure Data Storage
+Configures encrypted storage for sensitive data.
+
+```json
+{
+  "name": "setup_secure_storage",
+  "arguments": {
+    "storage_type": "room_encrypted",
+    "package_name": "com.example.app",
+    "data_classification": "restricted",
+    "key_management": "android_keystore"
+  }
+}
+```
+
+#### **AI/ML Integration Tools**
+
+##### 19. `query_llm` - Language Model Queries
+Queries local or remote language models for code assistance.
+
+```json
+{
+  "name": "query_llm",
+  "arguments": {
+    "prompt": "Generate a Kotlin data class for User with validation",
+    "llm_provider": "local",
+    "model": "codellama",
+    "privacy_mode": true,
+    "max_tokens": 1000,
+    "temperature": 0.2
+  }
+}
+```
+**Supported Providers:**
+- `local`: Ollama, LocalAI
+- `openai`: GPT-4, GPT-3.5
+- `anthropic`: Claude models
+- `custom`: Custom API endpoints
+
+##### 20. `analyze_code_with_ai` - AI Code Analysis
+Uses AI to analyze code for various aspects.
+
+```json
+{
+  "name": "analyze_code_with_ai",
+  "arguments": {
+    "file_path": "src/main/kotlin/UserManager.kt",
+    "analysis_type": "security",
+    "use_local_model": true,
+    "detailed_report": true
+  }
+}
+```
+**Analysis Types:**
+- `security`: Security vulnerabilities and best practices
+- `performance`: Performance optimization suggestions
+- `bugs`: Potential bug detection
+- `style`: Code style improvements
+- `complexity`: Code complexity analysis
+- `maintainability`: Maintainability assessment
+
+##### 21. `generate_code_with_ai` - AI Code Generation
+Generates code using AI based on natural language descriptions.
+
+```json
+{
+  "name": "generate_code_with_ai",
+  "arguments": {
+    "description": "Login screen with biometric authentication and error handling",
+    "code_type": "compose_screen",
+    "framework": "compose",
+    "compliance_requirements": ["gdpr"],
+    "include_tests": true,
+    "style_guide": "material3"
+  }
+}
+```
+
+#### **File Management Tools**
+
+##### 22. `manage_project_files` - Advanced File Operations
+Performs comprehensive file management operations.
+
+```json
+{
+  "name": "manage_project_files",
+  "arguments": {
+    "operation": "backup",
+    "include_build_files": false,
+    "compression": "zip",
+    "encryption": true,
+    "backup_location": "/path/to/backup",
+    "exclude_patterns": ["*.tmp", "build/", ".gradle/"]
+  }
+}
+```
+**Operations:**
+- `backup`: Create encrypted backups
+- `restore`: Restore from backup
+- `sync`: Synchronize with cloud storage
+- `encrypt`: Encrypt sensitive files
+- `decrypt`: Decrypt files (with proper authorization)
+- `organize`: Organize files by type/category
+
+##### 23. `setup_cloud_sync` - Cloud Storage Integration
+Configures cloud storage synchronization with encryption.
+
+```json
+{
+  "name": "setup_cloud_sync",
+  "arguments": {
+    "cloud_provider": "aws_s3",
+    "bucket_name": "my-app-backup",
+    "encryption_in_transit": true,
+    "encryption_at_rest": true,
+    "sync_frequency": "hourly",
+    "compliance_mode": "gdpr"
+  }
+}
+```
+
+#### **API Integration Tools**
+
+##### 24. `setup_external_api` - API Configuration
+Sets up external API integrations with security and monitoring.
+
+```json
+{
+  "name": "setup_external_api",
+  "arguments": {
+    "api_name": "PaymentAPI",
+    "base_url": "https://api.payment.com/v1/",
+    "auth_type": "oauth2",
+    "auth_config": {
+      "client_id": "your_client_id",
+      "scopes": ["payments", "users"]
+    },
+    "rate_limiting": {
+      "requests_per_minute": 100,
+      "burst_limit": 10
+    },
+    "security_features": ["request_signing", "response_validation"],
+    "monitoring": true
+  }
+}
+```
+
+##### 25. `call_external_api` - API Calls
+Makes secured API calls with comprehensive monitoring.
+
+```json
+{
+  "name": "call_external_api",
+  "arguments": {
+    "api_name": "PaymentAPI",
+    "endpoint": "/charges",
+    "method": "POST",
+    "data": {
+      "amount": 1000,
+      "currency": "USD",
+      "description": "Test payment"
+    },
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "timeout": 30,
+    "retry_config": {
+      "max_retries": 3,
+      "backoff_strategy": "exponential"
+    }
+  }
+}
+```
+
+#### **Testing Tools**
+
+##### 26. `generate_unit_tests` - Unit Test Generation
+Generates comprehensive unit tests for Kotlin classes.
+
+```json
+{
+  "name": "generate_unit_tests",
+  "arguments": {
+    "file_path": "src/main/kotlin/UserRepository.kt",
+    "test_framework": "junit5",
+    "mocking_framework": "mockk",
+    "include_edge_cases": true,
+    "test_coverage_target": 90
+  }
+}
+```
+
+##### 27. `setup_ui_testing` - UI Test Configuration
+Sets up UI testing framework with Espresso or Compose testing.
+
+```json
+{
+  "name": "setup_ui_testing",
+  "arguments": {
+    "testing_framework": "compose",
+    "include_accessibility_tests": true,
+    "include_screenshot_tests": true,
+    "test_data_setup": "in_memory_database"
+  }
+}
+```
+
+### 🚀 **Quick Start Tool Examples**
+
+#### **Complete Project Setup Workflow**
+Here's a step-by-step workflow to set up a new Android project with enterprise features:
+
+```bash
+# 1. Analyze existing project structure
+{
+  "name": "analyze_project",
+  "arguments": {
+    "analysis_type": "architecture",
+    "include_dependencies": true
+  }
+}
+
+# 2. Set up MVVM architecture
+{
+  "name": "setup_mvvm_architecture", 
+  "arguments": {
+    "feature_name": "UserManagement",
+    "package_name": "com.example.users",
+    "include_repository": true,
+    "state_management": "compose"
+  }
+}
+
+# 3. Configure dependency injection
+{
+  "name": "setup_dependency_injection",
+  "arguments": {
+    "di_framework": "hilt",
+    "modules": ["DatabaseModule", "NetworkModule"]
+  }
+}
+
+# 4. Set up secure database
+{
+  "name": "setup_room_database",
+  "arguments": {
+    "database_name": "AppDatabase",
+    "entities": [
+      {
+        "name": "User",
+        "fields": [
+          {"name": "id", "type": "String", "primaryKey": true},
+          {"name": "name", "type": "String"},
+          {"name": "email", "type": "String"}
+        ]
+      }
+    ],
+    "enable_encryption": true
+  }
+}
+
+# 5. Implement compliance (if required)
+{
+  "name": "implement_gdpr_compliance",
+  "arguments": {
+    "package_name": "com.example.app",
+    "features": ["consent_management", "data_portability"],
+    "include_ui": true
+  }
+}
+
+# 6. Generate UI components
+{
+  "name": "create_compose_component",
+  "arguments": {
+    "component_name": "UserListScreen",
+    "component_type": "stateful",
+    "include_preview": true,
+    "material_design": "material3"
+  }
+}
+
+# 7. Set up API integration
+{
+  "name": "setup_retrofit_api",
+  "arguments": {
+    "base_url": "https://api.example.com/",
+    "endpoints": [
+      {
+        "name": "getUsers",
+        "method": "GET", 
+        "path": "users",
+        "response_type": "List<User>"
+      }
+    ],
+    "include_interceptors": ["logging", "auth"]
+  }
+}
+
+# 8. Generate comprehensive tests
+{
+  "name": "generate_unit_tests",
+  "arguments": {
+    "file_path": "src/main/kotlin/UserRepository.kt",
+    "test_framework": "junit5",
+    "include_edge_cases": true
+  }
+}
+
+# 9. Build and test
+{
+  "name": "gradle_build",
+  "arguments": {
+    "task": "assembleDebug",
+    "clean_build": true
+  }
+}
+
+{
+  "name": "run_tests",
+  "arguments": {
+    "test_type": "all",
+    "generate_report": true
+  }
+}
+```
+
+#### **AI-Powered Development Examples**
+
+```bash
+# Generate a complete login feature using AI
+{
+  "name": "generate_code_with_ai",
+  "arguments": {
+    "description": "Complete login feature with email/password, biometric authentication, remember me option, forgot password flow, and proper error handling",
+    "code_type": "feature",
+    "framework": "compose",
+    "compliance_requirements": ["gdpr"],
+    "include_tests": true
+  }
+}
+
+# Analyze existing code for security issues
+{
+  "name": "analyze_code_with_ai",
+  "arguments": {
+    "file_path": "src/main/kotlin/AuthManager.kt",
+    "analysis_type": "security",
+    "detailed_report": true
+  }
+}
+
+# Get AI assistance for complex implementation
+{
+  "name": "query_llm",
+  "arguments": {
+    "prompt": "How do I implement secure biometric authentication in Android with fallback to PIN? Include error handling for different biometric states.",
+    "llm_provider": "local",
+    "privacy_mode": true
+  }
+}
+```
+
+### 🛠️ **Tool Usage Best Practices**
+
+#### **File Path Conventions**
+Always use relative paths from your project root:
+```bash
+# ✅ Correct
+"file_path": "src/main/kotlin/com/example/User.kt"
+
+# ❌ Incorrect  
+"file_path": "/absolute/path/to/User.kt"
+```
+
+#### **Package Naming**
+Follow Android package naming conventions:
+```bash
+# ✅ Correct
+"package_name": "com.company.app.feature.user"
+
+# ❌ Incorrect
+"package_name": "User.Package"
+```
+
+#### **Security Best Practices**
+- Always use encryption for sensitive data
+- Implement proper compliance features from the start
+- Use secure storage for API keys and secrets
+- Enable audit logging for compliance requirements
+
+#### **Performance Optimization**
+- Use `parallel: true` for Gradle builds when possible
+- Generate tests incrementally rather than all at once
+- Use local LLM providers for privacy-sensitive code analysis
+- Enable caching for API setups
+
+#### **Error Handling**
+All tools provide comprehensive error information:
+```json
+{
+  "success": false,
+  "error": "File already exists",
+  "details": {
+    "file_path": "src/main/kotlin/User.kt",
+    "suggestion": "Use a different file name or set overwrite: true"
+  }
+}
+```
+
+### 📊 **Tool Response Formats**
+
+#### **Success Response**
+```json
+{
+  "success": true,
+  "result": {
+    "files_created": ["User.kt", "UserTest.kt"],
+    "lines_of_code": 125,
+    "compilation_status": "success"
+  },
+  "metadata": {
+    "execution_time": "2.3s",
+    "tools_used": ["kotlin_compiler", "test_generator"]
+  }
+}
+```
+
+#### **Error Response**
+```json
+{
+  "success": false,
+  "error": "Compilation failed",
+  "details": {
+    "error_type": "compilation_error",
+    "line_number": 23,
+    "message": "Unresolved reference: undefinedVariable",
+    "suggestions": [
+      "Check variable declaration",
+      "Verify imports"
+    ]
+  }
+}
+```
+
+### �🔒 **Security & Privacy Features**
 
 #### GDPR Compliance Implementation
 ```json
@@ -474,6 +1280,144 @@ python3 vscode_bridge.py --test-mode
     "model_path": "assets/model.tflite",
     "use_case": "image_classification",
     "privacy_preserving": true
+  }
+}
+```
+
+### 🛠️ **Tool-Specific Troubleshooting**
+
+#### **Gradle Build Issues**
+```bash
+# Tool: gradle_build
+# Common solutions:
+
+# 1. Clear Gradle cache
+{
+  "name": "gradle_build",
+  "arguments": {
+    "task": "clean",
+    "clean_build": true
+  }
+}
+
+# 2. Check Java version
+echo $JAVA_HOME
+java -version
+
+# 3. Fix permission issues (macOS/Linux)
+chmod +x gradlew
+
+# 4. Enable verbose output for debugging
+{
+  "name": "gradle_build",
+  "arguments": {
+    "task": "assembleDebug",
+    "gradle_args": ["--debug", "--stacktrace"]
+  }
+}
+```
+
+#### **AI Integration Issues**
+```bash
+# Tool: query_llm, analyze_code_with_ai, generate_code_with_ai
+
+# Local LLM not responding
+curl http://localhost:11434/api/generate -d '{"model":"codellama","prompt":"test"}'
+
+# API key issues
+python3 -c "import os; print('OpenAI:', bool(os.getenv('OPENAI_API_KEY')))"
+
+# Privacy mode for sensitive code
+{
+  "name": "query_llm",
+  "arguments": {
+    "prompt": "Your prompt here",
+    "llm_provider": "local",  # Force local processing
+    "privacy_mode": true      # No external API calls
+  }
+}
+```
+
+#### **File Creation Issues**
+```bash
+# Tool: create_kotlin_file, create_layout_file, create_compose_component
+
+# Permission denied
+sudo chown -R $(whoami):$(whoami) src/
+
+# File already exists
+{
+  "name": "create_kotlin_file",
+  "arguments": {
+    "file_path": "src/main/kotlin/User.kt",
+    "overwrite": true  # Force overwrite
+  }
+}
+
+# Invalid package structure
+# Ensure your file path matches package structure:
+# File: src/main/kotlin/com/example/User.kt
+# Package: com.example
+```
+
+#### **Security Tool Issues**
+```bash
+# Tool: encrypt_sensitive_data, implement_gdpr_compliance
+
+# Cryptography not available
+pip install cryptography>=41.0.0
+
+# Test encryption
+python3 -c "from cryptography.fernet import Fernet; print('✅ Encryption available')"
+
+# GDPR compliance setup
+{
+  "name": "implement_gdpr_compliance",
+  "arguments": {
+    "package_name": "com.example.app",
+    "features": ["consent_management"],  # Start with basic features
+    "dry_run": true  # Test mode first
+  }
+}
+```
+
+#### **Database Setup Issues**
+```bash
+# Tool: setup_room_database, setup_secure_storage
+
+# Check Android Room version compatibility
+grep "room_version" build.gradle
+
+# Test database creation
+{
+  "name": "setup_room_database",
+  "arguments": {
+    "database_name": "TestDB",
+    "entities": [{"name": "TestEntity", "fields": [{"name": "id", "type": "String", "primaryKey": true}]}],
+    "validate_only": true  # Check schema without creating files
+  }
+}
+```
+
+#### **Network/API Issues**
+```bash
+# Tool: setup_retrofit_api, call_external_api
+
+# Test network connectivity
+curl -I https://api.example.com/
+
+# Verify SSL certificates
+openssl s_client -connect api.example.com:443
+
+# Debug API calls
+{
+  "name": "call_external_api",
+  "arguments": {
+    "api_name": "TestAPI",
+    "endpoint": "/health",
+    "method": "GET",
+    "debug_mode": true,  # Enable detailed logging
+    "timeout": 10        # Shorter timeout for testing
   }
 }
 ```
@@ -1401,14 +2345,54 @@ We welcome contributions! Please see our contributing guidelines for:
 
 ## 🚀 **Getting Started Checklist**
 
-- [ ] Install dependencies (`pip install -r requirements.txt`)
-- [ ] Configure environment variables (`.env` file)
+### **Installation & Setup**
+- [ ] Install Python 3.8+ and pip
+- [ ] Clone repository: `git clone <repo-url>`
+- [ ] Install dependencies: `pip install -r requirements.txt`
+- [ ] Configure environment variables in `.env` file
 - [ ] Install required IDE plugins/extensions
-- [ ] Choose your AI agent integration (Claude, VS Code, etc.)
-- [ ] Set up your Android project workspace
-- [ ] Configure compliance requirements (GDPR/HIPAA)
-- [ ] Test basic functionality
-- [ ] **Optional**: Test VS Code bridge server (`python3 vscode_bridge.py`)
-- [ ] Explore advanced features
+- [ ] Validate installation: `python3 validate_config.py`
 
-**Ready to build enterprise-grade Android applications with AI assistance and full compliance support!** 🎉
+### **Basic Tool Testing**
+- [ ] Test project analysis: `{"name": "analyze_project", "arguments": {"analysis_type": "architecture"}}`
+- [ ] Test file creation: `{"name": "create_kotlin_file", "arguments": {"file_path": "Test.kt", "class_name": "Test"}}`
+- [ ] Test build: `{"name": "gradle_build", "arguments": {"task": "assembleDebug"}}`
+- [ ] Test AI integration: `{"name": "query_llm", "arguments": {"prompt": "Hello world", "llm_provider": "local"}}`
+
+### **Advanced Features**
+- [ ] Set up MVVM architecture: `setup_mvvm_architecture`
+- [ ] Configure dependency injection: `setup_dependency_injection`
+- [ ] Implement security features: `encrypt_sensitive_data`
+- [ ] Set up compliance (if needed): `implement_gdpr_compliance` or `implement_hipaa_compliance`
+- [ ] Configure cloud sync: `setup_cloud_sync`
+- [ ] Set up external APIs: `setup_external_api`
+
+### **Testing & Quality**
+- [ ] Generate unit tests: `generate_unit_tests`
+- [ ] Run comprehensive tests: `run_tests`
+- [ ] Perform code analysis: `analyze_code_with_ai`
+- [ ] Run lint checks: `run_lint`
+- [ ] Generate documentation: `generate_docs`
+
+### **Optional Integrations**
+- [ ] Test VS Code bridge server: `python3 vscode_bridge.py`
+- [ ] Configure Claude Desktop integration
+- [ ] Set up cloud storage backup
+- [ ] Enable AI code generation features
+
+**🎉 Ready to build enterprise-grade Android applications with 27 comprehensive tools at your disposal!**
+
+### 📚 **Next Steps**
+
+1. **Explore the Tools:** Start with basic tools like `analyze_project` and `create_kotlin_file`
+2. **Set Up Architecture:** Use `setup_mvvm_architecture` for clean code structure
+3. **Add Security:** Implement `encrypt_sensitive_data` and compliance features
+4. **Generate Code:** Leverage AI tools for rapid development
+5. **Test Everything:** Use `generate_unit_tests` and `run_tests` for quality assurance
+
+### 🆘 **Getting Help**
+
+- **Tool Reference:** Each tool has detailed parameter documentation above
+- **Examples:** Industry-specific examples in the README
+- **Troubleshooting:** Comprehensive troubleshooting section included
+- **Best Practices:** Follow the tool usage guidelines for optimal results

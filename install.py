@@ -25,7 +25,7 @@ def create_symlink_installation():
     # Create a wrapper script
     wrapper_content = f"""#!/bin/bash
 cd "{script_dir}"
-python3 simple_mcp_server.py "$@"
+python3 kotlin_mcp_server.py "$@"
 """
 
     symlink_path.write_text(wrapper_content)
@@ -43,7 +43,7 @@ def update_config_file(config_file, installation_type, script_dir=None):
     configs = {
         "portable": {
             "command": "python3",
-            "args": ["simple_mcp_server.py"],
+            "args": ["kotlin_mcp_server.py"],
             "cwd": cwd_path,
         },
         "installable": {"command": "kotlin-android-mcp", "args": []},
@@ -116,7 +116,7 @@ def main():
         return 1
 
     # Make scripts executable
-    scripts = ["simple_mcp_server.py", "mcp_server.py", "servers/mcp-process/mcp-gradle-wrapper.sh"]
+    scripts = ["kotlin_mcp_server.py", "mcp_server.py", "servers/mcp-process/mcp-gradle-wrapper.sh"]
     for script in scripts:
         script_path = script_dir / script
         if script_path.exists():
@@ -183,7 +183,7 @@ def main():
         print("   kotlin-android-mcp /path/to/android/project")
     else:
         print(f"   cd {script_dir}")
-        print("   python3 simple_mcp_server.py /path/to/android/project")
+        print("   python3 kotlin_mcp_server.py /path/to/android/project")
 
     print("\n💡 Pro Tip:")
     print("   The server now uses workspace/project context automatically!")

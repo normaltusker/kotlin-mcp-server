@@ -1,25 +1,17 @@
 # Core MCP Server dependencies
-python-dotenv
+python-dotenv>=1.0.0
 pydantic>=2.0.0
 
 # Core dependencies for Android/Kotlin development
-requests
-pathlib
-
-# Development tools
-tqdm
+requests>=2.31.0
 
 # Security and Encryption
 cryptography>=41.0.0
 bcrypt>=4.0.0
 PyJWT>=2.8.0
 
-# Privacy and Compliance (using standard libraries)
-# python-gdpr>=1.0.0  # Not available, using custom implementation
-# anonymize-df>=1.0.0  # Not available, using custom implementation
-
 # Database and Storage
-aiosqlite
+aiosqlite>=0.19.0
 sqlalchemy>=2.0.0
 
 # AI/ML Integration (optional - will handle gracefully if not available)
@@ -27,24 +19,14 @@ sqlalchemy>=2.0.0
 # anthropic>=0.3.0
 # transformers>=4.30.0
 # torch>=2.0.0
-# tensorflow-lite>=2.13.0
-# onnxruntime>=1.15.0
 
-# Cloud Storage and APIs
-# boto3>=1.28.0  # AWS
-# google-cloud-storage>=2.10.0  # GCP
-# azure-storage-blob>=12.17.0  # Azure
+# HTTP Client Libraries
 aiohttp>=3.8.0
 httpx>=0.24.0
 
 # File Management
 aiofiles>=23.0.0
 watchdog>=3.0.0
-# py7zr>=0.20.0  # Archive support
-
-# Monitoring and Logging
-# structlog>=23.0.0
-# prometheus-client>=0.17.0
 
 # Testing and Quality
 pytest>=7.4.0
@@ -52,7 +34,7 @@ pytest-asyncio>=0.21.0
 pytest-cov>=4.1.0
 coverage>=7.2.0
 
-# Code Quality and Linting
+# Code Quality and Linting  
 flake8>=6.0.0
 black>=23.0.0
 isort>=5.12.0
@@ -68,3 +50,6 @@ psutil>=5.9.0
 
 # Pre-commit hooks
 pre-commit>=3.3.0
+
+# Development tools
+tqdm>=4.65.0

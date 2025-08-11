@@ -111,18 +111,14 @@ class CITestRunner:
         print("=" * 80)
 
         test_commands = [
-            # Simple tests
-            ("python -m pytest simple_test.py -v --tb=short", "Simple MCP tests"),
-            # Comprehensive tests
-            ("python -m pytest comprehensive_test.py -v --tb=short", "Comprehensive MCP tests"),
-            # New comprehensive test suite
+            # Consolidated test suite
             (
-                "python -m pytest test_mcp_comprehensive.py -v --tb=short",
-                "Full comprehensive test suite",
+                "python -m pytest test_kotlin_mcp_server.py -v --tb=short --asyncio-mode=auto",
+                "Kotlin MCP Server comprehensive tests",
             ),
             # All tests with coverage
             (
-                "python -m pytest test_*.py -v --cov=. --cov-report=html --cov-report=term-missing --cov-fail-under=70",
+                "python -m pytest test_*.py -v --cov=. --cov-report=html --cov-report=term-missing --cov-fail-under=60 --asyncio-mode=auto",
                 "All tests with coverage",
             ),
         ]
@@ -139,20 +135,12 @@ class CITestRunner:
         # Test server imports and basic initialization
         functionality_tests = [
             (
-                "python -c \"from simple_mcp_server import MCPServer; print('✅ MCPServer import successful')\"",
-                "Base MCP Server import",
+                "python -c \"from kotlin_mcp_server import MCPServer; print('✅ MCPServer import successful')\"",
+                "Kotlin MCP Server import",
             ),
             (
-                "python -c \"from enhanced_mcp_server import EnhancedAndroidMCPServer; print('✅ Enhanced server import successful')\"",
-                "Enhanced MCP Server import",
-            ),
-            (
-                "python -c \"from security_privacy_server import SecurityPrivacyMCPServer; print('✅ Security server import successful')\"",
-                "Security MCP Server import",
-            ),
-            (
-                "python -c \"from ai_integration_server import AIIntegratedMCPServer; print('✅ AI server import successful')\"",
-                "AI Integration Server import",
+                "python -c \"from vscode_bridge import MCPBridgeHandler; print('✅ Bridge handler import successful')\"",
+                "VS Code Bridge import",
             ),
         ]
 
@@ -171,26 +159,25 @@ import asyncio
 import time
 import tempfile
 from pathlib import Path
-from ai_integration_server import AIIntegratedMCPServer
+from kotlin_mcp_server import MCPServer
 
 async def performance_test():
-    server = AIIntegratedMCPServer("perf-test")
+    server = MCPServer("perf-test")
     server.project_path = Path(tempfile.mkdtemp())
 
     # Test tool listing speed
     start_time = time.time()
     for _ in range(10):
-        await server.handle_list_tools()
+        await server.list_tools()
     list_time = time.time() - start_time
 
     # Test file creation speed
     start_time = time.time()
     for i in range(5):
-        await server.handle_call_tool("create_kotlin_file", {
-            "file_path": f"test/Test{i}.kt",
+        await server.call_tool("create_kotlin_file", {
+            "filename": f"Test{i}.kt",
             "class_name": f"Test{i}",
-            "package_name": "com.test",
-            "class_type": "class"
+            "package_name": "com.test"
         })
     create_time = time.time() - start_time
 

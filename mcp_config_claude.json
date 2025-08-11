@@ -3,7 +3,7 @@
     "kotlin-android": {
       "command": "python3",
       "args": [
-        "simple_mcp_server.py"
+        "kotlin_mcp_server.py"
       ],
       "cwd": "${MCP_SERVER_DIR}",
       "env": {
