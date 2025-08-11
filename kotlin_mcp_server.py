@@ -2168,6 +2168,18 @@ fun {component_name}Preview() {{
             "compound": "LinearLayout",  # Compound view with existing layout
         }.get(view_type, "View")
 
+        # Prepare conditional template parts to avoid backslashes in f-string
+        init_attributes_call = "        initAttributes(attrs)" if has_attributes else ""
+        attributes_method = (
+            "    private fun initAttributes(attrs: AttributeSet?) {\n"
+            "        attrs?.let {\n"
+            "            // TODO: Parse custom attributes\n"
+            "        }\n"
+            "    }"
+            if has_attributes
+            else ""
+        )
+
         template = f"""package {package_name}
 
 import android.content.Context
@@ -2182,10 +2194,10 @@ class {view_name} @JvmOverloads constructor(
 
     init {{
         // Initialize view
-{('        initAttributes(attrs)' if has_attributes else '')}
+{init_attributes_call}
     }}
 
-{('    private fun initAttributes(attrs: AttributeSet?) {\n        attrs?.let {\n            // TODO: Parse custom attributes\n        }\n    }' if has_attributes else '')}
+{attributes_method}
 
     // TODO: Add custom view implementation
 }}
