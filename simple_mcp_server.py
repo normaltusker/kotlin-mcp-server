@@ -670,11 +670,11 @@ class {class_name} {{
 
 def create_server(name: str = "kotlin-android-mcp") -> "MCPServer":
     """Create the default fully featured server implementation."""
-    from ai_integration_server import AIIntegratedMCPServer
-
-    return AIIntegratedMCPServer(name)
-
-
+    try:
+        from ai_integration_server import AIIntegratedMCPServer
+        return AIIntegratedMCPServer(name)
+    except (ImportError, ModuleNotFoundError):
+        return MCPServer(name)
 def main():
     """Main MCP server entry point using stdio transport"""
     parser = argparse.ArgumentParser(description="Kotlin Android MCP Server")
