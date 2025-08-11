@@ -10,6 +10,27 @@ import subprocess
 from http.server import BaseHTTPRequestHandler, HTTPServer
 
 
+def is_safe_path(path, base_dir):
+    """Check that the given path is an absolute path within base_dir and does not contain suspicious characters."""
+    if not isinstance(path, str):
+        return False
+    # Disallow empty paths
+    if not path.strip():
+        return False
+    # Resolve absolute path
+    abs_path = os.path.abspath(path)
+    base_dir = os.path.abspath(base_dir)
+    # Ensure abs_path is within base_dir
+    if not abs_path.startswith(base_dir):
+        return False
+    # Disallow path traversal
+    if ".." in os.path.relpath(abs_path, base_dir).split(os.sep):
+        return False
+    # Optionally, disallow special characters
+    if any(c in abs_path for c in [';', '|', '&', '$', '`']):
+        return False
+    return True
+
 class MCPBridgeHandler(BaseHTTPRequestHandler):
     def do_POST(self):
         content_length = int(self.headers["Content-Length"])
@@ -28,6 +49,11 @@ class MCPBridgeHandler(BaseHTTPRequestHandler):
             if not project_path:
                 # Fallback to current working directory
                 project_path = os.getcwd()
+
+            # Validate project_path
+            workspace_root = os.getenv("VSCODE_WORKSPACE_FOLDER", os.getcwd())
+            if not is_safe_path(project_path, workspace_root):
+                raise ValueError("Invalid project_path provided.")
 
             # Call the MCP server
             result = self.call_mcp_tool(tool_name, arguments, project_path)
