@@ -135,7 +135,7 @@ python simple_test.py
 python test_mcp_comprehensive.py
 
 # Verify server starts correctly
-python simple_mcp_server.py --test
+python simple_mcp_server.py /path/to/project
 
 # Test VS Code bridge server (optional)
 python3 vscode_bridge.py &
@@ -1182,6 +1182,36 @@ curl -X POST http://localhost:8080/ \
       "task": "assembleDebug",
       "clean_first": true
     }
+  }'
+```
+
+#### **Format Kotlin Code**
+```bash
+curl -X POST http://localhost:8080/ \
+  -H "Content-Type: application/json" \
+  -d '{
+    "tool": "format_code",
+    "arguments": {}
+  }'
+```
+
+#### **Run Static Analysis**
+```bash
+curl -X POST http://localhost:8080/ \
+  -H "Content-Type: application/json" \
+  -d '{
+    "tool": "run_lint",
+    "arguments": { "lint_tool": "detekt" }
+  }'
+```
+
+#### **Generate Documentation**
+```bash
+curl -X POST http://localhost:8080/ \
+  -H "Content-Type: application/json" \
+  -d '{
+    "tool": "generate_docs",
+    "arguments": { "doc_type": "html" }
   }'
 ```
 

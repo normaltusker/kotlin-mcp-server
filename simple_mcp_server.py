@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import argparse
 import asyncio
 import json
 import os
@@ -211,6 +212,44 @@ class MCPServer:
                         },
                     },
                 },
+                {
+                    "name": "format_code",
+                    "description": "Format Kotlin source using ktlint",
+                    "inputSchema": {
+                        "type": "object",
+                        "properties": {},
+                    },
+                },
+                {
+                    "name": "run_lint",
+                    "description": "Run static analysis tools like detekt or lint",
+                    "inputSchema": {
+                        "type": "object",
+                        "properties": {
+                            "lint_tool": {
+                                "type": "string",
+                                "enum": ["detekt", "ktlint", "android_lint"],
+                                "description": "Lint tool to run",
+                                "default": "detekt",
+                            }
+                        },
+                    },
+                },
+                {
+                    "name": "generate_docs",
+                    "description": "Generate project documentation with Dokka",
+                    "inputSchema": {
+                        "type": "object",
+                        "properties": {
+                            "doc_type": {
+                                "type": "string",
+                                "enum": ["html", "javadoc"],
+                                "description": "Documentation format",
+                                "default": "html",
+                            }
+                        },
+                    },
+                },
             ]
         }
 
@@ -229,6 +268,12 @@ class MCPServer:
                 return await self._create_layout_file(arguments)
             elif name == "analyze_project":
                 return await self._analyze_project(arguments)
+            elif name == "format_code":
+                return await self._format_code(arguments)
+            elif name == "run_lint":
+                return await self._run_lint(arguments)
+            elif name == "generate_docs":
+                return await self._generate_docs(arguments)
             else:
                 return {
                     "content": [{"type": "text", "text": f"Unknown tool: {name}"}],
@@ -301,6 +346,93 @@ class MCPServer:
 
         except Exception as e:
             return {"content": [{"type": "text", "text": f"Failed to run tests: {str(e)}"}]}
+
+    async def _format_code(self, arguments: dict) -> dict:
+        try:
+            result = subprocess.run(
+                "./gradlew ktlintFormat".split(),
+                cwd=self.project_path,
+                capture_output=True,
+                text=True,
+                timeout=300,
+            )
+
+            output = "Formatting Kotlin code\n"
+            output += "Command: ./gradlew ktlintFormat\n"
+            output += f"Exit code: {result.returncode}\n"
+            output += f"Output:\n{result.stdout}\n"
+            if result.stderr:
+                output += f"Errors:\n{result.stderr}\n"
+
+            return {"content": [{"type": "text", "text": output}]}
+
+        except Exception as e:
+            return {"content": [{"type": "text", "text": f"Failed to format code: {str(e)}"}]}
+
+    async def _run_lint(self, arguments: dict) -> dict:
+        lint_tool = arguments.get("lint_tool", "detekt")
+
+        task_map = {
+            "detekt": "detekt",
+            "ktlint": "ktlintCheck",
+            "android_lint": "lint",
+        }
+
+        task = task_map.get(lint_tool, "detekt")
+
+        try:
+            result = subprocess.run(
+                f"./gradlew {task}".split(),
+                cwd=self.project_path,
+                capture_output=True,
+                text=True,
+                timeout=600,
+            )
+
+            output = f"Running {lint_tool}\n"
+            output += f"Command: ./gradlew {task}\n"
+            output += f"Exit code: {result.returncode}\n"
+            output += f"Output:\n{result.stdout}\n"
+            if result.stderr:
+                output += f"Errors:\n{result.stderr}\n"
+
+            return {"content": [{"type": "text", "text": output}]}
+
+        except Exception as e:
+            return {"content": [{"type": "text", "text": f"Failed to run lint: {str(e)}"}]}
+
+    async def _generate_docs(self, arguments: dict) -> dict:
+        doc_type = arguments.get("doc_type", "html")
+
+        task_map = {
+            "html": "dokkaHtml",
+            "javadoc": "dokkaJavadoc",
+        }
+
+        task = task_map.get(doc_type, "dokkaHtml")
+
+        try:
+            result = subprocess.run(
+                f"./gradlew {task}".split(),
+                cwd=self.project_path,
+                capture_output=True,
+                text=True,
+                timeout=600,
+            )
+
+            output = f"Generating {doc_type} documentation\n"
+            output += f"Command: ./gradlew {task}\n"
+            output += f"Exit code: {result.returncode}\n"
+            output += f"Output:\n{result.stdout}\n"
+            if result.stderr:
+                output += f"Errors:\n{result.stderr}\n"
+
+            return {"content": [{"type": "text", "text": output}]}
+
+        except Exception as e:
+            return {
+                "content": [{"type": "text", "text": f"Failed to generate documentation: {str(e)}"}]
+            }
 
     async def _create_kotlin_file(self, arguments: dict) -> dict:
         file_path = arguments["file_path"]
@@ -536,21 +668,33 @@ class {class_name} {{
             return f"Error analyzing manifest: {e}"
 
 
+def create_server(name: str = "kotlin-android-mcp") -> "MCPServer":
+    """Create the default fully featured server implementation."""
+    from ai_integration_server import AIIntegratedMCPServer
+
+    return AIIntegratedMCPServer(name)
+
+
 def main():
     """Main MCP server entry point using stdio transport"""
-    server = MCPServer("kotlin-android-mcp")
+    parser = argparse.ArgumentParser(description="Kotlin Android MCP Server")
+    parser.add_argument("project_path", nargs="?", help="Path to Android project")
+    args = parser.parse_args()
+
+    server = create_server()
 
     # Get project path
-    project_path = os.getenv("PROJECT_PATH")
-    if len(sys.argv) > 1:
-        project_path = sys.argv[1]
+    project_path = args.project_path or os.getenv("PROJECT_PATH")
 
     if project_path:
         server.project_path = Path(project_path).resolve()
         if not server.project_path.exists():
             print(f"Warning: Project path does not exist: {server.project_path}", file=sys.stderr)
 
-    print(f"Starting MCP server for project: {server.project_path}", file=sys.stderr)
+    print(
+        f"Starting MCP server for project: {server.project_path}",
+        file=sys.stderr,
+    )
 
     # Simple stdio-based MCP server loop with proper error handling
     try:
