@@ -44,17 +44,15 @@ setup-dev: install
 # Testing
 test:
 	@echo "🧪 Running tests..."
-	python -m pytest simple_test.py -v
-	python -m pytest comprehensive_test.py -v
-	python -m pytest test_mcp_comprehensive.py -v
+	python3 -m pytest test_kotlin_mcp_server.py -v
 
 test-quick:
 	@echo "⚡ Running quick tests..."
-	python -m pytest simple_test.py -v --tb=short
+	python3 -m pytest test_kotlin_mcp_server.py -v --tb=short
 
 coverage:
 	@echo "📊 Running tests with coverage..."
-	python -m pytest test_*.py -v --cov=. --cov-report=html --cov-report=term-missing --cov-fail-under=70
+	python3 -m pytest test_*.py -v --cov=. --cov-report=html --cov-report=term-missing --cov-fail-under=70
 	@echo "📈 Coverage report generated in htmlcov/"
 
 # Code quality
@@ -84,26 +82,23 @@ security:
 # CI/CD
 ci:
 	@echo "🚀 Running full CI pipeline..."
-	python ci_test_runner.py
+	python3 ci_test_runner.py
 
 pre-commit:
 	@echo "🔍 Running pre-commit checks..."
-	python pre_commit_hook.py
+	python3 pre_commit_hook.py
 
 # Functionality validation
 validate:
 	@echo "✅ Validating MCP server functionality..."
-	python -c "from simple_mcp_server import MCPServer; print('✅ Base server OK')"
-	python -c "from enhanced_mcp_server import EnhancedAndroidMCPServer; print('✅ Enhanced server OK')"
-	python -c "from security_privacy_server import SecurityPrivacyMCPServer; print('✅ Security server OK')"
-	python -c "from ai_integration_server import AIIntegratedMCPServer; print('✅ AI server OK')"
+	python3 -c "from kotlin_mcp_server import MCPServer; print('✅ Main server OK')"
 
 # Performance testing
 perf:
 	@echo "⚡ Running performance tests..."
-	python -c "import asyncio; import time; import tempfile; from pathlib import Path; from ai_integration_server import AIIntegratedMCPServer; \
+	python3 -c "import asyncio; import time; import tempfile; from pathlib import Path; from kotlin_mcp_server import MCPServer; \
 	async def perf_test(): \
-		server = AIIntegratedMCPServer('perf-test'); \
+		server = MCPServer('perf-test'); \
 		server.project_path = Path(tempfile.mkdtemp()); \
 		start = time.time(); \
 		for _ in range(10): await server.handle_list_tools(); \
@@ -156,7 +151,7 @@ docker-build:
 
 docker-test:
 	@echo "🐳 Testing in Docker..."
-	docker run --rm mcp-server python -m pytest test_*.py -v
+	docker run --rm mcp-server python3 -m pytest test_*.py -v
 
 # Help for specific commands
 help-ci:

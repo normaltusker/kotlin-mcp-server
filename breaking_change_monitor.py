@@ -144,10 +144,7 @@ class BreakingChangeMonitor:
         print("🔍 Monitoring all MCP servers...")
 
         servers_to_test = [
-            ("simple_mcp_server", "MCPServer", "Base"),
-            ("enhanced_mcp_server", "EnhancedAndroidMCPServer", "Enhanced"),
-            ("security_privacy_server", "SecurityPrivacyMCPServer", "Security"),
-            ("ai_integration_server", "AIIntegratedMCPServer", "AI"),
+            ("kotlin_mcp_server", "MCPServer", "Main"),
         ]
 
         all_results = {"monitoring_timestamp": time.time(), "servers": {}}

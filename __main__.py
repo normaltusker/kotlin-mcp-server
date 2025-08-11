@@ -8,7 +8,7 @@ import sys
 from pathlib import Path
 
 # Import and run the server
-from simple_mcp_server import main
+from kotlin_mcp_server import main
 
 # Add the current directory to Python path for imports
 current_dir = Path(__file__).parent

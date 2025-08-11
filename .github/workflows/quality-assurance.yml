@@ -61,14 +61,8 @@ jobs:
 
     - name: Run unit tests
       run: |
-        # Run basic tests
-        python -m pytest simple_test.py -v --tb=short
-        
-        # Run comprehensive tests
-        python -m pytest comprehensive_test.py -v --tb=short
-        
-        # Run new comprehensive test suite with coverage
-        python -m pytest test_mcp_comprehensive.py -v --cov=. --cov-report=xml --cov-report=term-missing
+        # Run main test suite with coverage
+        python -m pytest test_kotlin_mcp_server.py -v --cov=kotlin_mcp_server --cov-report=xml --cov-report=term-missing --tb=short
 
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v3
@@ -80,11 +74,19 @@ jobs:
 
     - name: Run functionality validation
       run: |
-        # Test server imports
-        python -c "from simple_mcp_server import MCPServer; print('✅ Base server import successful')"
-        python -c "from enhanced_mcp_server import EnhancedAndroidMCPServer; print('✅ Enhanced server import successful')"
-        python -c "from security_privacy_server import SecurityPrivacyMCPServer; print('✅ Security server import successful')"
-        python -c "from ai_integration_server import AIIntegratedMCPServer; print('✅ AI server import successful')"
+        # Test main server import and basic functionality
+        python -c "from kotlin_mcp_server import MCPServer; print('✅ Main server import successful')"
+        python -c "
+        import asyncio
+        from kotlin_mcp_server import MCPServer
+        
+        async def test_basic_functionality():
+            server = MCPServer('ci-test')
+            tools = await server.handle_list_tools()
+            print(f'✅ Server initialized with {len(tools.get(\"tools\", []))} tools')
+            
+        asyncio.run(test_basic_functionality())
+        "
 
     - name: Run performance tests
       run: |
@@ -94,10 +96,10 @@ jobs:
         import time
         import tempfile
         from pathlib import Path
-        from ai_integration_server import AIIntegratedMCPServer
+        from kotlin_mcp_server import MCPServer
         
         async def perf_test():
-            server = AIIntegratedMCPServer('ci-test')
+            server = MCPServer('ci-test')
             server.project_path = Path(tempfile.mkdtemp())
             
             start = time.time()

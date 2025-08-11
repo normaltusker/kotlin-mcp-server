@@ -42,7 +42,7 @@ Location: `~/Library/Application Support/Claude/claude_desktop_config.json`
   "mcpServers": {
     "kotlin-android": {
       "command": "python3",
-      "args": ["simple_mcp_server.py"],
+      "args": ["kotlin_mcp_server.py"],
       "cwd": "/Users/yourusername/Documents/kotlin-mcp-server",
       "env": {
         "PROJECT_PATH": "${workspaceRoot}",
@@ -70,7 +70,7 @@ And update the `mcp_config_vscode.json` with your actual path:
   "mcpServers": {
     "kotlin-android": {
       "command": "python3",
-      "args": ["simple_mcp_server.py"],
+      "args": ["kotlin_mcp_server.py"],
       "cwd": "/Users/yourusername/Documents/kotlin-mcp-server",
       "env": {
         "PROJECT_PATH": "${workspaceFolder}",
@@ -100,7 +100,7 @@ Then use in config:
   "mcpServers": {
     "kotlin-android": {
       "command": "python3",
-      "args": ["simple_mcp_server.py"],
+      "args": ["kotlin_mcp_server.py"],
       "cwd": "$MCP_SERVER_DIR",
       "env": {
         "PROJECT_PATH": "$MCP_WORKSPACE_DIR"
@@ -117,10 +117,10 @@ Test your configuration:
 ```bash
 # Test server starts correctly
 cd /your/kotlin-mcp-server/path
-python3 simple_mcp_server.py --test
+python3 kotlin_mcp_server.py --test
 
 # Test with specific project path
-PROJECT_PATH="/path/to/android/project" python3 simple_mcp_server.py --test
+PROJECT_PATH="/path/to/android/project" python3 kotlin_mcp_server.py --test
 ```
 
 ## Troubleshooting
@@ -128,13 +128,13 @@ PROJECT_PATH="/path/to/android/project" python3 simple_mcp_server.py --test
 ### Common Issues
 
 1. **Path not found errors:**
-   - Verify `cwd` path exists and contains `simple_mcp_server.py`
+   - Verify `cwd` path exists and contains `kotlin_mcp_server.py`
    - Use absolute paths, not relative paths
    - Check file permissions
 
 2. **Permission denied:**
    ```bash
-   chmod +x simple_mcp_server.py
+   chmod +x kotlin_mcp_server.py
    ```
 
 3. **Python not found:**
