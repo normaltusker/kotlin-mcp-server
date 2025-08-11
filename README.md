@@ -151,7 +151,7 @@ python simple_test.py
 python test_mcp_comprehensive.py
 
 # Verify server starts correctly
-python simple_mcp_server.py /path/to/project
+python kotlin_mcp_server.py /path/to/project
 
 # Test VS Code bridge server (optional)
 python3 vscode_bridge.py &
@@ -1530,7 +1530,7 @@ Add to `~/Library/Application Support/Claude/claude_desktop_config.json`:
   "mcpServers": {
     "kotlin-android": {
       "command": "python",
-      "args": ["/path/to/kotlin-mcp-server/ai_integration_server.py"],
+      "args": ["/path/to/kotlin-mcp-server/kotlin_mcp_server.py"],
       "env": {
         "WORKSPACE_PATH": "/path/to/your/android/project"
       }
@@ -1661,7 +1661,7 @@ No additional plugins required - uses built-in MCP support.
      "mcpServers": {
        "kotlin-android": {
          "command": "python3",
-         "args": ["${YOUR_MCP_SERVER_PATH}/ai_integration_server.py"],
+         "args": ["${YOUR_MCP_SERVER_PATH}/kotlin_mcp_server.py"],
          "env": {
            "WORKSPACE_PATH": "${workspaceRoot}",
            "MCP_ENCRYPTION_PASSWORD": "your-secure-password",
@@ -1680,7 +1680,7 @@ No additional plugins required - uses built-in MCP support.
      "mcpServers": {
        "kotlin-android": {
          "command": "python3",
-         "args": ["/Users/yourusername/Documents/kotlin-mcp-server/ai_integration_server.py"],
+         "args": ["/Users/yourusername/Documents/kotlin-mcp-server/kotlin_mcp_server.py"],
          "env": {
            "WORKSPACE_PATH": "${workspaceRoot}",
            "MCP_ENCRYPTION_PASSWORD": "your-secure-password",
@@ -1813,7 +1813,7 @@ pip install -r requirements.txt -i https://pypi.org/simple/
 #### **Import Errors**
 ```bash
 # Verify installation
-python3 -c "import enhanced_mcp_server; print('Import successful')"
+python3 -c "import kotlin_mcp_server; print('Import successful')"
 
 # Check Python path
 python3 -c "import sys; print(sys.path)"
@@ -1972,7 +1972,7 @@ export LOG_LEVEL=DEBUG
 make perf
 
 # Profile server startup
-python3 -m cProfile enhanced_mcp_server.py
+python3 -m cProfile kotlin_mcp_server.py
 ```
 
 #### **Memory Usage**
@@ -1992,13 +1992,13 @@ export MCP_LOW_MEMORY_MODE=true
 4. **Test Individual Components:**
    ```bash
    # Test core server
-   python3 simple_mcp_server.py --test
+   python3 kotlin_mcp_server.py --test
    
    # Test enhanced features
-   python3 enhanced_mcp_server.py --test
+   python3 kotlin_mcp_server.py --test
    
    # Test AI integration
-   python3 ai_integration_server.py --test
+   python3 kotlin_mcp_server.py --test
    ```
 
 5. **Contact Support:** Include logs, system info, and error messages when reporting issues
