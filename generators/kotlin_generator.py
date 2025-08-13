@@ -75,7 +75,7 @@ class KotlinCodeGenerator:
 
 /**
  * {class_name} - Modern Android Activity with Jetpack Compose UI
- * 
+ *
  * Features:
  * - Jetpack Compose UI with Material Design 3
  * - State management with ViewModel
@@ -87,7 +87,7 @@ class {class_name} : ComponentActivity() {{
 
     override fun onCreate(savedInstanceState: Bundle?) {{
         super.onCreate(savedInstanceState)
-        
+
         setContent {{
             {class_name}Theme {{
                 Surface(
@@ -106,7 +106,7 @@ fun {class_name}Screen(
     viewModel: {class_name}ViewModel = viewModel()
 ) {{
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -188,7 +188,7 @@ import javax.inject.Inject
 
 /**
  * {class_name} - ViewModel managing UI state and business logic
- * 
+ *
  * Responsibilities:
  * - UI state management with StateFlow
  * - Business logic coordination
@@ -254,7 +254,7 @@ import javax.inject.Singleton
 
 /**
  * {class_name} - Repository handling data operations
- * 
+ *
  * Responsibilities:
  * - Data source coordination (local/remote)
  * - Caching strategy implementation
@@ -277,7 +277,7 @@ class {class_name} @Inject constructor(
             if (localData.isNotEmpty()) {{
                 return localData
             }}
-            
+
             // Fallback to remote
             val remoteData = remoteDataSource.getData()
             localDataSource.saveData(remoteData)
@@ -374,7 +374,7 @@ fun {class_name}Content(
     viewModel: {class_name}ViewModel
 ) {{
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -386,9 +386,9 @@ fun {class_name}Content(
             text = "{class_name} Fragment",
             style = MaterialTheme.typography.headlineMedium
         )
-        
+
         Spacer(modifier = Modifier.height(16.dp))
-        
+
         when (uiState.isLoading) {{
             true -> CircularProgressIndicator()
             false -> Button(
@@ -429,8 +429,8 @@ data class {class_name}(
      * Validate the data class instance
      */
     fun isValid(): Boolean {{
-        return name.isNotBlank() && 
-               description.isNotBlank() && 
+        return name.isNotBlank() &&
+               description.isNotBlank() &&
                id >= 0L &&
                createdAt > 0L
     }}
@@ -457,7 +457,7 @@ data class {class_name}(
          * Create empty instance
          */
         fun empty(): {class_name} = {class_name}()
-        
+
         /**
          * Create from minimal data
          */
@@ -498,10 +498,10 @@ class {class_name} @Inject constructor(
             if (!params.isValid()) {{
                 return Result.failure(IllegalArgumentException("Invalid parameters"))
             }}
-            
+
             val data = repository.getData(params.query)
             val processedData = processData(data)
-            
+
             Result.success({class_name}Result(processedData))
         }} catch (e: Exception) {{
             Result.failure(e)
@@ -571,7 +571,7 @@ class {class_name} : Service() {{
 
     private val serviceJob = SupervisorJob()
     private val serviceScope = CoroutineScope(Dispatchers.IO + serviceJob)
-    
+
     private val notificationId = 1001
     private val channelId = "{package_name.split('.')[-1]}_channel"
 
@@ -833,7 +833,7 @@ class {class_name} @Inject constructor() {{
             if (!_state.value.isInitialized) {{
                 return Result.failure(IllegalStateException("Not initialized"))
             }}
-            
+
             val result = processInput(input)
             _state.value = _state.value.copy(lastResult = result)
             Result.success(result)

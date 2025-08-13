@@ -114,6 +114,7 @@ def test_bridge_server():
 
     try:
         import requests
+
         # Check if bridge server file exists
         script_dir = Path(__file__).parent
         bridge_file = script_dir / "vscode_bridge.py"
@@ -244,6 +245,7 @@ def main():
             print(f"📄 Loading environment from: {env_file}")
             try:
                 from dotenv import load_dotenv
+
                 load_dotenv(env_file)
                 print("✅ Environment loaded")
             except ImportError:
@@ -319,6 +321,7 @@ def main():
     except Exception as e:
         print(f"An unexpected error occurred: {e}", file=sys.stderr)
         import traceback
+
         traceback.print_exc()
         return 1
 
@@ -328,4 +331,4 @@ if __name__ == "__main__":
     if "pytest" not in sys.modules:
         sys.exit(main())
     else:
-        main() # Call main() but don't exit for pytest
+        main()  # Call main() but don't exit for pytest

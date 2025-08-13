@@ -38,31 +38,36 @@ jobs:
     - name: Run code formatting checks
       run: |
         # Check if code is formatted correctly
-        black --check --diff *.py || (echo "❌ Code formatting failed. Run 'black *.py' to fix." && exit 1)
+        black --check --diff . --exclude="htmlcov|__pycache__|\.git" || (echo "❌ Code formatting failed. Run 'black .' to fix." && exit 1)
         
         # Check import sorting
-        isort --check-only --diff *.py || (echo "❌ Import sorting failed. Run 'isort *.py' to fix." && exit 1)
+        isort --check-only --diff . --skip=htmlcov --skip=__pycache__ || (echo "❌ Import sorting failed. Run 'isort .' to fix." && exit 1)
 
     - name: Run linting checks
       run: |
         # Flake8 style check
-        flake8 *.py --count --select=E9,F63,F7,F82 --show-source --statistics
-        flake8 *.py --count --exit-zero --max-complexity=12 --max-line-length=100 --statistics
+        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics --exclude=htmlcov,__pycache__,.git
+        flake8 . --count --exit-zero --max-complexity=12 --max-line-length=100 --statistics --exclude=htmlcov,__pycache__,.git
 
     - name: Run type checking
       run: |
         # MyPy type checking (allow failures for now)
-        mypy *.py --ignore-missing-imports || echo "⚠️  Type checking had issues (non-blocking)"
+        mypy . --ignore-missing-imports --exclude="htmlcov|__pycache__|\.git" || echo "⚠️  Type checking had issues (non-blocking)"
 
     - name: Run security checks
       run: |
         # Bandit security check
-        bandit -r *.py -f txt || echo "⚠️  Security issues found (non-blocking)"
+        bandit -r . -f txt --exclude="htmlcov,__pycache__,.git" || echo "⚠️  Security issues found (non-blocking)"
 
     - name: Run unit tests
       run: |
-        # Run main test suite with coverage
-        python -m pytest test_kotlin_mcp_server.py -v --cov=kotlin_mcp_server --cov-report=xml --cov-report=term-missing --tb=short
+        # Run modular test suite with coverage
+        python -m pytest tests/ -v --cov=. --cov-report=xml --cov-report=term-missing --tb=short
+        
+        # Run legacy tests for validation config (if still needed)
+        if [ -f "test_validate_config.py" ]; then
+          python -m pytest test_validate_config.py -v --cov-append --cov=. --cov-report=xml --cov-report=term-missing --tb=short
+        fi
 
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v3
@@ -75,13 +80,13 @@ jobs:
     - name: Run functionality validation
       run: |
         # Test main server import and basic functionality
-        python -c "from kotlin_mcp_server import MCPServer; print('✅ Main server import successful')"
+        python -c "from kotlin_mcp_server import KotlinMCPServer; print('✅ Main server import successful')"
         python -c "
         import asyncio
-        from kotlin_mcp_server import MCPServer
+        from kotlin_mcp_server import KotlinMCPServer
         
         async def test_basic_functionality():
-            server = MCPServer('ci-test')
+            server = KotlinMCPServer('ci-test')
             tools = await server.handle_list_tools()
             print(f'✅ Server initialized with {len(tools.get(\"tools\", []))} tools')
             
@@ -96,11 +101,11 @@ jobs:
         import time
         import tempfile
         from pathlib import Path
-        from kotlin_mcp_server import MCPServer
+        from kotlin_mcp_server import KotlinMCPServer
         
         async def perf_test():
-            server = MCPServer('ci-test')
-            server.project_path = Path(tempfile.mkdtemp())
+            server = KotlinMCPServer('ci-test')
+            server.set_project_path(tempfile.mkdtemp())
             
             start = time.time()
             await server.handle_list_tools()
@@ -156,10 +161,10 @@ jobs:
     - name: Run security audit
       run: |
         # Check for known vulnerabilities
-        safety check --json || echo "⚠️  Vulnerability check completed"
+        safety check --json > safety-report.json || echo "⚠️  Vulnerability check completed"
         
         # Run comprehensive security scan
-        bandit -r *.py -f json || echo "⚠️  Security scan completed"
+        bandit -r . -f json -o bandit-report.json --exclude="htmlcov,__pycache__,.git" || echo "⚠️  Security scan completed"
 
     - name: Upload security results
       uses: actions/upload-artifact@v4
@@ -167,6 +172,6 @@ jobs:
       with:
         name: security-reports
         path: |
-          *.json
+          safety-report.json
           bandit-report.json
         retention-days: 30

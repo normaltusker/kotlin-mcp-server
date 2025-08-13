@@ -1,17 +1,9 @@
 """
-Build optimization tools for Kotlin MCP Server.
-
-This module provides comprehensive build performance optimization:
-- Build time measurement and analysis
-- Gradle configuration optimization
-- Cache configuration and management
-- Parallel execution optimization
-- Dependency optimization
-- Performance reporting and recommendations
+Build Optimization Tools for Kotlin MCP Server
+Provides tools for optimizing build performance, dependency management, and build configuration
 """
 
 import asyncio
-import subprocess
 import time
 from pathlib import Path
 from typing import Any, Dict, List

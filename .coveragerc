@@ -13,8 +13,6 @@ omit =
     breaking_change_monitor.py
     install.py
     vscode_bridge.py
-    tools/*
-    kotlin_mcp_server.py
 
 [report]
 exclude_lines =
