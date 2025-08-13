@@ -8,6 +8,7 @@ import shlex
 import subprocess
 import sys
 from pathlib import Path
+from typing import List
 
 
 def run_quick_checks() -> bool:
@@ -17,28 +18,22 @@ def run_quick_checks() -> bool:
     failed_checks = []
     project_root = Path(__file__).parent
 
-    # All Python files in the project for comprehensive checking
-    main_files = (
-        "__main__.py "
-        "kotlin_mcp_server.py "
-        "test_kotlin_mcp_server_consolidated.py "
-        "test_tools_modules.py "
-        "vscode_bridge.py "
-        "ci_test_runner.py "
-        "validate_config.py "
-        "install.py "
-        "breaking_change_monitor.py "
-        "pre_commit_hook.py "
-        "ai/llm_integration.py "
-        "utils/security.py "
-        "utils/__init__.py "
-        "generators/kotlin_generator.py "
-        "generators/__init__.py "
-        "tools/build_optimization.py "
-        "tools/gradle_tools.py "
-        "tools/project_analysis.py "
-        "tools/__init__.py"
-    )
+    # Dynamically find all Python files in the project
+    python_files: List[Path] = []
+    for pattern in ["*.py", "**/*.py"]:
+        python_files.extend(project_root.glob(pattern))
+
+    # Filter out __pycache__, .venv, htmlcov and other unwanted directories
+    python_files_str = [
+        str(f.relative_to(project_root))
+        for f in python_files
+        if not any(
+            excluded in str(f)
+            for excluded in ["__pycache__", ".git", ".venv", "htmlcov", ".pytest_cache"]
+        )
+    ]
+
+    main_files = " ".join(python_files_str)
 
     checks = [
         # Python syntax check
@@ -64,17 +59,17 @@ def run_quick_checks() -> bool:
         ),
         # isort check for import sorting
         (
-            f"python3 -m isort --check-only --profile=black --line-length=100 {main_files}",
+            f"python3 -m isort --check-only --profile=black --line-length=100 --skip-glob='*.venv*' {main_files}",
             "Import sorting check",
         ),
         # Black check for code formatting
         (
-            f"python3 -m black --check --line-length=100 {main_files}",
+            f"python3 -m black --check --line-length=100 --exclude='.venv|__pycache__|htmlcov' {main_files}",
             "Code formatting check",
         ),
         # Quick test run (only core functionality tests)
         (
-            "python3 -m pytest test_kotlin_mcp_server_consolidated.py::TestKotlinMCPServerConsolidated::test_server_initialization --tb=no -q",
+            "python3 -m pytest tests/test_server_core.py::TestServerCore::test_server_initialization --tb=no -q",
             "Core functionality test",
         ),
         # Tool modules import test
@@ -84,7 +79,7 @@ def run_quick_checks() -> bool:
         ),
         # Quick test of tool modules
         (
-            "python3 -m pytest test_tools_modules.py::TestToolModules::test_all_tools_can_be_imported_together --tb=no -q",
+            "python3 -m pytest tests/tools/test_gradle_tools.py -k test_gradle_build_tool --tb=no -q",
             "Tool modules integration test",
         ),
     ]
@@ -102,8 +97,8 @@ def run_quick_checks() -> bool:
                 failed_checks.append(description)
                 continue
 
-            # Use longer timeout for bandit security scan
-            timeout_val = 60 if "bandit" in command else 30
+            # Use longer timeout for bandit security scan, shorter for others
+            timeout_val = 60 if "bandit" in command else 15
 
             result = subprocess.run(
                 command_list,

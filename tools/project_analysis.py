@@ -10,9 +10,6 @@ This module provides comprehensive project analysis capabilities:
 - UI modernization recommendations
 """
 
-import asyncio
-import json
-import subprocess
 from pathlib import Path
 from typing import Any, Dict, List
 

@@ -17,6 +17,31 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional
 
+import bcrypt
+from cryptography.fernet import Fernet
+
+
+def encrypt_data(data: bytes, key: bytes) -> bytes:
+    """Encrypts data using Fernet symmetric encryption."""
+    f = Fernet(key)
+    return f.encrypt(data)
+
+
+def decrypt_data(token: bytes, key: bytes) -> bytes:
+    """Decrypts data using Fernet symmetric encryption."""
+    f = Fernet(key)
+    return f.decrypt(token)
+
+
+def hash_password(password: str) -> bytes:
+    """Hashes a password using bcrypt."""
+    return bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt())
+
+
+def check_password(password: str, hashed: bytes) -> bool:
+    """Checks a password against a bcrypt hash."""
+    return bcrypt.checkpw(password.encode("utf-8"), hashed)
+
 
 class SecurityManager:
     """Manages security logging and audit database for the MCP server."""

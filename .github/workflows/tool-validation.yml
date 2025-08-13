@@ -1,0 +1,264 @@
+name: Tool Validation
+
+on:
+  push:
+    branches: [ "main", "develop" ]
+  pull_request:
+    branches: [ "main" ]
+  schedule:
+    # Run daily at 2 AM UTC
+    - cron: '0 2 * * *'
+
+jobs:
+  validate-all-tools:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v4
+      with:
+        python-version: 3.11
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pytest pytest-asyncio
+
+    - name: Validate Tool Registration
+      run: |
+        python -c "
+        import asyncio
+        from kotlin_mcp_server import KotlinMCPServer
+        
+        async def validate_tools():
+            server = KotlinMCPServer('tool-validator')
+            tools_result = await server.handle_list_tools()
+            tools = tools_result.get('tools', [])
+            
+            print(f'📋 Found {len(tools)} registered tools')
+            
+            expected_tools = [
+                'create_kotlin_class', 'create_kotlin_data_class', 'create_kotlin_interface',
+                'create_fragment', 'create_activity', 'create_service', 'create_broadcast_receiver',
+                'create_layout_file', 'create_custom_view', 'create_drawable_resource',
+                'create_compose_component', 'setup_navigation_component', 'setup_data_binding',
+                'setup_view_binding', 'gradle_build', 'gradle_clean', 'add_dependency',
+                'update_gradle_wrapper', 'format_code', 'run_lint', 'generate_docs',
+                'setup_mvvm_architecture', 'setup_room_database', 'setup_retrofit_api',
+                'setup_dependency_injection', 'encrypt_sensitive_data', 'setup_secure_storage',
+                'setup_cloud_sync', 'call_external_api', 'ai_code_review', 'ai_refactor_suggestions',
+                'ai_generate_comments', 'generate_code_with_ai', 'analyze_code_with_ai',
+                'enhance_existing_code', 'generate_unit_tests', 'setup_ui_testing',
+                'analyze_project', 'run_tests'
+            ]
+            
+            tool_names = [tool['name'] for tool in tools]
+            missing_tools = [tool for tool in expected_tools if tool not in tool_names]
+            extra_tools = [tool for tool in tool_names if tool not in expected_tools]
+            
+            if missing_tools:
+                print(f'❌ Missing tools: {missing_tools}')
+                exit(1)
+            
+            if extra_tools:
+                print(f'ℹ️  Extra tools found: {extra_tools}')
+            
+            print(f'✅ All {len(expected_tools)} expected tools are registered')
+            
+            # Validate tool schemas
+            for tool in tools:
+                assert 'name' in tool, f'Tool missing name: {tool}'
+                assert 'description' in tool, f'Tool {tool[\"name\"]} missing description'
+                assert 'inputSchema' in tool, f'Tool {tool[\"name\"]} missing inputSchema'
+                
+            print('✅ All tool schemas are valid')
+        
+        asyncio.run(validate_tools())
+        "
+
+    - name: Test Tool Categories
+      run: |
+        python -c "
+        import asyncio
+        import tempfile
+        from kotlin_mcp_server import KotlinMCPServer
+        
+        async def test_tool_categories():
+            server = KotlinMCPServer('category-test')
+            server.set_project_path(tempfile.mkdtemp())
+            
+            # Test Kotlin creation tools
+            kotlin_tools = [
+                ('create_kotlin_class', {'class_name': 'TestClass', 'package_name': 'com.test'}),
+                ('create_kotlin_data_class', {'class_name': 'DataClass', 'properties': ['name: String']}),
+                ('create_kotlin_interface', {'interface_name': 'TestInterface', 'methods': ['fun test()']})
+            ]
+            
+            print('🔧 Testing Kotlin creation tools...')
+            for tool_name, args in kotlin_tools:
+                result = await server.handle_call_tool(tool_name, args)
+                assert 'content' in result, f'{tool_name} should return content'
+            print('✅ Kotlin creation tools working')
+            
+            # Test Android component tools
+            android_tools = [
+                ('create_fragment', {'fragment_name': 'TestFragment', 'layout_name': 'fragment_test'}),
+                ('create_activity', {'activity_name': 'TestActivity', 'layout_name': 'activity_test'}),
+                ('create_service', {'service_name': 'TestService', 'service_type': 'foreground'})
+            ]
+            
+            print('📱 Testing Android component tools...')
+            for tool_name, args in android_tools:
+                result = await server.handle_call_tool(tool_name, args)
+                assert 'content' in result, f'{tool_name} should return content'
+            print('✅ Android component tools working')
+            
+            # Test Gradle tools
+            gradle_tools = [
+                ('gradle_build', {'task': 'build', 'module': 'app'}),
+                ('gradle_clean', {'module': 'app'}),
+                ('add_dependency', {'dependency': 'implementation \"androidx.core:core-ktx:1.8.0\"', 'module': 'app'})
+            ]
+            
+            print('🔨 Testing Gradle tools...')
+            for tool_name, args in gradle_tools:
+                result = await server.handle_call_tool(tool_name, args)
+                assert 'content' in result, f'{tool_name} should return content'
+            print('✅ Gradle tools working')
+            
+            # Test AI tools
+            ai_tools = [
+                ('generate_code_with_ai', {'prompt': 'Create a simple function', 'code_type': 'function'}),
+                ('ai_code_review', {'file_path': 'Test.kt', 'review_type': 'basic'}),
+                ('generate_unit_tests', {'class_path': 'com.example.TestClass', 'test_type': 'basic'})
+            ]
+            
+            print('🤖 Testing AI tools...')
+            for tool_name, args in ai_tools:
+                result = await server.handle_call_tool(tool_name, args)
+                assert 'content' in result, f'{tool_name} should return content'
+            print('✅ AI tools working')
+            
+            print('🎯 All tool categories validated successfully!')
+        
+        asyncio.run(test_tool_categories())
+        "
+
+    - name: Test Error Handling
+      run: |
+        python -c "
+        import asyncio
+        import tempfile
+        from kotlin_mcp_server import KotlinMCPServer
+        
+        async def test_error_handling():
+            server = KotlinMCPServer('error-test')
+            server.set_project_path(tempfile.mkdtemp())
+            
+            print('🔍 Testing error handling...')
+            
+            # Test invalid tool name
+            result = await server.handle_call_tool('invalid_tool_name', {})
+            assert 'content' in result
+            assert 'Unknown tool' in result['content'][0]['text']
+            print('✅ Invalid tool handling works')
+            
+            # Test tools with empty arguments
+            result = await server.handle_call_tool('create_kotlin_class', {})
+            assert 'content' in result  # Should handle gracefully
+            print('✅ Empty arguments handling works')
+            
+            # Test tools with minimal arguments
+            result = await server.handle_call_tool('analyze_project', {})
+            assert 'content' in result
+            print('✅ Minimal arguments handling works')
+            
+            print('🛡️  Error handling validation complete!')
+        
+        asyncio.run(test_error_handling())
+        "
+
+    - name: Generate Tool Report
+      run: |
+        python -c "
+        import asyncio
+        import json
+        from kotlin_mcp_server import KotlinMCPServer
+        
+        async def generate_report():
+            server = KotlinMCPServer('report-generator')
+            tools_result = await server.handle_list_tools()
+            tools = tools_result.get('tools', [])
+            
+            # Generate tool report
+            report = {
+                'total_tools': len(tools),
+                'tools_by_category': {},
+                'tool_details': []
+            }
+            
+            categories = {
+                'kotlin': ['create_kotlin_class', 'create_kotlin_data_class', 'create_kotlin_interface'],
+                'android': ['create_fragment', 'create_activity', 'create_service', 'create_broadcast_receiver'],
+                'ui': ['create_layout_file', 'create_custom_view', 'create_drawable_resource', 'create_compose_component'],
+                'architecture': ['setup_navigation_component', 'setup_data_binding', 'setup_view_binding', 'setup_mvvm_architecture'],
+                'gradle': ['gradle_build', 'gradle_clean', 'add_dependency', 'update_gradle_wrapper'],
+                'quality': ['format_code', 'run_lint', 'generate_docs', 'analyze_project', 'run_tests'],
+                'database': ['setup_room_database', 'setup_retrofit_api', 'setup_dependency_injection'],
+                'security': ['encrypt_sensitive_data', 'setup_secure_storage', 'setup_cloud_sync'],
+                'ai': ['generate_code_with_ai', 'ai_code_review', 'ai_refactor_suggestions', 'ai_generate_comments', 'analyze_code_with_ai', 'enhance_existing_code'],
+                'testing': ['generate_unit_tests', 'setup_ui_testing'],
+                'api': ['call_external_api']
+            }
+            
+            for category, tool_names in categories.items():
+                count = sum(1 for tool in tools if tool['name'] in tool_names)
+                report['tools_by_category'][category] = count
+            
+            for tool in tools:
+                report['tool_details'].append({
+                    'name': tool['name'],
+                    'description': tool.get('description', 'No description'),
+                    'has_schema': 'inputSchema' in tool
+                })
+            
+            with open('tool_report.json', 'w') as f:
+                json.dump(report, f, indent=2)
+            
+            print(f'📊 Generated tool report: {report[\"total_tools\"]} tools')
+            for category, count in report['tools_by_category'].items():
+                print(f'  {category}: {count} tools')
+        
+        asyncio.run(generate_report())
+        "
+
+    - name: Upload Tool Report
+      uses: actions/upload-artifact@v4
+      with:
+        name: tool-validation-report
+        path: tool_report.json
+        retention-days: 30
+
+    - name: Summary
+      run: |
+        echo "## Tool Validation Summary" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        
+        if [ -f tool_report.json ]; then
+          echo "### Tool Categories" >> $GITHUB_STEP_SUMMARY
+          python -c "
+          import json
+          with open('tool_report.json', 'r') as f:
+              report = json.load(f)
+          print(f'- **Total Tools**: {report[\"total_tools\"]}')
+          for category, count in report['tools_by_category'].items():
+              print(f'- **{category.title()}**: {count} tools')
+          " >> $GITHUB_STEP_SUMMARY
+        fi
+        
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "✅ All tools validated successfully!" >> $GITHUB_STEP_SUMMARY
