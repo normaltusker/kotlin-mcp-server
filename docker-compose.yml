@@ -1,10 +1,53 @@
 version: '3.8'
 
 services:
-  mcp-assistant:
-    build: .
+  kotlin-mcp-server:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    container_name: kotlin-mcp-server
+    volumes:
+      # Mount the current directory for development
+      - .:/app
+      # Mount Android project directory (adjust path as needed)
+      - ${ANDROID_PROJECT_PATH:-./sample-project}:/workspace
+    environment:
+      # Set environment variables for the MCP server
+      - PROJECT_PATH=/workspace
+      - MCP_SERVER_NAME=kotlin-android
+      - PYTHONPATH=/app
+    ports:
+      - "4000:4000"    # MCP-LSP port
+      - "8080:8080"    # Alternative server port
+    tty: true
+    stdin_open: true
+    # Override default command for interactive use
+    command: ["/bin/bash"]
+    
+    # Health check
+    healthcheck:
+      test: ["CMD", "python3", "-c", "from kotlin_mcp_server import KotlinMCPServer; print('OK')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  # Optional: Separate service for running the MCP server
+  kotlin-mcp-server-daemon:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    container_name: kotlin-mcp-daemon
     volumes:
       - .:/app
-    tty: true
+      - ${ANDROID_PROJECT_PATH:-./sample-project}:/workspace
+    environment:
+      - PROJECT_PATH=/workspace
+      - MCP_SERVER_NAME=kotlin-android
+      - PYTHONPATH=/app
     ports:
-      - "4000:4000"
+      - "4001:4000"
+    command: ["python3", "kotlin_mcp_server.py", "/workspace"]
+    restart: unless-stopped
+    profiles:
+      - daemon
