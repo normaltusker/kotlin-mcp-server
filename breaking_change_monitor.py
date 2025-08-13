@@ -6,6 +6,7 @@ Monitors MCP server functionality to detect breaking changes after code enhancem
 
 import asyncio
 import json
+import os
 import sys
 import tempfile
 import time
@@ -17,7 +18,8 @@ class BreakingChangeMonitor:
     """Monitor for breaking changes in MCP server functionality"""
 
     def __init__(self):
-        self.baseline_file = Path("mcp_baseline.json")
+        baseline_filename = os.getenv("MCP_BASELINE_FILE", "mcp_baseline.json")
+        self.baseline_file = Path(baseline_filename)
         self.current_results: Dict[str, Any] = {}
         self.baseline_results: Optional[Dict[str, Any]] = None
 

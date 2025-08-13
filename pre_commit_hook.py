@@ -4,20 +4,42 @@ Pre-commit hook to ensure code quality before commits
 Automatically runs when code is committed to prevent breaking changes
 """
 
+import shlex
 import subprocess
 import sys
 from pathlib import Path
 
 
-def run_quick_checks():
+def run_quick_checks() -> bool:
     """Run quick quality checks before commit"""
     print("🔍 Running pre-commit quality checks...")
 
     failed_checks = []
     project_root = Path(__file__).parent
 
-    # Quick lint checks
-    main_files = "kotlin_mcp_server.py vscode_bridge.py test_kotlin_mcp_server.py ci_test_runner.py validate_config.py install.py breaking_change_monitor.py"
+    # All Python files in the project for comprehensive checking
+    main_files = (
+        "__main__.py "
+        "kotlin_mcp_server.py "
+        "test_kotlin_mcp_server_consolidated.py "
+        "test_tools_modules.py "
+        "vscode_bridge.py "
+        "ci_test_runner.py "
+        "validate_config.py "
+        "install.py "
+        "breaking_change_monitor.py "
+        "pre_commit_hook.py "
+        "ai/llm_integration.py "
+        "utils/security.py "
+        "utils/__init__.py "
+        "generators/kotlin_generator.py "
+        "generators/__init__.py "
+        "tools/build_optimization.py "
+        "tools/gradle_tools.py "
+        "tools/project_analysis.py "
+        "tools/__init__.py"
+    )
+
     checks = [
         # Python syntax check
         (
@@ -26,28 +48,44 @@ def run_quick_checks():
         ),
         # Import check for main modules
         (
-            'python3 -c "import kotlin_mcp_server, vscode_bridge"',
+            'python3 -c "import kotlin_mcp_server; from ai.llm_integration import LLMIntegration; from utils.security import SecurityManager"',
             "Module import validation",
         ),
-        # Quick flake8 check (only errors)
+        # Critical flake8 checks (syntax errors and undefined names)
         (
             f"python3 -m flake8 --select=E9,F63,F7,F82 {main_files}",
             "Critical syntax errors",
         ),
-        # Basic security check
+        # Basic security check with bandit
+        # High-severity security issues
         (
-            f"python3 -m bandit -lll {main_files}",
+            f"python3 -m bandit -r {main_files} -ll",
             "High-severity security issues",
         ),
         # isort check for import sorting
         (
-            f"python3 -m isort --check-only --diff {main_files}",
+            f"python3 -m isort --check-only --profile=black --line-length=100 {main_files}",
             "Import sorting check",
         ),
         # Black check for code formatting
         (
-            f"python3 -m black --check --diff {main_files}",
+            f"python3 -m black --check --line-length=100 {main_files}",
             "Code formatting check",
+        ),
+        # Quick test run (only core functionality tests)
+        (
+            "python3 -m pytest test_kotlin_mcp_server_consolidated.py::TestKotlinMCPServerConsolidated::test_server_initialization --tb=no -q",
+            "Core functionality test",
+        ),
+        # Tool modules import test
+        (
+            "python3 -c 'from tools.gradle_tools import GradleTools; from tools.build_optimization import BuildOptimizationTools; from tools.project_analysis import ProjectAnalysisTools; print(\"Tool modules import successfully\")'",
+            "Tool modules import test",
+        ),
+        # Quick test of tool modules
+        (
+            "python3 -m pytest test_tools_modules.py::TestToolModules::test_all_tools_can_be_imported_together --tb=no -q",
+            "Tool modules integration test",
         ),
     ]
 
@@ -55,23 +93,26 @@ def run_quick_checks():
         print(f"\n⚡ {description}...")
         try:
             # Use shlex.split for safer command execution
-            import shlex
-
             command_list = shlex.split(command)
 
             # Additional security: validate command executables
-            if command_list[0] not in ["python3", "python", "pytest", "black", "flake8"]:
+            allowed_commands = ["python3", "python", "pytest", "black", "flake8", "isort", "bandit"]
+            if command_list[0] not in allowed_commands:
                 print(f"❌ {description} - BLOCKED: Unauthorized command: {command_list[0]}")
                 failed_checks.append(description)
                 continue
+
+            # Use longer timeout for bandit security scan
+            timeout_val = 60 if "bandit" in command else 30
 
             result = subprocess.run(
                 command_list,
                 cwd=project_root,
                 capture_output=True,
                 text=True,
-                timeout=30,
+                timeout=timeout_val,
                 shell=False,  # Explicitly disable shell execution
+                check=False,  # Don't raise exception on non-zero exit
             )
 
             if result.returncode == 0:
@@ -85,14 +126,14 @@ def run_quick_checks():
         except subprocess.TimeoutExpired:
             print(f"⏰ {description} - TIMEOUT")
             failed_checks.append(description)
-        except Exception as e:
+        except (FileNotFoundError, PermissionError, subprocess.SubprocessError) as e:
             print(f"💥 {description} - ERROR: {e}")
             failed_checks.append(description)
 
     return len(failed_checks) == 0
 
 
-def main():
+def main() -> None:
     """Main pre-commit hook"""
     print("🚀 MCP Server Pre-commit Hook")
     print("=" * 50)

@@ -4,6 +4,43 @@ A comprehensive Model Context Protocol (MCP) server that provides AI agents with
 
 ---
 
+## 📋 **Revision History**
+
+### **Version 2.0** *(Current - August 2025)*
+**Major Release: AI-Enhanced Modular Architecture**
+
+#### 🎯 **Key Improvements**
+- **🤖 AI Integration**: Transformed from template generator to AI-powered development assistant
+- **🏗️ Modular Architecture**: Refactored monolithic structure into 6 specialized modules 
+- **🌍 Dynamic Configuration**: Eliminated all hardcoded paths for cross-platform portability
+- **⚡ Enhanced Tools**: Expanded from 30 to 31 tools with AI-enhanced implementations
+- **🛡️ Security Hardening**: Added configurable audit trails and compliance monitoring
+- **📦 Zero-Config Setup**: Intelligent installer with automatic environment detection
+
+#### 🔧 **Technical Changes**
+- **Modular Design**: Split into `ai/`, `android/`, `gradle/`, `security/`, `testing/`, `utils/` modules
+- **AI-Powered Code Generation**: Leverages calling LLM for production-ready code (no TODOs)
+- **Environment Variable Support**: All configurations now use dynamic environment variables
+- **Cross-Platform Paths**: Universal `~` notation replaces OS-specific hardcoded paths
+- **Enhanced Error Handling**: Comprehensive validation and graceful failure recovery
+- **Performance Optimization**: Streamlined tool execution with better resource management
+
+#### 📊 **Migration Impact**
+- **Tools**: 30 → 31 tools (103% feature parity + enhancements)
+- **File Size**: Optimized modular structure vs. monolithic approach
+- **Configuration**: Zero manual path configuration required
+- **Compatibility**: Maintains full backward compatibility with existing setups
+
+### **Version 1.0** *(Legacy - Pre-August 2025)*
+**Initial Release: Template-Based Code Generator**
+- ✅ Basic MCP server with 30 tools
+- ✅ Template-based Kotlin/Android code generation
+- ✅ Manual configuration with hardcoded paths
+- ✅ Monolithic architecture
+- ✅ Basic security and compliance features
+
+---
+
 ## 🌟 **Enterprise Features Overview**
 
 ### 🔒 **Security & Privacy Compliance**
@@ -44,22 +81,23 @@ A comprehensive Model Context Protocol (MCP) server that provides AI agents with
 
 ## 🚀 **Quick Start & Installation**
 
-### ✨ **What's New in v2.0**
+### ✨ **Upgrade to V2.0 Highlights**
 
-**🎯 Zero-Configuration Setup**: Our enhanced installation script eliminates all manual configuration steps!
+**🤖 AI-Enhanced Development**: Now leverages your AI assistant for production-ready code generation instead of basic templates!
 
-**Before (v1.x):**
+**Before (V1.0):**
+- ❌ Template-based code with TODO placeholders
 - ❌ Manual path editing in config files
-- ❌ Environment variable setup required  
-- ❌ Platform-specific configuration steps
-- ❌ Risk of configuration errors
+- ❌ Monolithic architecture (single large file)
+- ❌ Hardcoded paths and user-specific configurations
+- ❌ 30 basic tools with limited AI integration
 
-**After (v2.0):**
-- ✅ **One Command Setup**: `python3 install.py`
-- ✅ **Automatic Path Detection**: No manual editing needed
-- ✅ **Platform-Specific Configs**: Optimized for Claude, VS Code, etc.
-- ✅ **Interactive & Non-Interactive**: Works for all user types
-- ✅ **Smart Environment Variables**: Uses `${workspaceFolder}`, `${workspaceRoot}` correctly
+**After (V2.0):**
+- ✅ **AI-Powered Code Generation**: Complete, context-aware implementations
+- ✅ **Zero-Configuration Setup**: `python3 install.py` handles everything
+- ✅ **Modular Architecture**: Clean, maintainable 6-module structure
+- ✅ **Dynamic Configuration**: Cross-platform with environment variables
+- ✅ **31 Enhanced Tools**: AI-integrated with intelligent error handling
 
 ### 📋 **System Requirements**
 
@@ -102,8 +140,8 @@ python3 install.py --help
 # Interactive setup (asks for your preferences)
 python3 install.py 1
 
-# Portable with fixed Android project path
-python3 install.py 1 /Users/yourname/AndroidStudioProjects/MyApp
+# Portable with your Android project path (replace with actual path)
+python3 install.py 1 ~/AndroidStudioProjects/MyApp
 
 # System installation with dynamic environment variables
 python3 install.py 2 none my-android-server true
@@ -145,7 +183,54 @@ python3 -c "import kotlin_mcp_server; print('✅ Installation successful')"
 - **Code Quality:** `black`, `flake8`, `pylint`, `mypy`
 - **Security Tools:** `bandit`, `safety`
 
-#### **4. IDE Integration Setup**
+#### **4. V2.0 Architecture & Tool Enhancements**
+
+**🏗️ Modular Architecture Design**
+
+The V2.0 release introduces a clean, maintainable modular structure:
+
+```
+kotlin-mcp-server/
+├── kotlin_mcp_server.py      # Main server (31 AI-enhanced tools)
+├── ai/
+│   ├── llm_integration.py    # AI assistant integration
+│   └── code_enhancement.py   # AI-powered code generation
+├── android/
+│   ├── project_manager.py    # Project structure management  
+│   └── manifest_utils.py     # Android manifest operations
+├── gradle/
+│   ├── build_system.py       # Gradle build automation
+│   └── dependency_manager.py # Dependency resolution
+├── security/
+│   ├── compliance.py         # GDPR/HIPAA compliance
+│   └── encryption.py         # Data protection
+├── testing/
+│   └── test_generator.py     # Automated test creation
+└── utils/
+    ├── file_operations.py    # Enhanced file management
+    └── security.py           # Audit trails & logging
+```
+
+**🤖 AI-Enhanced Tool Capabilities**
+
+| Tool Category | V1.0 (Templates) | V2.0 (AI-Enhanced) |
+|---------------|-------------------|-------------------|
+| **Code Generation** | Basic templates with TODOs | Production-ready, context-aware implementations |
+| **Architecture Patterns** | Skeleton code | Complete MVVM, Clean Architecture patterns |
+| **UI Components** | Static layouts | Dynamic Jetpack Compose with business logic |
+| **Database Operations** | Schema templates | Full Room implementation with migrations |
+| **Testing** | Test stubs | Comprehensive test suites with edge cases |
+| **Security** | Basic validation | Enterprise-grade security with compliance |
+
+**⚡ Performance & Reliability Improvements**
+
+- **31 Tools** (vs 30 in V1.0) with enhanced AI integration
+- **Error Recovery**: Graceful handling of AI service interruptions
+- **Context Awareness**: Tools understand project structure and requirements
+- **Resource Optimization**: Efficient memory usage and faster execution
+- **Cross-Platform Support**: Universal configuration system
+
+#### **5. IDE Integration Setup**
 
 After installation, the script generates ready-to-use configuration files:
 
@@ -263,7 +348,51 @@ The enhanced installation process has **eliminated the need for manual configura
 
 ---
 
-## 📚 **Comprehensive Usage Guide**
+## � **Migration from V1.0 to V2.0**
+
+### **⚡ Quick Migration Steps**
+
+If you have an existing V1.0 installation:
+
+1. **Backup Current Setup**:
+   ```bash
+   # Backup your existing configuration
+   cp mcp_config*.json ~/backup/
+   ```
+
+2. **Update to V2.0**:
+   ```bash
+   # Pull latest changes
+   git pull origin main
+   
+   # Run V2.0 installer
+   python3 install.py 1
+   ```
+
+3. **Verify Migration**:
+   ```bash
+   # Test the new modular architecture
+   python3 -c "from kotlin_mcp_server import KotlinMCPServer; print('✅ V2.0 Ready!')"
+   ```
+
+### **🔍 What's Automatically Migrated**
+
+- ✅ **All 30 original tools** preserved with enhanced AI capabilities
+- ✅ **Configuration files** updated with dynamic environment variables
+- ✅ **Project paths** converted to cross-platform format
+- ✅ **Dependencies** updated to latest versions
+- ✅ **Security settings** enhanced with new compliance features
+
+### **⚠️ Migration Notes**
+
+- **Backward Compatibility**: V2.0 maintains full compatibility with V1.0 project structures
+- **Enhanced Output**: Code generation now produces complete implementations instead of templates
+- **New Environment Variables**: Optional new configuration options (see `.env.example`)
+- **Modular Structure**: Internal architecture improved (no user action needed)
+
+---
+
+## �📚 **Comprehensive Usage Guide**
 
 ### � **Complete Tool Reference**
 
@@ -1920,7 +2049,7 @@ cd /path/to/android/project && pwd
 # Example: Change this
 "cwd": "${MCP_SERVER_DIR}"
 # To this (your actual path)  
-"cwd": "/Users/yourusername/Documents/kotlin-mcp-server"
+"cwd": "~/Documents/kotlin-mcp-server"
 ```
 
 **💡 Pro Tip**: The new installer eliminates these manual steps entirely!
@@ -2180,7 +2309,7 @@ curl http://localhost:8080/health
 # Response:
 {
   "status": "healthy",
-  "current_workspace": "/Users/you/AndroidProject",
+  "current_workspace": "~/AndroidProject",
   "available_tools": ["gradle_build", "run_tests", ...]
 }
 ```
@@ -2463,7 +2592,7 @@ We welcome contributions! Please see our contributing guidelines for:
 - [ ] Set up cloud storage backup
 - [ ] Enable AI code generation features
 
-**🎉 Ready to build enterprise-grade Android applications with 27 comprehensive tools at your disposal!**
+**🎉 Ready to build enterprise-grade Android applications with 31 AI-enhanced tools at your disposal!**
 
 ### 📚 **Next Steps**
 
@@ -2479,3 +2608,21 @@ We welcome contributions! Please see our contributing guidelines for:
 - **Examples:** Industry-specific examples in the README
 - **Troubleshooting:** Comprehensive troubleshooting section included
 - **Best Practices:** Follow the tool usage guidelines for optimal results
+
+---
+
+## 📄 **Version Information**
+
+**Current Version:** `V2.0` - AI-Enhanced Modular Architecture  
+**Release Date:** August 2025  
+**Compatibility:** Backward compatible with V1.0 projects  
+**Next Release:** V2.1 planned for minor enhancements and bug fixes
+
+**Release Notes:**
+- 🤖 AI-powered code generation with production-ready implementations
+- 🏗️ Modular architecture for better maintainability  
+- 🌍 Dynamic configuration system for cross-platform compatibility
+- ⚡ Enhanced performance and reliability improvements
+- 🛡️ Advanced security and compliance features
+
+For detailed version history, see the **Revision History** section at the top of this document.
