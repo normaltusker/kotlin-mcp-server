@@ -20,6 +20,7 @@ License: MIT
 import argparse
 import json
 import sys
+import asyncio
 from pathlib import Path
 from typing import Optional
 
@@ -2010,16 +2011,68 @@ def main() -> None:
     if args.project_path:
         project_path = Path(args.project_path)
         if not project_path.exists():
-            print(f"Error: Project path does not exist: {project_path}", file=sys.stderr)
-            sys.exit(1)
+            # In an MCP server, it's generally better to return an error through the protocol
+            # rather than exiting. However, if the project path is fundamental for server
+            # operation, the client should ensure it's valid.
+            # For now, we'll let the server continue without a valid project path,
+            # and tools requiring it will report an error.
+            pass
 
         server.set_project_path(str(project_path))
-        print(f"Kotlin MCP Server initialized with project: {project_path}")
     else:
-        print("Kotlin MCP Server started without project path")
-        print("Use: kotlin_mcp_server.py <project_path>")
+        pass # No project path provided, server will operate without project-specific tools.
 
-    print("Server ready for MCP connections")
+    # The server is ready to accept MCP connections.
+    # All communication should happen via JSON-RPC over stdin/stdout.
+    # Do not print anything to stdout outside of JSON-RPC responses.
+
+    # Start the MCP communication loop
+    async def mcp_loop():
+        while True:
+            line = await asyncio.to_thread(sys.stdin.readline)
+            if not line:
+                break # EOF, client closed connection
+
+            try:
+                request = json.loads(line)
+                method = request.get("method")
+                params = request.get("params", {})
+                request_id = request.get("id")
+
+                response = {}
+                if method == "initialize":
+                    result = await server.handle_initialize(params)
+                    response = {"jsonrpc": "2.0", "id": request_id, "result": result}
+                elif method == "list_tools" or method == "tools/list":
+                    result = await server.handle_list_tools()
+                    response = {"jsonrpc": "2.0", "id": request_id, "result": result}
+                elif method == "call_tool":
+                    tool_name = params.get("name")
+                    tool_args = params.get("arguments", {})
+                    result = await server.handle_call_tool(tool_name, tool_args)
+                    response = {"jsonrpc": "2.0", "id": request_id, "result": result}
+                else:
+                    # Handle unknown method
+                    error_message = f"Unknown method: {method}"
+                    response = {
+                        "jsonrpc": "2.0",
+                        "id": request_id,
+                        "error": {"code": -32601, "message": error_message},
+                    }
+
+                sys.stdout.write(json.dumps(response) + "\n")
+                sys.stdout.flush()
+
+            except json.JSONDecodeError:
+                error_message = "Invalid JSON received"
+                sys.stdout.write(json.dumps({"jsonrpc": "2.0", "error": {"code": -32700, "message": error_message}}) + "\n")
+                sys.stdout.flush()
+            except Exception as e:
+                error_message = f"Server error: {str(e)}"
+                sys.stdout.write(json.dumps({"jsonrpc": "2.0", "error": {"code": -32000, "message": error_message}}) + "\n")
+                sys.stdout.flush()
+
+    asyncio.run(mcp_loop())
 
 
 if __name__ == "__main__":

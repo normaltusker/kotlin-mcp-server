@@ -41,18 +41,17 @@ jobs:
             
             print(f'📋 Found {len(tools)} registered tools')
             
-            expected_tools = [
-                'analyze_and_refactor_project', 'analyze_code_with_ai', 'analyze_project',
-                'call_external_api', 'create_compose_component', 'create_custom_view',
-                'create_kotlin_file', 'create_layout_file', 'encrypt_sensitive_data',
-                'enhance_existing_code', 'format_code', 'generate_code_with_ai',
-                'generate_docs', 'generate_unit_tests', 'gradle_build',
-                'implement_gdpr_compliance', 'implement_hipaa_compliance', 'manage_dependencies',
-                'manage_project_files', 'optimize_build_performance', 'query_llm',
-                'run_lint', 'run_tests', 'setup_cloud_sync', 'setup_dependency_injection',
-                'setup_external_api', 'setup_mvvm_architecture', 'setup_retrofit_api',
-                'setup_room_database', 'setup_secure_storage', 'setup_ui_testing'
-            ]
+      expected_tools = [
+        'create_kotlin_file', 'gradle_build', 'run_tests', 'analyze_project',
+        'analyze_and_refactor_project', 'optimize_build_performance', 'generate_code_with_ai',
+        'analyze_code_with_ai', 'enhance_existing_code', 'create_layout_file', 'format_code',
+        'run_lint', 'generate_docs', 'create_compose_component', 'create_custom_view',
+        'setup_mvvm_architecture', 'setup_dependency_injection', 'setup_room_database',
+        'setup_retrofit_api', 'encrypt_sensitive_data', 'implement_gdpr_compliance',
+        'implement_hipaa_compliance', 'setup_secure_storage', 'query_llm',
+        'manage_dependencies', 'manage_project_files', 'setup_cloud_sync',
+        'setup_external_api', 'call_external_api', 'generate_unit_tests', 'setup_ui_testing'
+      ]
             
             tool_names = [tool['name'] for tool in tools]
             missing_tools = [tool for tool in expected_tools if tool not in tool_names]
