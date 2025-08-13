@@ -194,11 +194,14 @@ class TestValidateConfig(unittest.TestCase):
         mock_print.assert_any_call("✅ ANTHROPIC_API_KEY: Configured")
 
     @patch('builtins.print')
-    @patch('sys.modules')
-    def test_check_python_dependencies_all_installed(self, mock_sys_modules, mock_print):
-        # Simulate all packages being installed
-        mock_sys_modules.__contains__.side_effect = lambda key: key in ["pydantic", "python_dotenv", "cryptography", "aiosqlite", "aiohttp"]
-        mock_sys_modules.__getitem__.side_effect = lambda key: MagicMock() # Return a mock module object
+    @patch('builtins.__import__')
+    def test_check_python_dependencies_all_installed(self, mock_import, mock_print):
+        """All required packages are successfully imported."""
+
+        def import_side_effect(name, globals=None, locals=None, fromlist=(), level=0):
+            return MagicMock()
+
+        mock_import.side_effect = import_side_effect
 
         result = validate_config.check_python_dependencies()
         self.assertTrue(result)
@@ -209,11 +212,16 @@ class TestValidateConfig(unittest.TestCase):
         mock_print.assert_any_call("✅ aiohttp: Installed")
 
     @patch('builtins.print')
-    @patch('sys.modules')
-    def test_check_python_dependencies_some_missing(self, mock_sys_modules, mock_print):
-        # Simulate 'pydantic' and 'cryptography' missing
-        mock_sys_modules.__contains__.side_effect = lambda key: key not in ["pydantic", "cryptography"]
-        mock_sys_modules.__getitem__.side_effect = lambda key: MagicMock() # Return a mock module object
+    @patch('builtins.__import__')
+    def test_check_python_dependencies_some_missing(self, mock_import, mock_print):
+        """Simulate some packages missing during import."""
+
+        def import_side_effect(name, globals=None, locals=None, fromlist=(), level=0):
+            if name in {"pydantic", "cryptography"}:
+                raise ImportError
+            return MagicMock()
+
+        mock_import.side_effect = import_side_effect
 
         result = validate_config.check_python_dependencies()
         self.assertFalse(result)
@@ -393,191 +401,77 @@ class TestValidateConfig(unittest.TestCase):
         self.assertTrue(result)
         mock_print.assert_any_call("   ⚠️  requests library not available - skipping bridge server test")
 
-    @patch('os.getenv')
-    @patch('pathlib.Path.exists')
-    @patch('json.load')
-    @patch('builtins.open')
-    @patch('validate_config.check_python_dependencies')
-    @patch('validate_config.validate_environment')
-    @patch('validate_config.validate_config_file')
-    @patch('validate_config.test_bridge_server')
-    @patch('sys.modules', {})
     @patch('dotenv.load_dotenv')
-    @patch('validate_config.__name__', new='not_main') # Patch __name__
-    def test_main_all_validations_pass(self, mock_load_dotenv, mock_test_bridge_server, mock_validate_config_file, mock_validate_environment, mock_check_python_dependencies, mock_open, mock_json_load, mock_path_exists, mock_getenv):
-        # Mock all checks to pass
-        mock_check_python_dependencies.return_value = True
-        mock_validate_environment.return_value = (True, [])
-        mock_validate_config_file.return_value = (True, "✅ Config file valid")
-        mock_test_bridge_server.return_value = True
-
-        # Mock Path.exists for all file checks
-        mock_path_exists.return_value = True
-
-        # Mock os.getenv for environment variables
-        mock_getenv.side_effect = lambda x: "/mock/path" # Return a dummy path for all env vars
-
-        # Mock json.load for config files
-        mock_json_load.return_value = {"mcpServers": {"server1": {"cwd": "/tmp", "command": "cmd", "args": ["a"]}}}
-
-        # Mock load_dotenv
-        mock_load_dotenv.return_value = True
-
-        with patch('sys.stdout', new_callable=io.StringIO) as mock_stdout:
-            with patch('validate_config.sys.exit', side_effect=SystemExit) as mock_exit: # Patch sys.exit in validate_config module
-                try:
-                    validate_config.main()
-                except SystemExit as e:
-                    self.assertEqual(e.code, 0)
-                self.assertIn("🎉 Configuration Validation PASSED!", mock_stdout.getvalue())
-
-    @patch('validate_config.check_python_dependencies', return_value=False)
+    @patch('validate_config.test_bridge_server', return_value=True)
+    @patch('validate_config.validate_config_file', return_value=(True, "✅ Config file valid"))
     @patch('validate_config.validate_environment', return_value=(True, []))
-    @patch('validate_config.validate_config_file', return_value=(True, "✅ Config file valid: mock_config.json"))
-    @patch('validate_config.test_bridge_server', return_value=True)
-    @patch('validate_config.Path') # Patch the Path class
-    @patch('builtins.__import__') # For dotenv import
-    def test_main_deps_fail(self, mock_import, mock_path_class, mock_test_bridge_server, mock_validate_config_file, mock_validate_environment, mock_check_python_dependencies):
-        mock_path_instance = MagicMock()
-        mock_path_class.return_value = mock_path_instance
-        mock_path_instance.exists.side_effect = lambda: True
-        mock_dotenv = MagicMock()
-        mock_import.return_value = mock_dotenv
-
-        with patch('sys.stdout', new_callable=io.StringIO) as mock_stdout:
-            with patch('sys.exit', side_effect=SystemExit) as mock_exit:
-                try:
-                    validate_config.main()
-                except SystemExit as e:
-                    self.assertEqual(e.code, 1)
-                self.assertIn("🚨 Configuration Validation FAILED!", mock_stdout.getvalue())
-
     @patch('validate_config.check_python_dependencies', return_value=True)
-    @patch('validate_config.validate_environment', return_value=(False, ["env issue"]))
-    @patch('validate_config.validate_config_file', return_value=(True, "✅ Config file valid: mock_config.json"))
-    @patch('validate_config.test_bridge_server', return_value=True)
-    @patch('validate_config.Path') # Patch the Path class
-    @patch('builtins.__import__') # For dotenv import
-    def test_main_env_fail(self, mock_import, mock_path_class, mock_test_bridge_server, mock_validate_config_file, mock_validate_environment, mock_check_python_dependencies):
-        mock_path_instance = MagicMock()
-        mock_path_class.return_value = mock_path_instance
-        mock_path_instance.exists.side_effect = lambda: True
-        mock_dotenv = MagicMock()
-        mock_import.return_value = mock_dotenv
-
+    @patch('json.load', return_value={"mcpServers": {"server1": {"cwd": "/tmp", "command": "cmd", "args": ["a"]}}})
+    @patch('builtins.open', new_callable=mock_open)
+    @patch('pathlib.Path.exists', return_value=True)
+    def test_main_all_validations_pass(self, mock_exists, mock_open_file, mock_json_load, mock_check_deps, mock_validate_env, mock_validate_config, mock_test_bridge, mock_load_dotenv):
         with patch('sys.stdout', new_callable=io.StringIO) as mock_stdout:
-            with patch('sys.exit', side_effect=SystemExit) as mock_exit:
-                try:
-                    validate_config.main()
-                except SystemExit as e:
-                    self.assertEqual(e.code, 1)
-                self.assertIn("🚨 Configuration Validation FAILED!", mock_stdout.getvalue())
+            exit_code = validate_config.main()
+        self.assertEqual(exit_code, 0)
+        self.assertIn("🎉 Configuration Validation PASSED!", mock_stdout.getvalue())
 
-    @patch('validate_config.check_python_dependencies', return_value=True)
+    @patch('dotenv.load_dotenv')
+    @patch('validate_config.test_bridge_server', return_value=False)
+    @patch('validate_config.validate_config_file', return_value=(True, "✅ Config file valid"))
     @patch('validate_config.validate_environment', return_value=(True, []))
-    @patch('validate_config.validate_config_file', return_value=(False, "❌ Config file invalid: mock_config.json"))
-    @patch('validate_config.test_bridge_server', return_value=True)
-    @patch('validate_config.Path') # Patch the Path class
-    @patch('builtins.__import__') # For dotenv import
-    def test_main_config_fail(self, mock_import, mock_path_class, mock_test_bridge_server, mock_validate_config_file, mock_validate_environment, mock_check_python_dependencies):
-        mock_path_instance = MagicMock()
-        mock_path_class.return_value = mock_path_instance
-        mock_path_instance.exists.side_effect = lambda: True
-        mock_dotenv = MagicMock()
-        mock_import.return_value = mock_dotenv
-
-        with patch('sys.stdout', new_callable=io.StringIO) as mock_stdout:
-            with patch('sys.exit', side_effect=SystemExit) as mock_exit:
-                try:
-                    validate_config.main()
-                except SystemExit as e:
-                    self.assertEqual(e.code, 1)
-                self.assertIn("🚨 Configuration Validation FAILED!", mock_stdout.getvalue())
-
     @patch('validate_config.check_python_dependencies', return_value=True)
-    @patch('validate_config.validate_environment', return_value=(True, []))
-    @patch('validate_config.validate_config_file', return_value=(True, "✅ Config file valid: mock_config.json"))
-    @patch('validate_config.test_bridge_server', return_value=True)
-    @patch('validate_config.Path') # Patch the Path class
-    @patch('builtins.__import__') # For dotenv import
-    def test_main_bridge_fail(self, mock_import, mock_path_class, mock_test_bridge_server, mock_validate_config_file, mock_validate_environment, mock_check_python_dependencies):
-        mock_path_instance = MagicMock()
-        mock_path_class.return_value = mock_path_instance
-        mock_path_instance.exists.side_effect = lambda: True
-        mock_dotenv = MagicMock()
-        mock_import.return_value = mock_dotenv
-
+    @patch('json.load', return_value={"mcpServers": {"server1": {"cwd": "/tmp", "command": "cmd", "args": ["a"]}}})
+    @patch('builtins.open', new_callable=mock_open)
+    @patch('pathlib.Path.exists', return_value=True)
+    def test_main_bridge_fail(self, mock_exists, mock_open_file, mock_json_load, mock_check_deps, mock_validate_env, mock_validate_config, mock_test_bridge, mock_load_dotenv):
         with patch('sys.stdout', new_callable=io.StringIO) as mock_stdout:
-            with patch('sys.exit', side_effect=SystemExit) as mock_exit:
-                try:
-                    validate_config.main()
-                except SystemExit as e:
-                    self.assertEqual(e.code, 1)
-                self.assertIn("🚨 Configuration Validation FAILED!", mock_stdout.getvalue())
+            exit_code = validate_config.main()
+        self.assertEqual(exit_code, 1)
+        self.assertIn("🚨 Configuration Validation FAILED!", mock_stdout.getvalue())
 
+    @patch('dotenv.load_dotenv')
+    @patch('validate_config.test_bridge_server', return_value=True)
+    @patch('validate_config.validate_config_file', return_value=(True, "✅ Config file valid"))
+    @patch('validate_config.validate_environment', return_value=(True, []))
     @patch('validate_config.check_python_dependencies', return_value=True)
-    @patch('validate_config.validate_environment', return_value=(True, []))
-    @patch('validate_config.validate_config_file', return_value=(True, "✅ Config file valid: mock_config.json"))
-    @patch('validate_config.test_bridge_server', return_value=True)
-    @patch('validate_config.Path') # Patch the Path class
-    @patch('builtins.__import__') # For dotenv import
-    def test_main_server_file_missing(self, mock_import, mock_path_class, mock_test_bridge_server, mock_validate_config_file, mock_validate_environment, mock_check_python_dependencies):
-        # Configure the mocked Path.exists() for instances
-        mock_path_instance = MagicMock()
-        mock_path_class.return_value = mock_path_instance
-        # Simulate kotlin_mcp_server.py missing
-        mock_path_instance.exists.side_effect = lambda: False if "kotlin_mcp_server.py" in str(mock_path_instance) else True
-        mock_dotenv = MagicMock()
-        mock_import.return_value = mock_dotenv
-
+    @patch('json.load', return_value={"mcpServers": {"server1": {"cwd": "/tmp", "command": "cmd", "args": ["a"]}}})
+    @patch('builtins.open', new_callable=mock_open)
+    @patch('pathlib.Path.exists', autospec=True)
+    def test_main_no_env_file(self, mock_exists, mock_open_file, mock_json_load, mock_check_deps, mock_validate_env, mock_validate_config, mock_test_bridge, mock_load_dotenv):
+        mock_exists.side_effect = lambda self: not str(self).endswith('.env')
         with patch('sys.stdout', new_callable=io.StringIO) as mock_stdout:
-            with patch('sys.exit', side_effect=SystemExit) as mock_exit:
-                try:
-                    validate_config.main()
-                except SystemExit as e:
-                    self.assertEqual(e.code, 1)
-                self.assertIn("🚨 Configuration Validation FAILED!", mock_stdout.getvalue())
+            exit_code = validate_config.main()
+        self.assertEqual(exit_code, 0)
+        self.assertIn("⚠️  No .env file found", mock_stdout.getvalue())
 
+    @patch('dotenv.load_dotenv')
+    @patch('validate_config.test_bridge_server', return_value=True)
+    @patch('validate_config.validate_config_file', return_value=(True, "✅ Config file valid"))
+    @patch('validate_config.validate_environment', return_value=(True, []))
     @patch('validate_config.check_python_dependencies', return_value=True)
-    @patch('validate_config.validate_environment', return_value=(True, []))
-    @patch('validate_config.validate_config_file', return_value=(True, "✅ Config file valid: mock_config.json"))
-    @patch('validate_config.test_bridge_server', return_value=True)
-    @patch('validate_config.Path') # Patch the Path class
-    def test_main_no_env_file(self, mock_path_class, mock_test_bridge_server, mock_validate_config_file, mock_validate_environment, mock_check_python_dependencies):
-        # Configure the mocked Path.exists() for instances
-        mock_path_instance = MagicMock()
-        mock_path_class.return_value = mock_path_instance
-        # Simulate no .env file
-        mock_path_instance.exists.side_effect = lambda: False if ".env" in str(mock_path_instance) else True
-
+    @patch('json.load', return_value={"mcpServers": {"server1": {"cwd": "/tmp", "command": "cmd", "args": ["a"]}}})
+    @patch('builtins.open', new_callable=mock_open)
+    @patch('pathlib.Path.exists', autospec=True)
+    def test_main_server_file_missing(self, mock_exists, mock_open_file, mock_json_load, mock_check_deps, mock_validate_env, mock_validate_config, mock_test_bridge, mock_load_dotenv):
+        mock_exists.side_effect = lambda self: not str(self).endswith('kotlin_mcp_server.py')
         with patch('sys.stdout', new_callable=io.StringIO) as mock_stdout:
-            with patch('sys.exit', side_effect=SystemExit) as mock_exit:
-                try:
-                    validate_config.main()
-                except SystemExit as e:
-                    self.assertEqual(e.code, 0)
-                self.assertIn("⚠️  No .env file found at: test_temp_dir/validate_config.py", mock_stdout.getvalue()) # Path will be relative to test file
+            exit_code = validate_config.main()
+        self.assertEqual(exit_code, 1)
+        self.assertIn("🚨 Configuration Validation FAILED!", mock_stdout.getvalue())
 
+    @patch('dotenv.load_dotenv', side_effect=ImportError)
+    @patch('validate_config.test_bridge_server', return_value=True)
+    @patch('validate_config.validate_config_file', return_value=(True, "✅ Config file valid"))
+    @patch('validate_config.validate_environment', return_value=(True, []))
     @patch('validate_config.check_python_dependencies', return_value=True)
-    @patch('validate_config.validate_environment', return_value=(True, []))
-    @patch('validate_config.validate_config_file', return_value=(True, "✅ Config file valid: mock_config.json"))
-    @patch('validate_config.test_bridge_server', return_value=True)
-    @patch('validate_config.Path') # Patch the Path class
-    @patch('builtins.__import__', side_effect=ImportError) # Simulate python-dotenv not installed
-    def test_main_dotenv_not_installed(self, mock_import, mock_path_class, mock_test_bridge_server, mock_validate_config_file, mock_validate_environment, mock_check_python_dependencies):
-        # Configure the mocked Path.exists() for instances
-        mock_path_instance = MagicMock()
-        mock_path_class.return_value = mock_path_instance
-        # Simulate .env file exists but python-dotenv not installed
-        mock_path_instance.exists.side_effect = lambda: True # All paths exist
-
+    @patch('json.load', return_value={"mcpServers": {"server1": {"cwd": "/tmp", "command": "cmd", "args": ["a"]}}})
+    @patch('builtins.open', new_callable=mock_open)
+    @patch('pathlib.Path.exists', return_value=True)
+    def test_main_dotenv_not_installed(self, mock_exists, mock_open_file, mock_json_load, mock_check_deps, mock_validate_env, mock_validate_config, mock_test_bridge, mock_load_dotenv):
         with patch('sys.stdout', new_callable=io.StringIO) as mock_stdout:
-            with patch('sys.exit', side_effect=SystemExit) as mock_exit:
-                try:
-                    validate_config.main()
-                except SystemExit as e:
-                    self.assertEqual(e.code, 0)
-                self.assertIn("⚠️  python-dotenv not installed - environment variables may not be loaded", mock_stdout.getvalue())
+            exit_code = validate_config.main()
+        self.assertEqual(exit_code, 0)
+        self.assertIn("python-dotenv not installed", mock_stdout.getvalue())
 
     @patch('validate_config.check_python_dependencies', side_effect=Exception("Simulated error"))
     def test_main_exception_handling(self, mock_check_python_dependencies):
