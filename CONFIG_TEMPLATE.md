@@ -15,9 +15,9 @@
 Replace with the absolute path to your kotlin-mcp-server directory:
 
 **Examples:**
-- macOS: `/Users/yourusername/Documents/kotlin-mcp-server`
-- Linux: `/home/yourusername/kotlin-mcp-server`
-- Windows: `C:\\Users\\yourusername\\kotlin-mcp-server`
+- macOS: `~/Documents/kotlin-mcp-server`
+- Linux: `~/kotlin-mcp-server`
+- Windows: `~/kotlin-mcp-server` (Git Bash) or `%USERPROFILE%\kotlin-mcp-server`
 
 **How to find your path:**
 ```bash
@@ -43,7 +43,7 @@ Location: `~/Library/Application Support/Claude/claude_desktop_config.json`
     "kotlin-android": {
       "command": "python3",
       "args": ["kotlin_mcp_server.py"],
-      "cwd": "/Users/yourusername/Documents/kotlin-mcp-server",
+      "cwd": "~/Documents/kotlin-mcp-server",
       "env": {
         "PROJECT_PATH": "${workspaceRoot}",
         "WORKSPACE_PATH": "${workspaceRoot}"
@@ -59,7 +59,7 @@ Location: User or Workspace `settings.json`
 ```json
 {
   "mcp.server.configFiles": [
-    "/Users/yourusername/Documents/kotlin-mcp-server/mcp_config_vscode.json"
+    "~/Documents/kotlin-mcp-server/mcp_config_vscode.json"
   ]
 }
 ```
@@ -71,7 +71,7 @@ And update the `mcp_config_vscode.json` with your actual path:
     "kotlin-android": {
       "command": "python3",
       "args": ["kotlin_mcp_server.py"],
-      "cwd": "/Users/yourusername/Documents/kotlin-mcp-server",
+      "cwd": "~/Documents/kotlin-mcp-server",
       "env": {
         "PROJECT_PATH": "${workspaceFolder}",
         "WORKSPACE_PATH": "${workspaceFolder}"

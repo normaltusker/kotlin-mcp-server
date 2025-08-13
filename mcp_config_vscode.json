@@ -1,13 +1,12 @@
 {
   "mcpServers": {
-    "android-dev": {
+    "kotlin-android": {
       "command": "python3",
-      "args": [
-        "kotlin_mcp_server.py"
-      ],
-      "cwd": "/Users/Niravthakker/Downloads/Nirav/Personal/Coding/kotlin-mcp-server",
+      "args": ["kotlin_mcp_server.py"],
+      "cwd": "${MCP_SERVER_DIR}",
       "env": {
-        "PROJECT_PATH": "${workspaceFolder}"
+        "PROJECT_PATH": "${workspaceFolder}",
+        "WORKSPACE_PATH": "${workspaceFolder}"
       }
     }
   }

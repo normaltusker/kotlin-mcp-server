@@ -112,9 +112,8 @@ def test_bridge_server():
     import subprocess
     import time
 
-    import requests
-
     try:
+        import requests
         # Check if bridge server file exists
         script_dir = Path(__file__).parent
         bridge_file = script_dir / "vscode_bridge.py"
@@ -233,89 +232,100 @@ def check_python_dependencies():
 
 def main():
     """Main validation function"""
-    print("🔍 Kotlin MCP Server Configuration Validator")
-    print("=" * 50)
+    try:
+        print("🔍 Kotlin MCP Server Configuration Validator")
+        print("=" * 50)
 
-    script_dir = Path(__file__).parent
+        script_dir = Path(__file__).parent
 
-    # Load .env file if it exists
-    env_file = script_dir / ".env"
-    if env_file.exists():
-        print(f"📄 Loading environment from: {env_file}")
-        try:
-            from dotenv import load_dotenv
-
-            load_dotenv(env_file)
-            print("✅ Environment loaded")
-        except ImportError:
-            print("⚠️  python-dotenv not installed - environment variables may not be loaded")
-    else:
-        print(f"⚠️  No .env file found at: {env_file}")
-        print("💡 Copy .env.example to .env and customize it")
-
-    print("\n🐍 Checking Python Dependencies...")
-    deps_ok = check_python_dependencies()
-
-    print("\n🌍 Checking Environment Variables...")
-    env_ok, env_issues = validate_environment()
-    if env_issues:
-        for issue in env_issues:
-            print(f"   {issue}")
-
-    print("\n📋 Checking Configuration Files...")
-    config_files = [
-        script_dir / "mcp_config.json",
-        script_dir / "mcp_config_claude.json",
-        script_dir / "mcp_config_vscode.json",
-    ]
-
-    config_ok = True
-    for config_file in config_files:
-        valid, message = validate_config_file(config_file)
-        print(f"   {message}")
-        if not valid:
-            config_ok = False
-
-    print("\n📁 Checking Server Files...")
-    server_files = [
-        script_dir / "kotlin_mcp_server.py",
-        script_dir / "vscode_bridge.py",
-    ]
-
-    files_ok = True
-    for server_file in server_files:
-        if server_file.exists():
-            print(f"   ✅ {server_file.name}: Found")
+        # Load .env file if it exists
+        env_file = script_dir / ".env"
+        if env_file.exists():
+            print(f"📄 Loading environment from: {env_file}")
+            try:
+                from dotenv import load_dotenv
+                load_dotenv(env_file)
+                print("✅ Environment loaded")
+            except ImportError:
+                print("⚠️  python-dotenv not installed - environment variables may not be loaded")
         else:
-            print(f"   ❌ {server_file.name}: Missing")
-            files_ok = False
+            print(f"⚠️  No .env file found at: {env_file}")
+            print("💡 Copy .env.example to .env and customize it")
 
-    print("\n🌉 Testing VS Code Bridge Server...")
-    bridge_ok = test_bridge_server()
+        print("\n🐍 Checking Python Dependencies...")
+        deps_ok = check_python_dependencies()
 
-    print("\n" + "=" * 50)
+        print("\n🌍 Checking Environment Variables...")
+        env_ok, env_issues = validate_environment()
+        if env_issues:
+            for issue in env_issues:
+                print(f"   {issue}")
 
-    # Overall status
-    all_ok = deps_ok and env_ok and config_ok and files_ok and bridge_ok
+        print("\n📋 Checking Configuration Files...")
+        config_files = [
+            script_dir / "mcp_config.json",
+            script_dir / "mcp_config_claude.json",
+            script_dir / "mcp_config_vscode.json",
+        ]
 
-    if all_ok:
-        print("🎉 Configuration Validation PASSED!")
-        print("\n🚀 Next Steps:")
-        print("   1. Test the server: python3 kotlin_mcp_server.py --test")
-        print("   2. Configure your IDE using the updated config files")
-        print("   3. Start using the MCP server!")
-    else:
-        print("🚨 Configuration Validation FAILED!")
-        print("\n🔧 Fix the issues above and run this validator again:")
-        print("   python3 validate_config.py")
+        config_ok = True
+        for config_file in config_files:
+            valid, message = validate_config_file(config_file)
+            print(f"   {message}")
+            if not valid:
+                config_ok = False
 
-    print("\n📚 Resources:")
-    print("   • CONFIG_TEMPLATE.md - Detailed configuration guide")
-    print("   • .env.example - Example environment file")
-    print("   • README.md - Complete setup instructions")
+        print("\n📁 Checking Server Files...")
+        server_files = [
+            script_dir / "kotlin_mcp_server.py",
+            script_dir / "vscode_bridge.py",
+        ]
 
-    return 0 if all_ok else 1
+        files_ok = True
+        for server_file in server_files:
+            if server_file.exists():
+                print(f"   ✅ {server_file.name}: Found")
+            else:
+                print(f"   ❌ {server_file.name}: Missing")
+                files_ok = False
+
+        print("\n🌉 Testing VS Code Bridge Server...")
+        bridge_ok = test_bridge_server()
+
+        print("\n" + "=" * 50)
+
+        # Overall status
+        all_ok = deps_ok and env_ok and config_ok and files_ok and bridge_ok
+
+        if all_ok:
+            print("🎉 Configuration Validation PASSED!")
+            print("\n🚀 Next Steps:")
+            print("   1. Test the server: python3 kotlin_mcp_server.py --test")
+            print("   2. Configure your IDE using the updated config files")
+            print("   3. Start using the MCP server!")
+        else:
+            print("🚨 Configuration Validation FAILED!")
+            print("\n🔧 Fix the issues above and run this validator again:")
+            print("   python3 validate_config.py")
+
+        print("\n📚 Resources:")
+        print("   • CONFIG_TEMPLATE.md - Detailed configuration guide")
+        print("   • .env.example - Example environment file")
+        print("   • README.md - Complete setup instructions")
+
+        exit_code = 0 if all_ok else 1
+        return exit_code
+
+    except Exception as e:
+        print(f"An unexpected error occurred: {e}", file=sys.stderr)
+        import traceback
+        traceback.print_exc()
+        return 1
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    # Only call sys.exit() if not running under pytest
+    if "pytest" not in sys.modules:
+        sys.exit(main())
+    else:
+        main() # Call main() but don't exit for pytest

@@ -204,7 +204,7 @@ def parse_command_line_config():
         config["use_env_vars"] = sys.argv[4].lower() in ["true", "yes", "1", "y"]
 
     # Display parsed configuration for user confirmation
-    print(f"📋 Using command-line configuration:")
+    print("📋 Using command-line configuration:")
     print(f"   🏷️  Server name: {config['server_name']}")
     print(f"   📁 Project path: {config['default_project_path'] or 'Dynamic'}")
     print(f"   🌐 Environment variables: {'Yes' if config['use_env_vars'] else 'No'}")
@@ -503,7 +503,7 @@ def main():
     print("\n🎉 Setup complete!")
 
     # Display configuration summary
-    print(f"\n📋 Configuration Summary:")
+    print("\n📋 Configuration Summary:")
     print(f"   🏷️  Server name: {user_config.get('server_name', 'kotlin-android')}")
     if user_config.get("default_project_path"):
         print(f"   � Project path: {user_config['default_project_path']}")

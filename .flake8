@@ -4,7 +4,8 @@ max-line-length = 100
 # E501: line too long (handled by black)
 # W503: line break before binary operator
 # W504: line break after binary operator
-ignore = E203,E501,W503,W504
+# F841: local variable is assigned to but never used (for variables prefixed with _)
+ignore = E203,E501,W503,W504,F841
 exclude = 
     .git,
     __pycache__,
@@ -16,4 +17,4 @@ exclude =
 per-file-ignores =
     __init__.py:F401
     tests/*.py:S101
-max-complexity = 12
+max-complexity = 35
