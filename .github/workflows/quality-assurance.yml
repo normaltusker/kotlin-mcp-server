@@ -38,26 +38,26 @@ jobs:
     - name: Run code formatting checks
       run: |
         # Check if code is formatted correctly
-        black --check --diff . --exclude="htmlcov|__pycache__|\.git" || (echo "❌ Code formatting failed. Run 'black .' to fix." && exit 1)
+        python -m black --check --diff . --exclude htmlcov --exclude __pycache__ --exclude .git || (echo "❌ Code formatting failed. Run 'black .' to fix." && exit 1)
         
         # Check import sorting
-        isort --check-only --diff . --skip=htmlcov --skip=__pycache__ || (echo "❌ Import sorting failed. Run 'isort .' to fix." && exit 1)
+        python -m isort --check-only --diff . --skip htmlcov --skip __pycache__ || (echo "❌ Import sorting failed. Run 'isort .' to fix." && exit 1)
 
     - name: Run linting checks
       run: |
         # Flake8 style check
-        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics --exclude=htmlcov,__pycache__,.git
-        flake8 . --count --exit-zero --max-complexity=12 --max-line-length=100 --statistics --exclude=htmlcov,__pycache__,.git
+        python -m flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics --exclude=htmlcov,__pycache__,.git
+        python -m flake8 . --count --exit-zero --max-complexity=12 --max-line-length=100 --statistics --exclude=htmlcov,__pycache__,.git
 
     - name: Run type checking
       run: |
         # MyPy type checking (allow failures for now)
-        mypy . --ignore-missing-imports --exclude="htmlcov|__pycache__|\.git" || echo "⚠️  Type checking had issues (non-blocking)"
+        python -m mypy . --ignore-missing-imports --exclude="htmlcov|__pycache__|\.git" || echo "⚠️  Type checking had issues (non-blocking)"
 
     - name: Run security checks
       run: |
         # Bandit security check
-        bandit -r . -f txt --exclude="htmlcov,__pycache__,.git" || echo "⚠️  Security issues found (non-blocking)"
+        python -m bandit -r . -f txt --exclude="htmlcov,__pycache__,.git" || echo "⚠️  Security issues found (non-blocking)"
 
     - name: Run unit tests
       run: |
@@ -88,7 +88,8 @@ jobs:
         async def test_basic_functionality():
             server = KotlinMCPServer('ci-test')
             tools = await server.handle_list_tools()
-            print(f'✅ Server initialized with {len(tools.get(\"tools\", []))} tools')
+            tool_count = len(tools.get('tools', []))
+            print(f'✅ Server initialized with {tool_count} tools')
             
         asyncio.run(test_basic_functionality())
         "
@@ -108,10 +109,11 @@ jobs:
             server.set_project_path(tempfile.mkdtemp())
             
             start = time.time()
-            await server.handle_list_tools()
+            result = await server.handle_list_tools()
             duration = time.time() - start
             
             print(f'✅ Tool listing completed in {duration:.3f}s')
+            print(f'✅ Server has {len(result.get(\"tools\", []))} tools available')
             assert duration < 5.0, 'Tool listing too slow'
             
             import shutil

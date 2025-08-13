@@ -346,6 +346,46 @@ The enhanced installation process has **eliminated the need for manual configura
 - 📋 **Clear Instructions**: Provides exact integration steps for your setup
 - ✨ **Smart Defaults**: Handles environment variables intelligently
 
+### 🐳 **Docker Deployment (Optional)**
+
+For containerized deployment, the project includes comprehensive Docker support:
+
+#### **Quick Docker Setup**
+
+```bash
+# 1. Validate Docker configuration
+python3 validate_docker.py
+
+# 2. Build and run with the setup script
+./docker-setup.sh build
+./docker-setup.sh start
+
+# 3. Or use Docker Compose directly
+docker-compose up -d kotlin-mcp-server
+```
+
+#### **Docker Features**
+
+- 🔒 **Security**: Non-root user, minimal attack surface
+- 📦 **Optimized**: Multi-stage builds, layer caching
+- 🔍 **Health Checks**: Automatic container health monitoring
+- 🛠️ **Development**: Volume mounts for live development
+- 🚀 **Production**: Daemon mode for production deployment
+
+#### **Available Commands**
+
+```bash
+./docker-setup.sh build              # Build the image
+./docker-setup.sh start              # Interactive development
+./docker-setup.sh daemon [path]      # Production daemon mode
+./docker-setup.sh logs               # View container logs
+./docker-setup.sh shell              # Open container shell
+./docker-setup.sh test               # Run tests in container
+./docker-setup.sh clean              # Clean up resources
+```
+
+**For detailed Docker setup instructions, see [DOCKER_SETUP.md](DOCKER_SETUP.md)**
+
 ---
 
 ## � **Migration from V1.0 to V2.0**
