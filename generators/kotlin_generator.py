@@ -866,25 +866,84 @@ class {class_name} @Inject constructor() {{
 }}
 """
 
+    def generate_unit_test(self, package_name: str, class_name: str, directory: Path) -> str:
+        """Generate a basic unit test file for a class."""
+        test_class_name = f"{class_name}Test"
+        test_content = f"""package {package_name}
+
+import org.junit.Assert.assertEquals
+import org.junit.Test
+
+class {test_class_name} {{
+    @Test
+    fun addition_isCorrect() {{
+        assertEquals(4, 2 + 2)
+    }}
+}}
+"""
+        test_path = directory / f"{test_class_name}.kt"
+        test_path.write_text(test_content, encoding="utf-8")
+        return f"{test_class_name}.kt"
+
     def generate_related_files(
-        self, class_type: str, package_name: str, class_name: str, directory: Path
+        self, class_type: str, package_name: str, class_name: str, directory: Path, features: List[str]
     ) -> List[str]:
         """Generate related files that complement the main file."""
         related_files = []
 
-        if class_type == "activity":
-            # Generate ViewModel for Activity
-            viewmodel_name = f"{class_name}ViewModel"
-            viewmodel_content = self.generate_complete_viewmodel(package_name, viewmodel_name, [])
+        if class_type == "activity" or class_type == "fragment":
+            # Generate ViewModel
+            viewmodel_name = f"{class_name.replace('Activity', '').replace('Fragment', '')}ViewModel"
+            viewmodel_content = self.generate_complete_viewmodel(package_name, viewmodel_name, features)
             viewmodel_path = directory / f"{viewmodel_name}.kt"
             viewmodel_path.write_text(viewmodel_content, encoding="utf-8")
             related_files.append(f"{viewmodel_name}.kt")
+            related_files.append(self.generate_unit_test(package_name, viewmodel_name, directory))
 
             # Generate Repository
-            repo_name = f"{class_name.replace('Activity', '')}Repository"
-            repo_content = self.generate_complete_repository(package_name, repo_name, [])
+            repo_name = f"{class_name.replace('Activity', '').replace('Fragment', '')}Repository"
+            repo_content = self.generate_complete_repository(package_name, repo_name, features)
             repo_path = directory / f"{repo_name}.kt"
             repo_path.write_text(repo_content, encoding="utf-8")
             related_files.append(f"{repo_name}.kt")
+            related_files.append(self.generate_unit_test(package_name, repo_name, directory))
+
+        elif class_type == "viewmodel":
+            # Generate Repository
+            repo_name = f"{class_name.replace('ViewModel', '')}Repository"
+            repo_content = self.generate_complete_repository(package_name, repo_name, features)
+            repo_path = directory / f"{repo_name}.kt"
+            repo_path.write_text(repo_content, encoding="utf-8")
+            related_files.append(f"{repo_name}.kt")
+            related_files.append(self.generate_unit_test(package_name, repo_name, directory))
+        
+        elif class_type == "repository":
+            # Generate DataSource interfaces
+            ds_name = f"{class_name.replace('Repository', '')}"
+            local_ds_name = f"{ds_name}LocalDataSource"
+            remote_ds_name = f"{ds_name}RemoteDataSource"
+            
+            local_ds_content = f"""package {package_name}
+
+interface {local_ds_name} {{
+    suspend fun getData(): String
+    suspend fun saveData(data: String)
+}}
+"""
+            remote_ds_content = f"""package {package_name}
+
+interface {remote_ds_name} {{
+    suspend fun getData(): String
+}}
+"""
+            local_ds_path = directory / f"{local_ds_name}.kt"
+            remote_ds_path = directory / f"{remote_ds_name}.kt"
+            local_ds_path.write_text(local_ds_content, encoding="utf-8")
+            remote_ds_path.write_text(remote_ds_content, encoding="utf-8")
+            related_files.append(f"{local_ds_name}.kt")
+            related_files.append(f"{remote_ds_name}.kt")
+
+        # Generate a unit test for the main file itself
+        related_files.append(self.generate_unit_test(package_name, class_name, directory))
 
         return related_files

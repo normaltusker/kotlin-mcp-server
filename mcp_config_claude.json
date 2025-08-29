@@ -2,11 +2,12 @@
   "mcpServers": {
     "kotlin-android": {
       "command": "python3",
-      "args": ["kotlin_mcp_server.py"],
-      "cwd": "${MCP_SERVER_DIR}",
+      "args": [
+        "/Users/Niravthakker/Downloads/Nirav/Personal/Coding/kotlin-mcp-server/kotlin_mcp_server.py"
+      ],
+      "cwd": "/Users/Niravthakker/Downloads/Nirav/Personal/Coding/kotlin-mcp-server",
       "env": {
-        "PROJECT_PATH": "${workspaceRoot}",
-        "WORKSPACE_PATH": "${workspaceRoot}"
+        "PROJECT_PATH": "/Users/Niravthakker/Downloads/Nirav/Personal/Coding/Vital-Trail"
       }
     }
   }

@@ -1,0 +1,244 @@
+name: Main CI Pipeline
+
+on:
+  push:
+    branches: [ "main", "develop", "feature/critical-mcp-compliance" ]
+  pull_request:
+    branches: [ "main", "develop" ]
+
+permissions:
+  contents: read
+
+jobs:
+  test-and-quality:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.11", "3.12"]
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Cache pip dependencies
+      uses: actions/cache@v4
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ matrix.python-version }}-${{ hashFiles('**/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-${{ matrix.python-version }}-
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pytest pytest-asyncio pytest-cov flake8 black isort bandit safety
+
+    - name: Code Quality Checks
+      run: |
+        # Format checking
+        python -m black --check --diff . --exclude "htmlcov|__pycache__|\.git|archive" || (echo "❌ Code formatting failed. Run 'black .' to fix." && exit 1)
+        
+        # Import sorting
+        python -m isort --check-only --diff . --skip htmlcov --skip __pycache__ --skip archive || (echo "❌ Import sorting failed. Run 'isort .' to fix." && exit 1)
+        
+        # Linting
+        python -m flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics --exclude=htmlcov,__pycache__,.git,archive
+        
+        # Security check (non-blocking)
+        python -m bandit -r . -f txt --exclude="htmlcov,__pycache__,.git,archive" || echo "⚠️ Security issues found (non-blocking)"
+        
+        echo "✅ Code quality checks completed"
+
+    - name: Run Comprehensive Tests
+      run: |
+        python -m pytest tests/ -v --cov=. --cov-report=xml --cov-report=term-missing --tb=short
+
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v4
+      if: matrix.python-version == '3.11'
+      with:
+        file: ./coverage.xml
+        flags: unittests
+        name: codecov-python-${{ matrix.python-version }}
+        fail_ci_if_error: false
+
+  integration-validation:
+    runs-on: ubuntu-latest
+    needs: test-and-quality
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v5
+      with:
+        python-version: 3.11
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Validate Server Import and Tools
+      run: |
+        python -c "
+        import asyncio
+        import tempfile
+        from kotlin_mcp_server import KotlinMCPServer
+        
+        async def validate_server():
+            print('🔍 Validating server import...')
+            server = KotlinMCPServer('validation-test')
+            server.set_project_path(tempfile.mkdtemp())
+            
+            print('🔍 Checking tool registration...')
+            tools = await server.handle_list_tools()
+            tool_count = len(tools.get('tools', []))
+            print(f'✅ Server registered {tool_count} tools')
+            
+            # Test core functionality
+            print('🔍 Testing core tool functionality...')
+            
+            # Test Kotlin file creation
+            result = await server.handle_call_tool('create_kotlin_file', {
+                'file_path': 'test/TestClass.kt',
+                'package_name': 'com.test',
+                'class_name': 'TestClass',
+                'class_type': 'class'
+            })
+            assert 'content' in result, 'create_kotlin_file should return content'
+            print('✅ Kotlin file creation working')
+            
+            # Test project analysis
+            result = await server.handle_call_tool('analyze_project', {})
+            assert 'content' in result, 'analyze_project should return content'
+            print('✅ Project analysis working')
+            
+            # Test AI code generation
+            result = await server.handle_call_tool('generate_code_with_ai', {
+                'description': 'Create a simple Kotlin data class',
+                'code_type': 'class'
+            })
+            assert 'content' in result, 'AI code generation should return content'
+            print('✅ AI code generation working')
+            
+            print('🎉 All integration tests passed!')
+            
+        asyncio.run(validate_server())
+        "
+
+    - name: Run CI Test Runner
+      run: |
+        python ci_test_runner.py
+
+  performance-test:
+    runs-on: ubuntu-latest
+    needs: test-and-quality
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v5
+      with:
+        python-version: 3.11
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Performance Benchmarks
+      run: |
+        python -c "
+        import asyncio
+        import time
+        import tempfile
+        import statistics
+        from kotlin_mcp_server import KotlinMCPServer
+        
+        async def benchmark():
+            print('🚀 Running performance benchmarks...')
+            
+            # Server initialization benchmark
+            init_times = []
+            for i in range(5):
+                start = time.time()
+                server = KotlinMCPServer(f'perf-test-{i}')
+                server.set_project_path(tempfile.mkdtemp())
+                init_times.append(time.time() - start)
+            
+            avg_init = statistics.mean(init_times)
+            print(f'📊 Server initialization: {avg_init:.3f}s (avg)')
+            
+            # Tool listing benchmark
+            server = KotlinMCPServer('perf-test')
+            server.set_project_path(tempfile.mkdtemp())
+            
+            list_times = []
+            for i in range(10):
+                start = time.time()
+                tools = await server.handle_list_tools()
+                list_times.append(time.time() - start)
+            
+            avg_list = statistics.mean(list_times)
+            tool_count = len(tools.get('tools', []))
+            print(f'📊 Tool listing ({tool_count} tools): {avg_list:.3f}s (avg)')
+            
+            # Performance thresholds
+            assert avg_init < 2.0, f'Server init too slow: {avg_init:.3f}s'
+            assert avg_list < 3.0, f'Tool listing too slow: {avg_list:.3f}s'
+            
+            print('✅ All performance benchmarks passed!')
+        
+        asyncio.run(benchmark())
+        "
+
+  security-audit:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v5
+      with:
+        python-version: 3.11
+
+    - name: Install security tools
+      run: |
+        python -m pip install --upgrade pip
+        pip install bandit safety
+
+    - name: Security Audit
+      run: |
+        echo "🔒 Running security audit..."
+        
+        # Check for known vulnerabilities
+        safety check --json > safety-report.json || echo "⚠️ Vulnerability check completed with findings"
+        
+        # Security scan
+        bandit -r . -f json -o bandit-report.json --exclude="htmlcov,__pycache__,.git,archive" || echo "⚠️ Security scan completed with findings"
+        
+        echo "📋 Security audit completed"
+
+    - name: Upload security reports
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: security-reports
+        path: |
+          safety-report.json
+          bandit-report.json
+        retention-days: 30

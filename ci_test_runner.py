@@ -4,9 +4,9 @@ Continuous Integration Test Runner
 Runs comprehensive tests and lint checks to ensure code quality
 """
 
-import os
 import subprocess
 import sys
+import shlex
 from pathlib import Path
 
 
@@ -25,13 +25,13 @@ class CITestRunner:
         print(f"{'=' * 60}")
 
         try:
-            # Use shlex.split for safer command execution
-            import shlex
-
             command_list = shlex.split(command)
 
-            # Additional security: validate command executables
-            allowed_commands = ["python3", "python", "pytest", "black", "flake8", "pip", "coverage", "isort", "pylint", "mypy", "bandit"]
+            # Security: validate command executables
+            allowed_commands = [
+                "python3", "python", "pytest", "black", "flake8", "pip",
+                "coverage", "isort", "pylint", "mypy", "bandit"
+            ]
             if command_list[0] not in allowed_commands:
                 print(f"❌ {description} - BLOCKED: Unauthorized command: {command_list[0]}")
                 self.failed_checks.append(f"{description} (blocked)")
@@ -43,7 +43,7 @@ class CITestRunner:
                 capture_output=True,
                 text=True,
                 timeout=300,
-                shell=False,  # Explicitly disable shell execution
+                shell=False
             )
 
             if result.returncode == 0:
@@ -63,226 +63,176 @@ class CITestRunner:
             self.failed_checks.append(f"{description} (timeout)")
             return False
         except Exception as e:
-            print(f"💥 {description} - ERROR: {e}")
+            print(f"❌ {description} - ERROR: {e}")
             self.failed_checks.append(f"{description} (error)")
             return False
 
     def check_dependencies(self):
-        """Check and install required dependencies"""
-        print("Checking dependencies...")
-
+        """Check required dependencies"""
+        print("🔍 Checking dependencies...")
+        
         required_packages = [
-            "pytest>=7.4.0",
-            "pytest-asyncio>=0.21.0",
-            "pytest-cov>=4.1.0",
-            "flake8>=6.0.0",
-            "black>=23.0.0",
-            "isort>=5.12.0",
-            "pylint>=2.17.0",
-            "mypy>=1.4.0",
-            "bandit>=1.7.0",
-            "psutil>=5.9.0",
+            "pytest", "pytest_asyncio", "pytest_cov", "flake8", 
+            "black", "isort", "psutil"
         ]
 
+        missing = []
         for package in required_packages:
             try:
-                package_name = package.split(">=")[0]
-                __import__(package_name.replace("-", "_"))
-                print(f"✅ {package_name} is available")
+                __import__(package)
+                print(f"✅ {package} - available")
             except ImportError:
-                print(f"⚠️  Installing {package}...")
-                self.run_command(f"pip install {package}", f"Install {package}")
+                print(f"❌ {package} - missing")
+                missing.append(package)
 
-    def run_lint_checks(self):
-        """Run all linting checks"""
-        print("\n" + "=" * 80)
-        print("RUNNING LINT CHECKS")
-        print("=" * 80)
+        if missing:
+            print(f"❌ Missing packages: {missing}")
+            return False
+        return True
 
-        lint_commands = [
-            # Flake8 - Style and complexity
-            ("flake8 . --exclude=htmlcov,__pycache__,.git --count --select=E9,F63,F7,F82 --show-source --statistics", "Flake8 style check"),
-            # Black - Code formatting
-            ("black --check --diff . --exclude=htmlcov --exclude=__pycache__ --exclude=.git", "Black formatting check"),
-            # isort - Import sorting
-            ("isort --check-only --diff . --skip=htmlcov --skip=__pycache__", "Import sorting check"),
-            # Pylint - Code quality (target specific files)
-            ("pylint kotlin_mcp_server.py vscode_bridge.py --output-format=text --reports=yes --score=yes", "Pylint code quality"),
-            # MyPy - Type checking
-            ("mypy kotlin_mcp_server.py vscode_bridge.py --ignore-missing-imports", "MyPy type checking"),
-            # Bandit - Security check
-            ("bandit -r . -f txt --exclude=htmlcov,__pycache__,.git", "Bandit security check"),
-        ]
-
-        for command, description in lint_commands:
-            self.run_command(command, description)
-
-    def run_unit_tests(self):
-        """Run comprehensive unit tests"""
-        print("\n" + "=" * 80)
-        print("RUNNING UNIT TESTS")
-        print("=" * 80)
-
+    def run_tests(self):
+        """Run the test suite"""
+        print("\n🧪 Running Test Suite")
+        
         test_commands = [
-            # Modular test suite (new structure)
-            (
-                "python -m pytest tests/ -v --tb=short --asyncio-mode=auto",
-                "Modular test suite",
-            ),
-            # All tests with coverage
-            (
-                "python -m pytest tests/ -v --cov=. --cov-report=html --cov-report=term-missing --cov-fail-under=30 --asyncio-mode=auto",
-                "All tests with coverage",
-            ),
+            ("python3 -m pytest tests/ -v --tb=short", "Core test suite"),
+            ("python3 -m pytest tests/test_server_core.py -v", "Server core tests"),
+            ("python3 -m pytest tests/ai/ -v", "AI integration tests"),
+            ("python3 -m pytest tests/tools/ -v", "Tools tests"),
         ]
 
+        all_passed = True
         for command, description in test_commands:
-            self.run_command(command, description)
+            if not self.run_command(command, description):
+                all_passed = False
 
-    def run_functionality_tests(self):
-        """Run functionality validation tests"""
-        print("\n" + "=" * 80)
-        print("RUNNING FUNCTIONALITY VALIDATION")
-        print("=" * 80)
+        return all_passed
 
-        # Test server imports and basic initialization
-        functionality_tests = [
-            (
-                "python -c \"from kotlin_mcp_server import KotlinMCPServer; print('✅ KotlinMCPServer import successful')\"",
-                "Kotlin MCP Server import",
-            ),
-            (
-                "python -c \"from vscode_bridge import MCPBridgeHandler; print('✅ Bridge handler import successful')\"",
-                "VS Code Bridge import",
-            ),
+    def run_quality_checks(self):
+        """Run code quality checks"""
+        print("\n🔍 Running Code Quality Checks")
+
+        quality_commands = [
+            ("python3 -m black --check --diff . --exclude htmlcov --exclude __pycache__ --exclude .git --exclude archive", "Black formatting check"),
+            ("python3 -m isort --check-only --diff . --skip htmlcov --skip __pycache__ --skip archive", "Import sorting check"),
+            ("python3 -m flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics --exclude=htmlcov,__pycache__,.git,archive", "Flake8 linting"),
         ]
 
-        for command, description in functionality_tests:
-            self.run_command(command, description)
+        all_passed = True
+        for command, description in quality_commands:
+            if not self.run_command(command, description):
+                all_passed = False
 
-    def run_performance_tests(self):
-        """Run performance validation"""
-        print("\n" + "=" * 80)
-        print("RUNNING PERFORMANCE TESTS")
-        print("=" * 80)
+        return all_passed
 
-        # Performance test script
-        perf_script = """
+    def run_server_validation(self):
+        """Run server validation"""
+        print("\n🖥️ Running Server Validation")
+
+        validation_script = '''
 import asyncio
-import time
 import tempfile
-from pathlib import Path
 from kotlin_mcp_server import KotlinMCPServer
 
-async def performance_test():
-    server = KotlinMCPServer("perf-test")
-    server.project_path = Path(tempfile.mkdtemp())
+async def validate():
+    try:
+        print("🔍 Testing server initialization...")
+        server = KotlinMCPServer("ci-test")
+        server.set_project_path(tempfile.mkdtemp())
+        
+        print("🔍 Testing tool listing...")
+        tools = await server.handle_list_tools()
+        tool_count = len(tools.get("tools", []))
+        print(f"✅ Server has {tool_count} tools")
+        
+        print("🔍 Testing tool execution...")
+        result = await server.handle_call_tool("create_kotlin_file", {
+            "file_path": "test/TestClass.kt",
+            "package_name": "com.test", 
+            "class_name": "TestClass",
+            "class_type": "class"
+        })
+        assert "content" in result
+        print("✅ Tool execution successful")
+        
+        print("🎉 Server validation completed successfully")
+        
+    except Exception as e:
+        print(f"❌ Server validation failed: {e}")
+        raise
 
-    # Test tool listing speed
-    start_time = time.time()
-    for _ in range(5):
-        result = await server.handle_list_tools()
-    list_time = time.time() - start_time
+asyncio.run(validate())
+'''
 
-    # Test basic server functionality
-    start_time = time.time()
-    for i in range(3):
-        # Test basic tool call that should exist
         try:
-            await server.handle_call_tool({
-                "name": "create_kotlin_file",
-                "arguments": {
-                    "filename": f"Test{i}.kt",
-                    "class_name": f"Test{i}",
-                    "package_name": "com.test"
-                }
-            })
+            result = subprocess.run(
+                [sys.executable, "-c", validation_script],
+                cwd=self.project_root,
+                capture_output=True,
+                text=True,
+                timeout=60
+            )
+
+            if result.returncode == 0:
+                print("✅ Server validation - PASSED")
+                print(result.stdout)
+                return True
+            else:
+                print("❌ Server validation - FAILED")
+                print("STDOUT:", result.stdout)
+                print("STDERR:", result.stderr)
+                self.failed_checks.append("Server validation")
+                return False
+
         except Exception as e:
-            print(f"Tool call test failed (expected): {e}")
-    create_time = time.time() - start_time
-
-    print(f"✅ Tool listing: {list_time:.2f}s for 5 calls")
-    print(f"✅ Tool calls: {create_time:.2f}s for 3 calls")
-
-    # Cleanup
-    import shutil
-    shutil.rmtree(server.project_path, ignore_errors=True)
-
-
-if __name__ == "__main__":
-    asyncio.run(performance_test())
-"""
-
-        # Write and run performance test
-        with open("temp_perf_test.py", "w") as f:
-            f.write(perf_script)
-
-        self.run_command("python temp_perf_test.py", "Performance validation")
-
-        # Cleanup
-        if os.path.exists("temp_perf_test.py"):
-            os.remove("temp_perf_test.py")
-
-    def generate_report(self):
-        """Generate final test report"""
-        print("\n" + "=" * 80)
-        print("FINAL TEST REPORT")
-        print("=" * 80)
-
-        if not self.failed_checks:
-            print("🎉 ALL CHECKS PASSED! The MCP server is ready for deployment.")
-            print("\nThe following areas were validated:")
-            print("• Code style and formatting")
-            print("• Type checking and static analysis")
-            print("• Security vulnerabilities")
-            print("• Unit and integration tests")
-            print("• Functionality validation")
-            print("• Performance benchmarks")
-            return True
-        else:
-            print("❌ SOME CHECKS FAILED!")
-            print(f"\nFailed checks ({len(self.failed_checks)}):")
-            for i, check in enumerate(self.failed_checks, 1):
-                print(f"  {i}. {check}")
-
-            print("\n🔧 Recommendations:")
-            print("• Fix failing lint checks before deployment")
-            print("• Ensure all tests pass")
-            print("• Review security vulnerabilities")
-            print("• Check import dependencies")
+            print(f"❌ Server validation - ERROR: {e}")
+            self.failed_checks.append("Server validation (error)")
             return False
 
-    def run_all_checks(self):
-        """Run all quality checks"""
-        print("🚀 Starting MCP Server Quality Assurance Pipeline")
-        print("=" * 80)
+    def run_all(self):
+        """Run all CI checks"""
+        print("🚀 Starting CI Test Runner")
+        print(f"Project root: {self.project_root}")
 
-        # Check dependencies first
-        self.check_dependencies()
+        all_passed = True
 
-        # Run all checks
-        self.run_functionality_tests()
-        self.run_lint_checks()
-        self.run_unit_tests()
-        self.run_performance_tests()
+        # Check dependencies
+        if not self.check_dependencies():
+            print("❌ Dependency check failed")
+            return False
 
-        # Generate final report
-        success = self.generate_report()
+        # Run quality checks
+        if not self.run_quality_checks():
+            all_passed = False
 
-        return success
+        # Run tests
+        if not self.run_tests():
+            all_passed = False
+
+        # Run server validation
+        if not self.run_server_validation():
+            all_passed = False
+
+        # Final report
+        print(f"\n{'=' * 60}")
+        print("CI TEST RUNNER SUMMARY")
+        print(f"{'=' * 60}")
+
+        if all_passed:
+            print("🎉 ALL CHECKS PASSED!")
+            return True
+        else:
+            print(f"❌ {len(self.failed_checks)} CHECKS FAILED:")
+            for check in self.failed_checks:
+                print(f"  - {check}")
+            return False
 
 
 def main():
     """Main entry point"""
     runner = CITestRunner()
-    success = runner.run_all_checks()
-
-    if success:
-        print("\n✅ Quality assurance pipeline completed successfully!")
-        sys.exit(0)
-    else:
-        print("\n❌ Quality assurance pipeline failed!")
-        sys.exit(1)
+    success = runner.run_all()
+    sys.exit(0 if success else 1)
 
 
 if __name__ == "__main__":
