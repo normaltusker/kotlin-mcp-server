@@ -403,3 +403,81 @@ class GradleTools:
                         break
 
         return results
+
+    async def get_dependencies(self, arguments: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Get project dependencies.
+        """
+        try:
+            # Log audit event for security and compliance
+            self.security_manager.log_audit_event("get_dependencies", "", "")
+
+            # Construct Gradle command
+            gradle_cmd = ["./gradlew", "app:dependencies"]
+
+            # Validate command arguments for security
+            safe_args = self.security_manager.validate_command_args(gradle_cmd)
+
+            # Execute Gradle command
+            process = await asyncio.create_subprocess_exec(
+                *safe_args,
+                cwd=self.project_path,
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE,
+            )
+
+            # Wait for completion with timeout to prevent hanging
+            stdout, stderr = await asyncio.wait_for(process.communicate(), timeout=300)
+
+            # Decode output for analysis
+            stdout_text = stdout.decode("utf-8")
+            stderr_text = stderr.decode("utf-8")
+
+            # Analyze build results
+            success = process.returncode == 0
+
+            if not success:
+                return {
+                    "success": False,
+                    "error": "Failed to get dependencies",
+                    "stderr": stderr_text,
+                }
+
+            # Parse dependencies
+            dependencies = self._parse_dependencies(stdout_text)
+
+            return {
+                "success": True,
+                "dependencies": dependencies,
+            }
+
+        except asyncio.TimeoutError:
+            return {
+                "success": False,
+                "error": "Getting dependencies timed out after 5 minutes",
+            }
+        except Exception as e:
+            return {
+                "success": False,
+                "error": f"Getting dependencies failed: {str(e)}",
+            }
+
+    def _parse_dependencies(self, output: str) -> list[dict[str, str]]:
+        """Parse the output of the dependencies task."""
+        dependencies = []
+        lines = output.splitlines()
+        # This is a very basic parser. A more robust solution would use a proper
+        # grammar or a library that can parse Gradle's output.
+        for line in lines:
+            if "+---" in line or "\--- " in line:
+                parts = line.split()
+                if len(parts) > 1:
+                    dep_str = parts[-1]
+                    dep_parts = dep_str.split(":")
+                    if len(dep_parts) == 3:
+                        dependencies.append({
+                            "group": dep_parts[0],
+                            "name": dep_parts[1],
+                            "version": dep_parts[2],
+                        })
+        return dependencies
