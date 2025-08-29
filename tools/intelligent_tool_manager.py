@@ -28,6 +28,7 @@ from tools.intelligent_ui_tools import (
     IntelligentComposeComponentTool,
     IntelligentMVVMArchitectureTool,
 )
+from tools.intelligent_testing import IntelligentTestingTool
 
 
 class SimpleToolProxy(IntelligentToolBase):
@@ -79,13 +80,13 @@ class IntelligentMCPToolManager:
             "generate_docs": IntelligentDocumentationTool(*base_args),
             "create_compose_component": IntelligentComposeComponentTool(*base_args),
             "setup_mvvm_architecture": IntelligentMVVMArchitectureTool(*base_args),
+            "run_tests": IntelligentTestingTool(*base_args),
         }
 
         # Tools that need proxy implementations
         proxy_tools = [
             # Build and Testing Tools
             "gradle_build",
-            "run_tests",
             "analyze_project",
             # File Creation Tools
             "create_kotlin_file",
