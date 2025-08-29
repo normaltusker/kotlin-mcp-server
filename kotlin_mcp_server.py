@@ -36,6 +36,7 @@ from pydantic import BaseModel, Field, ValidationError
 from ai.llm_integration import AnalysisRequest, CodeGenerationRequest, CodeType, LLMIntegration
 from generators.kotlin_generator import KotlinCodeGenerator
 from tools.build_optimization import BuildOptimizationTools
+from tools.compliance_tools import ComplianceTools
 from tools.gradle_tools import GradleTools
 from tools.intelligent_tool_manager import IntelligentMCPToolManager
 from tools.project_analysis import ProjectAnalysisTools
@@ -73,6 +74,35 @@ class ProjectAnalysisRequest(BaseModel):
         default="all",
         description="Type of analysis to perform",
         pattern="^(structure|dependencies|manifest|security|performance|all)$",
+    )
+
+
+class AuditLogRequest(BaseModel):
+    """Schema for audit logging operations."""
+
+    action: str = Field(description="Action performed")
+    resource: Optional[str] = Field(default=None, description="Resource involved")
+    details: Optional[str] = Field(default=None, description="Additional details")
+
+
+class AccessControlRequest(BaseModel):
+    """Schema for access control verification."""
+
+    user_role: str = Field(description="Role of the user")
+    required_role: str = Field(description="Role required for access")
+
+
+class EncryptedMessageRequest(BaseModel):
+    """Schema for sending encrypted messages."""
+
+    message: str = Field(description="Message to encrypt")
+
+
+class ConfigValidationRequest(BaseModel):
+    """Schema for configuration validation operations."""
+
+    config_path: str = Field(
+        default=".", description="Path to run Kotlin LSP checks and security scans"
     )
 
 
@@ -131,6 +161,7 @@ class KotlinMCPServerV2:
         self.project_analysis: Optional[ProjectAnalysisTools] = None
         self.build_optimization: Optional[BuildOptimizationTools] = None
         self.intelligent_tool_manager: Optional[IntelligentMCPToolManager] = None
+        self.compliance_tools: Optional[ComplianceTools] = None
 
         # Setup logging
         self.setup_logging()
@@ -155,6 +186,7 @@ class KotlinMCPServerV2:
         self.gradle_tools = GradleTools(self.project_path, self.security_manager)
         self.project_analysis = ProjectAnalysisTools(self.project_path, self.security_manager)
         self.build_optimization = BuildOptimizationTools(self.project_path, self.security_manager)
+        self.compliance_tools = ComplianceTools(self.project_path, self.security_manager)
         self.intelligent_tool_manager = IntelligentMCPToolManager(
             str(self.project_path), self.security_manager
         )
@@ -528,6 +560,26 @@ class KotlinMCPServerV2:
                     "required": ["storage_type"],
                 },
             },
+            {
+                "name": "audit_log",
+                "description": "Record an audit event for compliance tracking",
+                "inputSchema": AuditLogRequest.model_json_schema(),
+            },
+            {
+                "name": "check_access_controls",
+                "description": "Verify role-based access permissions",
+                "inputSchema": AccessControlRequest.model_json_schema(),
+            },
+            {
+                "name": "send_encrypted_message",
+                "description": "Encrypt a message using Fernet encryption",
+                "inputSchema": EncryptedMessageRequest.model_json_schema(),
+            },
+            {
+                "name": "validate_configurations",
+                "description": "Validate configs via Kotlin LSP and run security scans",
+                "inputSchema": ConfigValidationRequest.model_json_schema(),
+            },
             # AI/ML Integration Tools
             {
                 "name": "query_llm",
@@ -811,6 +863,24 @@ class KotlinMCPServerV2:
             elif name == "analyze_project":
                 analysis_args = ProjectAnalysisRequest(**arguments)
                 result = await self.call_analyze_project(analysis_args, operation_id)
+            elif name == "audit_log":
+                audit_args = AuditLogRequest(**arguments)
+                result = await self.compliance_tools.audit_log(audit_args.model_dump())
+            elif name == "check_access_controls":
+                access_args = AccessControlRequest(**arguments)
+                result = await self.compliance_tools.check_access_controls(
+                    access_args.model_dump()
+                )
+            elif name == "send_encrypted_message":
+                enc_args = EncryptedMessageRequest(**arguments)
+                result = await self.compliance_tools.send_encrypted_message(
+                    enc_args.model_dump()
+                )
+            elif name == "validate_configurations":
+                cfg_args = ConfigValidationRequest(**arguments)
+                result = await self.compliance_tools.validate_configurations(
+                    cfg_args.model_dump()
+                )
             else:
                 # Delegate all other tools to the intelligent tool manager
                 if self.intelligent_tool_manager:
