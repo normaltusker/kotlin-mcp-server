@@ -12,6 +12,7 @@ from typing import Any, Dict, List, Optional
 
 from ai.intelligent_analysis import KotlinAnalyzer
 from ai.llm_integration import LLMIntegration
+from ai.llm_tool import LLMTool
 
 # Import available intelligent tool implementations
 from tools.intelligent_base import (
@@ -79,6 +80,7 @@ class IntelligentMCPToolManager:
             "generate_docs": IntelligentDocumentationTool(*base_args),
             "create_compose_component": IntelligentComposeComponentTool(*base_args),
             "setup_mvvm_architecture": IntelligentMVVMArchitectureTool(*base_args),
+            "query_llm": LLMTool(*base_args),
         }
 
         # Tools that need proxy implementations
@@ -106,7 +108,6 @@ class IntelligentMCPToolManager:
             "implement_hipaa_compliance",
             "setup_secure_storage",
             # AI/ML Tools
-            "query_llm",
             "analyze_code_with_ai",
             "generate_code_with_ai",
             # File Management Tools
