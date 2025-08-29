@@ -22,6 +22,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 from kotlin_mcp_server import (
     CreateKotlinFileRequest,
     GradleBuildRequest,
+    ProjectAnalysisRequest,
     KotlinMCPServerV2,
 )
 
@@ -162,6 +163,14 @@ class TestKotlinMCPServerV2(unittest.TestCase):
         response = await self.server.handle_request(request_data)
         self.assertIn("error", response)
         self.assertEqual(response["error"]["code"], -32602)
+
+    async def test_analyze_project_without_initialization(self):
+        """call_analyze_project should return structured failure when uninitialized."""
+        server = KotlinMCPServerV2()
+        args = ProjectAnalysisRequest(analysis_type="structure")
+        result = await server.call_analyze_project(args, "op-test")
+        self.assertFalse(result["success"])
+        self.assertIn("project path", result["message"].lower())
 
     async def test_progress_tracking(self):
         """Test progress tracking functionality."""
