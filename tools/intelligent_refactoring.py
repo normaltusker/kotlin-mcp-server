@@ -6,9 +6,11 @@ This module provides IDE - like intelligent refactoring tools that understand
 Kotlin code semantics and offer sophisticated refactoring capabilities.
 """
 
-import json
 import asyncio
-from typing import Dict, List, Optional, Any
+import json
+from pathlib import Path
+from typing import Any, Dict, List, Optional
+
 from ai.intelligent_analysis import IntelligentRefactoring, KotlinAnalyzer
 
 

@@ -6,10 +6,11 @@ Enhanced implementations of code analysis, formatting, and linting tools
 with LSP - like intelligent capabilities but simplified for MVP.
 """
 
+import asyncio
 import json
 import subprocess
-import asyncio
-from typing import Dict, List, Optional, Any, cast
+from typing import Any, Dict, List, Optional, cast
+
 from tools.intelligent_base import IntelligentToolBase, IntelligentToolContext
 
 

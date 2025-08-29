@@ -31,7 +31,19 @@ class CITestRunner:
             command_list = shlex.split(command)
 
             # Additional security: validate command executables
-            allowed_commands = ["python3", "python", "pytest", "black", "flake8", "pip", "coverage", "isort", "pylint", "mypy", "bandit"]
+            allowed_commands = [
+                "python3",
+                "python",
+                "pytest",
+                "black",
+                "flake8",
+                "pip",
+                "coverage",
+                "isort",
+                "pylint",
+                "mypy",
+                "bandit",
+            ]
             if command_list[0] not in allowed_commands:
                 print(f"❌ {description} - BLOCKED: Unauthorized command: {command_list[0]}")
                 self.failed_checks.append(f"{description} (blocked)")
@@ -101,15 +113,30 @@ class CITestRunner:
 
         lint_commands = [
             # Flake8 - Style and complexity
-            ("flake8 . --exclude=htmlcov,__pycache__,.git --count --select=E9,F63,F7,F82 --show-source --statistics", "Flake8 style check"),
+            (
+                "flake8 . --exclude=htmlcov,__pycache__,.git --count --select=E9,F63,F7,F82 --show-source --statistics",
+                "Flake8 style check",
+            ),
             # Black - Code formatting
-            ("black --check --diff . --exclude=htmlcov --exclude=__pycache__ --exclude=.git", "Black formatting check"),
+            (
+                "black --check --diff . --exclude=htmlcov --exclude=__pycache__ --exclude=.git",
+                "Black formatting check",
+            ),
             # isort - Import sorting
-            ("isort --check-only --diff . --skip=htmlcov --skip=__pycache__", "Import sorting check"),
+            (
+                "isort --check-only --diff . --skip=htmlcov --skip=__pycache__",
+                "Import sorting check",
+            ),
             # Pylint - Code quality (target specific files)
-            ("pylint kotlin_mcp_server.py vscode_bridge.py --output-format=text --reports=yes --score=yes", "Pylint code quality"),
+            (
+                "pylint kotlin_mcp_server.py vscode_bridge.py --output-format=text --reports=yes --score=yes",
+                "Pylint code quality",
+            ),
             # MyPy - Type checking
-            ("mypy kotlin_mcp_server.py vscode_bridge.py --ignore-missing-imports", "MyPy type checking"),
+            (
+                "mypy kotlin_mcp_server.py vscode_bridge.py --ignore-missing-imports",
+                "MyPy type checking",
+            ),
             # Bandit - Security check
             ("bandit -r . -f txt --exclude=htmlcov,__pycache__,.git", "Bandit security check"),
         ]

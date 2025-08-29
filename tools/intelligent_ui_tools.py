@@ -8,7 +8,8 @@ with LSP - like intelligent capabilities.
 
 import json
 import subprocess
-from typing import Dict, List, Optional, Any
+from typing import Any, Dict, List, Optional
+
 from tools.intelligent_base import IntelligentToolBase, IntelligentToolContext
 
 

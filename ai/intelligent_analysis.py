@@ -11,11 +11,11 @@ for Kotlin code, including:
 - Advanced pattern detection
 """
 
-import re
 import json
-from typing import Dict, List, Optional, Tuple, Any
+import re
 from dataclasses import dataclass
 from enum import Enum
+from typing import Any, Dict, List, Optional, Tuple
 
 
 class SymbolType(Enum):
@@ -201,9 +201,13 @@ class KotlinAnalyzer:
                 "analysis_summary": {
                     "total_lines": len(lines),
                     "code_lines": len(
-                        [l for line in lines if line.strip() and not line.strip().startswith("//")]
+                        [
+                            line
+                            for line in lines
+                            if line.strip() and not line.strip().startswith("//")
+                        ]
                     ),
-                    "comment_lines": len([l for line in lines if line.strip().startswith("//")]),
+                    "comment_lines": len([line for line in lines if line.strip().startswith("//")]),
                     "symbol_count": len(symbols),
                     "issue_count": len(issues),
                     "refactoring_opportunities": len(refactoring_suggestions),
@@ -278,7 +282,7 @@ class KotlinAnalyzer:
                         column=function_match.start(2),
                         end_line=i + 1,
                         end_column=function_match.end(2),
-                        scope="class" if any("class" in l for line in lines[:i]) else "file",
+                        scope="class" if any("class" in line for line in lines[:i]) else "file",
                         modifiers=modifiers,
                         parameters=parameters,
                         return_type=return_type,
@@ -298,7 +302,7 @@ class KotlinAnalyzer:
                         column=property_match.start(2),
                         end_line=i + 1,
                         end_column=property_match.end(2),
-                        scope="class" if any("class" in l for line in lines[:i]) else "file",
+                        scope="class" if any("class" in line for line in lines[:i]) else "file",
                         modifiers=modifiers,
                     )
                 )
@@ -535,8 +539,8 @@ class KotlinAnalyzer:
         operands = len(re.findall(r"\b\w+\b", content))
 
         # Maintainability index (simplified)
-        lines_of_code = len([l for line in lines if line.strip()])
-        comment_ratio = len([l for line in lines if line.strip().startswith("//")]) / max(
+        lines_of_code = len([line for line in lines if line.strip()])
+        comment_ratio = len([line for line in lines if line.strip().startswith("//")]) / max(
             lines_of_code, 1
         )
 

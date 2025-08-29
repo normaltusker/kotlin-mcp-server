@@ -6,16 +6,16 @@ This module provides base classes and utilities that enhance all MCP tools
 with intelligent, LSP - like capabilities for Kotlin development.
 """
 
-import json
 import asyncio
-from typing import Dict, List, Optional, Any, Union
-from dataclasses import dataclass, asdict
+import json
 from abc import ABC, abstractmethod
+from dataclasses import asdict, dataclass
 from pathlib import Path
+from typing import Any, Dict, List, Optional, Union
 
 # Import our existing intelligence modules
-from ai.intelligent_analysis import KotlinAnalyzer, RefactoringType, CodeIssue
-from ai.llm_integration import LLMIntegration, CodeGenerationRequest, CodeType
+from ai.intelligent_analysis import CodeIssue, KotlinAnalyzer, RefactoringType
+from ai.llm_integration import CodeGenerationRequest, CodeType, LLMIntegration
 from tools.intelligent_navigation import IntelligentSymbolNavigation
 from tools.intelligent_refactoring import IntelligentRefactoringTools
 

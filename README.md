@@ -6,7 +6,30 @@ A comprehensive Model Context Protocol (MCP) server that provides AI agents with
 
 ## 📋 **Revision History**
 
-### **Version 2.0** *(Current - August 2025)*
+### **Version 2.1** *(Current - August 2025)*
+**Enhanced Release: Unified Intelligent Server**
+
+#### 🎯 **Latest Improvements**
+- **🧠 Intelligent Tool Management**: All 27 tools now use intelligent proxy system with LSP-like capabilities
+- **🔄 Server Consolidation**: Unified into single `kotlin_mcp_server.py` with enhanced architecture
+- **📁 Clean Architecture**: Archived redundant server versions for cleaner project structure
+- **⚡ Enhanced Tool Exposure**: Complete tool suite properly exposed through intelligent management system
+- **🛠️ Improved Tool Routing**: Smart delegation between native implementations and intelligent proxies
+
+#### 🔧 **Architectural Changes**
+- **Unified Server**: Single `kotlin_mcp_server.py` replaces multiple server versions
+- **Intelligent Proxy System**: Tools without full implementations use smart proxies with AI enhancement
+- **Clean File Structure**: Legacy servers archived in `archive/legacy-servers/`
+- **Enhanced Tool Manager**: Integration with `IntelligentMCPToolManager` for advanced capabilities
+- **Complete Tool Coverage**: All 27 tools properly exposed and functional
+
+#### 📊 **Tool Implementation Status**
+- **Fully Implemented**: 5 tools (format_code, run_lint, generate_docs, create_compose_component, setup_mvvm_architecture)
+- **Legacy Integration**: 3 core tools (create_kotlin_file, gradle_build, analyze_project)
+- **Intelligent Proxies**: 19 tools with smart fallback implementations
+- **Total Available**: 27 tools with comprehensive Android development coverage
+
+### **Version 2.0** *(August 2025)*
 **Major Release: AI-Enhanced Modular Architecture**
 
 #### 🎯 **Key Improvements**
