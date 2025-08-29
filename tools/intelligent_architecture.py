@@ -35,9 +35,7 @@ class IntelligentDependencyInjectionTool(IntelligentToolBase):
             f"app/src/main/java/{package_name.replace('.', '/')}/{module_name}.kt",
         )
 
-        module_info = await self._generate_module(
-            module_path, module_name, package_name, di_type
-        )
+        module_info = await self._generate_module(module_path, module_name, package_name, di_type)
         app_info: Dict[str, Any] = {}
         if application_file:
             app_info = await self._modify_application_class(application_file, di_type)
@@ -61,9 +59,7 @@ class IntelligentDependencyInjectionTool(IntelligentToolBase):
                 "import dagger.hilt.InstallIn",
                 "import dagger.hilt.components.SingletonComponent",
             ]
-            body = (
-                f"@Module\n@InstallIn(SingletonComponent::class)\nobject {module_name} {{}}\n"
-            )
+            body = f"@Module\n@InstallIn(SingletonComponent::class)\nobject {module_name} {{}}\n"
         else:
             imports = [
                 "import dagger.Module",
@@ -72,12 +68,7 @@ class IntelligentDependencyInjectionTool(IntelligentToolBase):
             ]
             body = f"@Module\nobject {module_name} {{}}\n"
 
-        content = (
-            f"package {package_name}\n\n"
-            + "\n".join(imports)
-            + "\n\n"
-            + body
-        )
+        content = f"package {package_name}\n\n" + "\n".join(imports) + "\n\n" + body
 
         with open(path, "w", encoding="utf-8") as f:
             f.write(content)
@@ -197,14 +188,7 @@ class IntelligentRoomDatabaseTool(IntelligentToolBase):
                 entities.append(item)
 
         package_path = package_name.replace(".", "/")
-        base_path = (
-            self.project_path
-            / "src"
-            / "main"
-            / "kotlin"
-            / package_path
-            / "data"
-        )
+        base_path = self.project_path / "src" / "main" / "kotlin" / package_path / "data"
         entity_dir = base_path / "entity"
         dao_dir = base_path / "dao"
         entity_dir.mkdir(parents=True, exist_ok=True)
@@ -446,12 +430,7 @@ abstract class {database_name} : RoomDatabase() {{
                     "dependencies {\n    " + "\n    ".join(added) + "\n",
                 )
             else:
-                updated = (
-                    content
-                    + "\n\ndependencies {\n    "
-                    + "\n    ".join(added)
-                    + "\n}\n"
-                )
+                updated = content + "\n\ndependencies {\n    " + "\n    ".join(added) + "\n}\n"
             build_file.write_text(updated, encoding="utf-8")
 
         return added

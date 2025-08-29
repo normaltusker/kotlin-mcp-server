@@ -114,11 +114,9 @@ class ProgressNotification(BaseModel):
 class KotlinMCPServerV2:
     """Enhanced MCP Server implementation with modern features."""
 
-    def __init__(self, name: str = "kotlin-mcp-server"):
+    def __init__(self, name: str = "kotlin-mcp-server", project_path: Optional[str] = None):
         """Initialize the enhanced MCP server."""
         self.name = name
-        self.project_path: Optional[Path] = None
-        self.allowed_roots: List[Path] = []
         self.active_operations: Dict[str, Dict[str, Any]] = {}
 
         # Initialize core components
@@ -126,14 +124,25 @@ class KotlinMCPServerV2:
         self.llm_integration = LLMIntegration(self.security_manager)
         self.kotlin_generator = KotlinCodeGenerator(self.llm_integration)
 
-        # Tool modules (initialized after project path is set)
-        self.gradle_tools: Optional[GradleTools] = None
-        self.project_analysis: Optional[ProjectAnalysisTools] = None
-        self.build_optimization: Optional[BuildOptimizationTools] = None
-        self.intelligent_tool_manager: Optional[IntelligentMCPToolManager] = None
-
-        # Setup logging
+        # Setup logging first
         self.setup_logging()
+
+        # Set project path - use provided path or current working directory
+        if project_path:
+            self.project_path = Path(project_path)
+        else:
+            self.project_path = Path.cwd()
+
+        self.allowed_roots: List[Path] = [self.project_path]
+        self.logger.info(f"Using project path: {self.project_path}")
+
+        # Initialize all tool modules immediately
+        self.gradle_tools = GradleTools(self.project_path, self.security_manager)
+        self.project_analysis = ProjectAnalysisTools(self.project_path, self.security_manager)
+        self.build_optimization = BuildOptimizationTools(self.project_path, self.security_manager)
+        self.intelligent_tool_manager = IntelligentMCPToolManager(
+            str(self.project_path), self.security_manager
+        )
 
     def setup_logging(self) -> None:
         """Configure structured logging."""
@@ -143,21 +152,28 @@ class KotlinMCPServerV2:
         self.logger = logging.getLogger(self.name)
 
     def set_project_path(self, project_path: str) -> None:
-        """Set the project path and initialize tool modules."""
-        self.project_path = Path(project_path)
+        """Set a new project path and re-initialize tool modules."""
+        new_path = Path(project_path)
 
-        # Add project path as allowed root
-        if self.project_path.exists():
-            self.allowed_roots.append(self.project_path)
-            self.logger.info(f"Added project root: {self.project_path}")
+        # Only re-initialize if the path is actually different
+        if self.project_path != new_path:
+            self.project_path = new_path
 
-        # Initialize tool modules with project path
-        self.gradle_tools = GradleTools(self.project_path, self.security_manager)
-        self.project_analysis = ProjectAnalysisTools(self.project_path, self.security_manager)
-        self.build_optimization = BuildOptimizationTools(self.project_path, self.security_manager)
-        self.intelligent_tool_manager = IntelligentMCPToolManager(
-            str(self.project_path), self.security_manager
-        )
+            # Update allowed roots
+            if new_path not in self.allowed_roots:
+                self.allowed_roots.append(new_path)
+                self.logger.info(f"Added project root: {new_path}")
+
+            # Re-initialize tool modules with new project path
+            self.gradle_tools = GradleTools(self.project_path, self.security_manager)
+            self.project_analysis = ProjectAnalysisTools(self.project_path, self.security_manager)
+            self.build_optimization = BuildOptimizationTools(
+                self.project_path, self.security_manager
+            )
+            self.intelligent_tool_manager = IntelligentMCPToolManager(
+                str(self.project_path), self.security_manager
+            )
+            self.logger.info(f"Re-initialized tools with project path: {self.project_path}")
 
     async def handle_initialize(self, params: Dict[str, Any]) -> Dict[str, Any]:
         """Handle MCP initialize request with enhanced capabilities."""
@@ -820,9 +836,34 @@ class KotlinMCPServerV2:
                     result = await self.intelligent_tool_manager.execute_intelligent_tool(
                         name, arguments
                     )
+                    # Send completion progress
+                    await self.send_progress(operation_id, 100, f"Completed {name}")
+
+                    # Clean up operation tracking
+                    del self.active_operations[operation_id]
+
+                    self.log_message(f"Completed tool: {name} (ID: {operation_id})", level="info")
+
+                    # Return the result directly - it's already in MCP format
+                    return result
                 else:
-                    # Fallback for legacy tools if intelligent manager not available
-                    result = await self.call_legacy_tool(name, arguments, operation_id)
+                    # This should not happen since intelligent_tool_manager is always initialized
+                    return {
+                        "content": [
+                            {
+                                "type": "text",
+                                "text": json.dumps(
+                                    {
+                                        "success": False,
+                                        "error": "Internal error: Intelligent tool manager not initialized",
+                                        "tool_name": name,
+                                    },
+                                    indent=2,
+                                ),
+                            }
+                        ],
+                        "isError": True,
+                    }
 
             # Send completion progress
             await self.send_progress(operation_id, 100, f"Completed {name}")
@@ -1070,16 +1111,13 @@ Please generate the complete Room database setup with all components.
 
         await self.send_progress(operation_id, 25, "Validating parameters")
 
+        # Note: kotlin_generator is always initialized, but check for safety
         if not self.kotlin_generator:
-            await self.send_progress(operation_id, 100, "Kotlin generator not initialized")
+            await self.send_progress(operation_id, 100, "Kotlin generator initialization error")
             return {
                 "success": False,
-                "error": "Kotlin generator not initialized",
-                "message": (
-                    "Start the server with a valid project path (e.g., "
-                    "python kotlin_mcp_server.py /path/to/project) or call "
-                    "set_project_path() before invoking this tool."
-                ),
+                "error": "Kotlin generator initialization error",
+                "message": "Internal error: Kotlin generator should always be initialized.",
             }
 
         await self.send_progress(operation_id, 50, "Generating Kotlin code")
@@ -1146,13 +1184,12 @@ Please generate the complete Room database setup with all components.
 
         await self.send_progress(operation_id, 20, "Preparing Gradle build")
 
+        # Note: gradle_tools is always initialized, but check for safety
         if not self.gradle_tools:
             return {
                 "success": False,
-                "error": (
-                    "Gradle tools not initialized - project path required. "
-                    "Start the server with --project-path or run the initialization command."
-                ),
+                "error": "Internal error: Gradle tools should always be initialized.",
+                "message": "Gradle tools initialization failed. This is an internal error.",
             }
 
         await self.send_progress(operation_id, 40, f"Running Gradle task: {args.task}")
@@ -1163,12 +1200,19 @@ Please generate the complete Room database setup with all components.
 
         await self.send_progress(operation_id, 80, "Processing build results")
 
-        return {
+        # Propagate error messages if build failed
+        response = {
             "success": result.get("success", False),
             "task": args.task,
             "output": result.get("output", ""),
             "execution_time": result.get("execution_time", 0),
         }
+
+        # Include error message if present
+        if "error" in result:
+            response["error"] = result["error"]
+
+        return response
 
     async def call_analyze_project(
         self, args: ProjectAnalysisRequest, operation_id: str
@@ -1176,19 +1220,18 @@ Please generate the complete Room database setup with all components.
         """Execute analyze_project tool."""
 
         await self.send_progress(operation_id, 30, "Starting project analysis")
+
+        # Note: project_analysis is always initialized, but check for safety
         if not self.project_analysis:
             await self.send_progress(
                 operation_id,
                 100,
-                "Project analysis tools missing - initialization required",
+                "Project analysis tools initialization error",
             )
             return {
                 "success": False,
                 "analysis_type": args.analysis_type,
-                "message": (
-                    "Project analysis tools not initialized. Provide a project path "
-                    "or run the initialization step before analyzing."
-                ),
+                "message": "Internal error: Project analysis tools should always be initialized.",
             }
 
         await self.send_progress(operation_id, 60, f"Performing {args.analysis_type} analysis")
@@ -1306,9 +1349,9 @@ Please generate the complete Room database setup with all components.
             return self.create_error_response(-32000, f"Server error: {e}", request_id)
 
 
-def create_server() -> KotlinMCPServerV2:
+def create_server(project_path: Optional[str] = None) -> KotlinMCPServerV2:
     """Create and configure the enhanced MCP server."""
-    return KotlinMCPServerV2()
+    return KotlinMCPServerV2(project_path=project_path)
 
 
 async def main() -> None:
@@ -1321,18 +1364,22 @@ async def main() -> None:
     )
     args = parser.parse_args()
 
-    # Create and configure server
-    server = create_server()
-
-    # Set project path if provided
+    # Create server with project path
     if args.project_path:
         project_path = Path(args.project_path)
         if project_path.exists():
-            server.set_project_path(str(project_path))
+            server = KotlinMCPServerV2(project_path=str(project_path))
+            server.log_message(f"Using provided project path: {project_path}", level="info")
         else:
-            server.log_message(
-                f"Warning: Project path {project_path} does not exist", level="warning"
+            print(
+                f"Warning: Provided project path {project_path} does not exist, using current directory"
             )
+            server = KotlinMCPServerV2()  # Will use current directory
+    else:
+        server = KotlinMCPServerV2()  # Will use current directory
+        server.log_message(
+            "No project path provided, using current working directory", level="info"
+        )
 
     server.log_message("Kotlin MCP Server v2 starting...", level="info")
 

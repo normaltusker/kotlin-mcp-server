@@ -12,7 +12,7 @@ This module provides comprehensive build management capabilities:
 
 import asyncio
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any, Dict, List
 
 from utils.security import SecurityManager
 
@@ -37,6 +37,23 @@ class GradleTools:
         - Detailed error reporting and analysis
         """
         try:
+            # Validate project path is available and contains a Gradle project
+            if not self.project_path or not Path(self.project_path).exists():
+                return {
+                    "success": False,
+                    "error": "Build failed: project path required. Please specify a valid --project-path argument.",
+                }
+
+            # Check for Gradle project files
+            gradle_files = ["build.gradle", "build.gradle.kts", "gradlew"]
+            if not any(
+                (Path(self.project_path) / gradle_file).exists() for gradle_file in gradle_files
+            ):
+                return {
+                    "success": False,
+                    "error": "Build failed: project path required. No Gradle project found. Please specify a valid --project-path argument with build.gradle file.",
+                }
+
             # Extract and validate build arguments
             build_type = arguments.get("build_type", "debug")
             clean_build = arguments.get("clean", False)
@@ -462,7 +479,7 @@ class GradleTools:
                 "error": f"Getting dependencies failed: {str(e)}",
             }
 
-    def _parse_dependencies(self, output: str) -> list[dict[str, str]]:
+    def _parse_dependencies(self, output: str) -> List[Dict[str, str]]:
         """Parse the output of the dependencies task."""
         dependencies = []
         lines = output.splitlines()

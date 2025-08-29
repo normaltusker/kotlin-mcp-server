@@ -31,18 +31,14 @@ class AndroidKeystoreWrapper:
         try:  # pragma: no cover - Android environment rarely available in tests
             from jnius import autoclass  # type: ignore
 
-            self._key_store = autoclass("java.security.KeyStore").getInstance(
-                "AndroidKeyStore"
-            )
+            self._key_store = autoclass("java.security.KeyStore").getInstance("AndroidKeyStore")
             self._key_store.load(None)
             self._cipher = autoclass("javax.crypto.Cipher")
             self._key_generator = autoclass("javax.crypto.KeyGenerator")
             self._key_spec_builder = autoclass(
                 "android.security.keystore.KeyGenParameterSpec$Builder"
             )
-            self._key_properties = autoclass(
-                "android.security.keystore.KeyProperties"
-            )
+            self._key_properties = autoclass("android.security.keystore.KeyProperties")
             self._use_android_keystore = True
         except Exception:
             # Fallback: simple local key directory using Fernet keys
@@ -58,12 +54,9 @@ class AndroidKeystoreWrapper:
             try:
                 builder = self._key_spec_builder(
                     alias,
-                    self._key_properties.PURPOSE_ENCRYPT
-                    | self._key_properties.PURPOSE_DECRYPT,
+                    self._key_properties.PURPOSE_ENCRYPT | self._key_properties.PURPOSE_DECRYPT,
                 )
-                builder = builder.setBlockModes(
-                    self._key_properties.BLOCK_MODE_GCM
-                )
+                builder = builder.setBlockModes(self._key_properties.BLOCK_MODE_GCM)
                 builder = builder.setEncryptionPaddings(
                     self._key_properties.ENCRYPTION_PADDING_NONE
                 )
@@ -120,6 +113,8 @@ class AndroidKeystoreWrapper:
     def decrypt(self, alias: str, token: bytes) -> bytes:
         if self._use_android_keystore:  # pragma: no cover
             try:
+                from jnius import autoclass  # type: ignore
+
                 secret_key = self._key_store.getKey(alias, None)
                 cipher = self._cipher.getInstance("AES/GCM/NoPadding")
                 iv, enc = token[:12], token[12:]

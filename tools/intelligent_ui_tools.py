@@ -489,9 +489,9 @@ class IntelligentLayoutFileTool(IntelligentToolBase):
         if layout_type == "LinearLayout" and "android:orientation" not in all_attrs:
             all_attrs["android:orientation"] = "vertical"
 
-        attrs_text = "\n".join(f"    {k}=\"{v}\"" for k, v in all_attrs.items())
+        attrs_text = "\n".join(f'    {k}="{v}"' for k, v in all_attrs.items())
         return (
-            "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
+            '<?xml version="1.0" encoding="utf-8"?>\n'
             f"<{layout_type}\n{attrs_text}\n>\n\n</{layout_type}>\n"
         )
 
@@ -515,9 +515,7 @@ class IntelligentLayoutFileTool(IntelligentToolBase):
         pattern = re.compile(r"@([\w]+)/([A-Za-z0-9_]+)")
         for res_type, res_name in pattern.findall(content):
             lsp_result = await self.symbol_navigation.find_references(res_name)
-            references[f"{res_type}/{res_name}"] = lsp_result.get(
-                "total_references", 0
-            )
+            references[f"{res_type}/{res_name}"] = lsp_result.get("total_references", 0)
         return references
 
     def _resolve_layout_path(self, file_path: str) -> Path:

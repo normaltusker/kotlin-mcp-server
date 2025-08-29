@@ -4,8 +4,8 @@ Test Suite for Gradle Tools Module
 Tests all Gradle-related functionality
 """
 
-import tempfile
 import json
+import tempfile
 
 import pytest
 

@@ -54,7 +54,7 @@ def run_quick_checks() -> bool:
         # Basic security check with bandit
         # High-severity security issues
         (
-            f"python3 -m bandit -r {main_files} -ll",
+            f"python3 -m bandit -r {main_files} -lll",
             "High-severity security issues",
         ),
         # isort check for import sorting

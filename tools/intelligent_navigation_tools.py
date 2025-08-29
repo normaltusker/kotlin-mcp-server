@@ -17,9 +17,7 @@ class IntelligentCodeAnalysisTool(IntelligentToolBase):
         analysis_type = arguments.get("analysis_type", "comprehensive")
         if not file_path:
             return {"error": "file_path is required"}
-        return await self.refactoring_tools.analyze_code_intelligence(
-            file_path, analysis_type
-        )
+        return await self.refactoring_tools.analyze_code_intelligence(file_path, analysis_type)
 
 
 class IntelligentRefactoringTool(IntelligentToolBase):
@@ -69,9 +67,7 @@ class IntelligentGotoDefinitionTool(IntelligentToolBase):
         symbol_name = arguments.get("symbol_name")
         if not file_path:
             return {"error": "file_path is required"}
-        return await self.symbol_navigation.go_to_definition(
-            file_path, line, column, symbol_name
-        )
+        return await self.symbol_navigation.go_to_definition(file_path, line, column, symbol_name)
 
 
 class IntelligentFindReferencesTool(IntelligentToolBase):
@@ -84,9 +80,7 @@ class IntelligentFindReferencesTool(IntelligentToolBase):
         include_declarations = arguments.get("include_declarations", True)
         if not symbol_name:
             return {"error": "symbol_name is required"}
-        return await self.symbol_navigation.find_references(
-            symbol_name, include_declarations
-        )
+        return await self.symbol_navigation.find_references(symbol_name, include_declarations)
 
 
 class IntelligentCodeCompletionTool(IntelligentToolBase):
@@ -101,9 +95,7 @@ class IntelligentCodeCompletionTool(IntelligentToolBase):
         trigger = arguments.get("trigger_character")
         if not file_path:
             return {"error": "file_path is required"}
-        return await self.symbol_navigation.intelligent_completion(
-            file_path, line, column, trigger
-        )
+        return await self.symbol_navigation.intelligent_completion(file_path, line, column, trigger)
 
 
 class IntelligentSymbolSearchTool(IntelligentToolBase):

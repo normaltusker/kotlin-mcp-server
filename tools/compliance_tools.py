@@ -26,9 +26,7 @@ class IntelligentGDPRComplianceTool(IntelligentToolBase):
         deletion_workflow_path = arguments.get(
             "deletion_workflow_path", "app/src/main/java/com/example/DataDeletion.kt"
         )
-        modules = arguments.get(
-            "modules", ["app/src/main/java/com/example/MainActivity.kt"]
-        )
+        modules = arguments.get("modules", ["app/src/main/java/com/example/MainActivity.kt"])
 
         generated_files = [
             self._generate_consent_ui(consent_ui_path),

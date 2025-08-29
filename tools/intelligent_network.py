@@ -26,14 +26,10 @@ class IntelligentNetworkTool(IntelligentToolBase):
         base_url = arguments.get("base_url", "https://api.example.com")
         endpoints: List[Dict[str, Any]] = arguments.get("endpoints", [])
         package_name = arguments.get("package_name", "com.example.network")
-        interceptors: List[str] = arguments.get(
-            "interceptors", ["HttpLoggingInterceptor()"]
-        )
+        interceptors: List[str] = arguments.get("interceptors", ["HttpLoggingInterceptor()"])
 
         project_root = self.project_path
-        src_path = project_root / "src" / "main" / "java" / Path(
-            package_name.replace(".", "/")
-        )
+        src_path = project_root / "src" / "main" / "java" / Path(package_name.replace(".", "/"))
         models_path = src_path / "models"
         api_path = src_path / "api"
         di_path = src_path / "di"
@@ -59,23 +55,15 @@ class IntelligentNetworkTool(IntelligentToolBase):
             if isinstance(request_model, dict):
                 model_name = request_model.get("name", f"{name}Request")
                 fields = request_model.get("fields", [])
-                model_code = self._generate_data_class(
-                    package_name, model_name, fields
-                )
-                (models_path / f"{model_name}.kt").write_text(
-                    model_code, encoding="utf-8"
-                )
+                model_code = self._generate_data_class(package_name, model_name, fields)
+                (models_path / f"{model_name}.kt").write_text(model_code, encoding="utf-8")
 
             # Response model
             if isinstance(response_model, dict):
                 model_name = response_model.get("name", f"{name}Response")
                 fields = response_model.get("fields", [])
-                model_code = self._generate_data_class(
-                    package_name, model_name, fields
-                )
-                (models_path / f"{model_name}.kt").write_text(
-                    model_code, encoding="utf-8"
-                )
+                model_code = self._generate_data_class(package_name, model_name, fields)
+                (models_path / f"{model_name}.kt").write_text(model_code, encoding="utf-8")
                 response_model_name = model_name
             else:
                 response_model_name = str(response_model)
@@ -89,16 +77,10 @@ class IntelligentNetworkTool(IntelligentToolBase):
         api_file = api_path / "ApiService.kt"
         api_file.write_text("\n".join(interface_lines), encoding="utf-8")
 
-        network_module = self._generate_network_module(
-            package_name, base_url, interceptors
-        )
-        (di_path / "NetworkModule.kt").write_text(
-            network_module, encoding="utf-8"
-        )
+        network_module = self._generate_network_module(package_name, base_url, interceptors)
+        (di_path / "NetworkModule.kt").write_text(network_module, encoding="utf-8")
 
-        analysis = self.analyzer.analyze_file(
-            str(api_file), api_file.read_text(encoding="utf-8")
-        )
+        analysis = self.analyzer.analyze_file(str(api_file), api_file.read_text(encoding="utf-8"))
 
         gradle_result = self._ensure_gradle_dependencies(project_root)
 
@@ -114,9 +96,7 @@ class IntelligentNetworkTool(IntelligentToolBase):
         self, package_name: str, class_name: str, fields: List[Dict[str, str]]
     ) -> str:
         lines = [f"package {package_name}.models", "", f"data class {class_name}("]
-        field_lines = [
-            f"    val {f['name']}: {f.get('type', 'String')}" for f in fields
-        ]
+        field_lines = [f"    val {f['name']}: {f.get('type', 'String')}" for f in fields]
         lines.append(",\n".join(field_lines) + "\n)")
         return "\n".join(lines)
 
@@ -128,7 +108,7 @@ class IntelligentNetworkTool(IntelligentToolBase):
         request_model: Optional[Dict[str, Any]],
         response_model: str,
     ) -> str:
-        annotation = f"@{method}(\"{path}\")"
+        annotation = f'@{method}("{path}")'
         params = []
         if isinstance(request_model, dict):
             model_name = request_model.get("name", "Body")
@@ -158,7 +138,7 @@ class IntelligentNetworkTool(IntelligentToolBase):
                 "            .build()",
                 "",
                 "        return Retrofit.Builder()",
-                f"            .baseUrl(\"{base_url}\")",
+                f'            .baseUrl("{base_url}")',
                 "            .client(client)",
                 "            .addConverterFactory(GsonConverterFactory.create())",
                 "            .build()",
