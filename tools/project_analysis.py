@@ -192,7 +192,9 @@ class ProjectAnalysisTools:
             manifest_path = self.project_path / "app/src/main/AndroidManifest.xml"
             package_name = None
             if manifest_path.exists():
-                tree = ET.parse(manifest_path)
+                tree = ET.parse(
+                    manifest_path
+                )  # nosec B314 - parsing trusted local Android manifest
                 root = tree.getroot()
                 package_name = root.get("package")
 

@@ -162,24 +162,24 @@ async def validate():
         print("🔍 Testing server initialization...")
         server = KotlinMCPServer("ci-test")
         server.set_project_path(tempfile.mkdtemp())
-        
+
         print("🔍 Testing tool listing...")
         tools = await server.handle_list_tools()
         tool_count = len(tools.get("tools", []))
         print(f"✅ Server has {tool_count} tools")
-        
+
         print("🔍 Testing tool execution...")
         result = await server.handle_call_tool("create_kotlin_file", {
             "file_path": "test/TestClass.kt",
-            "package_name": "com.test", 
+            "package_name": "com.test",
             "class_name": "TestClass",
             "class_type": "class"
         })
         assert "content" in result
         print("✅ Tool execution successful")
-        
+
         print("🎉 Server validation completed successfully")
-        
+
     except Exception as e:
         print(f"❌ Server validation failed: {e}")
         raise

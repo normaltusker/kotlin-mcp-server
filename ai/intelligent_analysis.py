@@ -7,11 +7,8 @@ for Kotlin code, including:
 - Semantic code analysis
 - Intelligent refactoring suggestions
 - Symbol resolution and navigation
-- Context - aware code completion
-- Advanced pattern detection
 """
 
-import json
 import re
 from dataclasses import dataclass
 from enum import Enum
