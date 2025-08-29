@@ -503,13 +503,20 @@ class KotlinMCPServerV2:
             },
             {
                 "name": "setup_secure_storage",
-                "description": "Setup secure storage with encryption and access controls",
+                "description": "Setup secure storage using Room encryption or EncryptedFile with Keystore-managed keys",
                 "inputSchema": {
                     "type": "object",
                     "properties": {
                         "storage_type": {
                             "type": "string",
-                            "enum": ["shared_preferences", "room", "keystore", "file"],
+                            "enum": [
+                                "shared_preferences",
+                                "encrypted_sharedprefs",
+                                "room",
+                                "encrypted_file",
+                                "keystore",
+                                "file",
+                            ],
                             "description": "Type of storage to secure",
                         },
                         "encryption_level": {

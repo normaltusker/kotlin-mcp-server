@@ -803,13 +803,15 @@ Implements HIPAA-compliant security measures.
 ```
 
 ##### 18. `setup_secure_storage` - Secure Data Storage
-Configures encrypted storage for sensitive data.
+Configures encrypted storage for sensitive data using Room with SQLCipher or
+EncryptedFile with keys stored in the Android Keystore. The tool also scans
+your codebase and suggests refactors for insecure storage patterns.
 
 ```json
 {
   "name": "setup_secure_storage",
   "arguments": {
-    "storage_type": "room_encrypted",
+    "storage_type": "room",
     "package_name": "com.example.app",
     "data_classification": "restricted",
     "key_management": "android_keystore"
@@ -1312,7 +1314,7 @@ All tools provide comprehensive error information:
 {
   "name": "setup_secure_storage",
   "arguments": {
-    "storage_type": "room_encrypted",
+    "storage_type": "room",
     "package_name": "com.example.app",
     "data_classification": "restricted"
   }
@@ -1738,7 +1740,7 @@ openssl s_client -connect api.example.com:443
 {
   "name": "setup_secure_storage", 
   "arguments": {
-    "storage_type": "room_encrypted",
+    "storage_type": "room",
     "data_classification": "restricted"
   }
 }
