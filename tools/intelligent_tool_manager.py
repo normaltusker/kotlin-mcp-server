@@ -30,7 +30,7 @@ from tools.intelligent_ui_tools import (
     IntelligentMVVMArchitectureTool,
 )
 from tools.intelligent_testing import IntelligentTestingTool
-from tools.intelligent_architecture import IntelligentDependencyInjectionTool
+from tools.intelligent_architecture import IntelligentDependencyInjectionTool, IntelligentRoomDatabaseTool
 
 
 class SimpleToolProxy(IntelligentToolBase):
@@ -85,6 +85,7 @@ class IntelligentMCPToolManager:
             "setup_mvvm_architecture": IntelligentMVVMArchitectureTool(*base_args),
             "run_tests": IntelligentTestingTool(*base_args),
             "setup_dependency_injection": IntelligentDependencyInjectionTool(*base_args),
+            "setup_room_database": IntelligentRoomDatabaseTool(*base_args),
         }
 
         # Tools that need proxy implementations
@@ -101,7 +102,6 @@ class IntelligentMCPToolManager:
             # UI Development Tools
             "create_custom_view",
             # Architecture Tools
-            "setup_room_database",
             "setup_retrofit_api",
             # Security Tools
             "encrypt_sensitive_data",
