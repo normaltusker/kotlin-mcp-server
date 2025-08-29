@@ -28,6 +28,7 @@ from tools.intelligent_ui_tools import (
     IntelligentComposeComponentTool,
     IntelligentMVVMArchitectureTool,
 )
+from tools.intelligent_testing import IntelligentUITestSetupTool
 
 
 class SimpleToolProxy(IntelligentToolBase):
@@ -79,6 +80,7 @@ class IntelligentMCPToolManager:
             "generate_docs": IntelligentDocumentationTool(*base_args),
             "create_compose_component": IntelligentComposeComponentTool(*base_args),
             "setup_mvvm_architecture": IntelligentMVVMArchitectureTool(*base_args),
+            "setup_ui_testing": IntelligentUITestSetupTool(*base_args),
         }
 
         # Tools that need proxy implementations
@@ -117,7 +119,6 @@ class IntelligentMCPToolManager:
             "call_external_api",
             # Testing Tools
             "generate_unit_tests",
-            "setup_ui_testing",
             # LSP-like Intelligence Tools
             "intelligent_code_analysis",
             "intelligent_refactoring_suggestions",
@@ -612,17 +613,6 @@ class IntelligentTestGenerationTool(IntelligentToolBase):
             "coverage": "85%",
             "frameworks": ["JUnit5", "MockK"],
             "ai_assisted": True,
-        }
-
-
-class IntelligentUITestingTool(IntelligentToolBase):
-    async def _execute_core_functionality(
-        self, context: IntelligentToolContext, arguments: Dict[str, Any]
-    ) -> Any:
-        return {
-            "ui_tests": "configured",
-            "frameworks": ["Compose Testing", "Espresso"],
-            "accessibility_tests": True,
         }
 
 
