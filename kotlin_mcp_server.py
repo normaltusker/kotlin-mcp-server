@@ -1138,7 +1138,13 @@ Please generate the complete Room database setup with all components.
         await self.send_progress(operation_id, 20, "Preparing Gradle build")
 
         if not self.gradle_tools:
-            raise RuntimeError("Gradle tools not initialized - project path required")
+            return {
+                "success": False,
+                "error": (
+                    "Gradle tools not initialized - project path required. "
+                    "Start the server with --project-path or run the initialization command."
+                ),
+            }
 
         await self.send_progress(operation_id, 40, f"Running Gradle task: {args.task}")
 
