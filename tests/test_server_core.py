@@ -197,7 +197,14 @@ class TestKotlinMCPServerCore:
                 "setup_secure_storage",
                 {"storage_type": "encrypted_sharedprefs", "encryption_level": "AES256"},
             ),
-            ("setup_cloud_sync", {"provider": "firebase", "sync_type": "realtime"}),
+            (
+                "setup_cloud_sync",
+                {
+                    "provider": "azure_blob",
+                    "bucket": "test-bucket",
+                    "sync_path": ".",
+                },
+            ),
             # API and AI Tools
             ("call_external_api", {"api_name": "TestAPI", "method": "GET", "endpoint": "/test"}),
             ("ai_code_review", {"file_path": "Test.kt", "review_type": "comprehensive"}),

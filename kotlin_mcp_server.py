@@ -702,27 +702,39 @@ class KotlinMCPServerV2:
             },
             {
                 "name": "setup_cloud_sync",
-                "description": "Set up cloud synchronization for project files",
+                "description": "Configure cloud sync with secure credentials, encryption, and scheduling",
                 "inputSchema": {
                     "type": "object",
                     "properties": {
-                        "cloud_provider": {
+                        "provider": {
                             "type": "string",
-                            "enum": ["google_drive", "dropbox", "onedrive", "aws_s3"],
+                            "enum": ["aws_s3", "gcs", "azure_blob"],
                             "description": "Cloud storage provider",
                         },
-                        "encryption": {
+                        "bucket": {
+                            "type": "string",
+                            "description": "Target bucket or container",
+                        },
+                        "sync_path": {
+                            "type": "string",
+                            "description": "Local path to synchronize",
+                        },
+                        "schedule": {
+                            "type": "string",
+                            "description": "Cron-style schedule for sync operations",
+                        },
+                        "encryption_at_rest": {
                             "type": "boolean",
                             "default": True,
-                            "description": "Enable encryption for synced files",
+                            "description": "Enable encryption at rest",
                         },
-                        "sync_patterns": {
-                            "type": "array",
-                            "items": {"type": "string"},
-                            "description": "File patterns to sync",
+                        "encryption_in_transit": {
+                            "type": "boolean",
+                            "default": True,
+                            "description": "Use secure transport (HTTPS/TLS)",
                         },
                     },
-                    "required": ["cloud_provider"],
+                    "required": ["provider", "bucket", "sync_path"],
                 },
             },
             # API Integration Tools

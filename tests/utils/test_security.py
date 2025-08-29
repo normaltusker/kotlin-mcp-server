@@ -61,7 +61,13 @@ class TestSecurityUtils:
     async def test_setup_cloud_sync(self, server: KotlinMCPServer) -> None:
         """Test cloud sync setup"""
         result = await server.handle_call_tool(
-            "setup_cloud_sync", {"provider": "firebase", "sync_type": "realtime"}
+            "setup_cloud_sync",
+            {
+                "provider": "aws_s3",
+                "bucket": "test-bucket",
+                "sync_path": ".",
+                "schedule": "daily",
+            },
         )
         assert "content" in result
         assert isinstance(result["content"], list)
@@ -72,7 +78,10 @@ class TestSecurityUtils:
         test_cases = [
             ("encrypt_sensitive_data", {"data_type": "financial", "encryption_method": "RSA"}),
             ("setup_secure_storage", {"storage_type": "keystore", "encryption_level": "AES128"}),
-            ("setup_cloud_sync", {"provider": "aws", "sync_type": "batch"}),
+            (
+                "setup_cloud_sync",
+                {"provider": "gcs", "bucket": "test-bucket", "sync_path": "."},
+            ),
         ]
 
         for tool_name, args in test_cases:
@@ -120,6 +129,7 @@ class TestSecurityUtils:
 
         # Test with invalid provider
         result = await server.handle_call_tool(
-            "setup_cloud_sync", {"provider": "invalid_provider", "sync_type": "realtime"}
+            "setup_cloud_sync",
+            {"provider": "invalid_provider", "bucket": "test", "sync_path": "."},
         )
         assert "content" in result

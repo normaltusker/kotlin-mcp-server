@@ -28,6 +28,7 @@ from tools.intelligent_ui_tools import (
     IntelligentComposeComponentTool,
     IntelligentMVVMArchitectureTool,
 )
+from tools.file_management import CloudSyncTool
 
 
 class SimpleToolProxy(IntelligentToolBase):
@@ -79,6 +80,7 @@ class IntelligentMCPToolManager:
             "generate_docs": IntelligentDocumentationTool(*base_args),
             "create_compose_component": IntelligentComposeComponentTool(*base_args),
             "setup_mvvm_architecture": IntelligentMVVMArchitectureTool(*base_args),
+            "setup_cloud_sync": CloudSyncTool(*base_args),
         }
 
         # Tools that need proxy implementations
@@ -111,7 +113,6 @@ class IntelligentMCPToolManager:
             "generate_code_with_ai",
             # File Management Tools
             "manage_project_files",
-            "setup_cloud_sync",
             # API Integration Tools
             "setup_external_api",
             "call_external_api",
