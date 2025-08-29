@@ -367,7 +367,7 @@ interface {entity_name}Dao {{
         )
 
         migration_code = (
-            f"""\nval MIGRATION_{version-1}_{version} = object : Migration({version-1}, {version}) {{
+            f"""\nval MIGRATION_{version - 1}_{version} = object : Migration({version - 1}, {version}) {{
     override fun migrate(database: SupportSQLiteDatabase) {{
         // TODO: Implement migration logic
     }}
