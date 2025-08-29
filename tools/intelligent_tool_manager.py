@@ -28,6 +28,7 @@ from tools.intelligent_ui_tools import (
     IntelligentComposeComponentTool,
     IntelligentMVVMArchitectureTool,
 )
+from tools.intelligent_network import IntelligentNetworkTool
 
 
 class SimpleToolProxy(IntelligentToolBase):
@@ -79,6 +80,7 @@ class IntelligentMCPToolManager:
             "generate_docs": IntelligentDocumentationTool(*base_args),
             "create_compose_component": IntelligentComposeComponentTool(*base_args),
             "setup_mvvm_architecture": IntelligentMVVMArchitectureTool(*base_args),
+            "setup_retrofit_api": IntelligentNetworkTool(*base_args),
         }
 
         # Tools that need proxy implementations
@@ -99,7 +101,6 @@ class IntelligentMCPToolManager:
             # Architecture Tools
             "setup_dependency_injection",
             "setup_room_database",
-            "setup_retrofit_api",
             # Security Tools
             "encrypt_sensitive_data",
             "implement_gdpr_compliance",
