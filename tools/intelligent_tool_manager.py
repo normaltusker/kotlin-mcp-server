@@ -32,6 +32,7 @@ from tools.intelligent_ui_tools import (
 from tools.intelligent_testing import IntelligentTestingTool
 from tools.intelligent_architecture import IntelligentDependencyInjectionTool, IntelligentRoomDatabaseTool
 from tools.intelligent_network import IntelligentNetworkTool
+from tools.security_tools import EncryptSensitiveDataTool, SecureStorageTool
 
 
 class SimpleToolProxy(IntelligentToolBase):
@@ -88,6 +89,8 @@ class IntelligentMCPToolManager:
             "setup_dependency_injection": IntelligentDependencyInjectionTool(*base_args),
             "setup_room_database": IntelligentRoomDatabaseTool(*base_args),
             "setup_retrofit_api": IntelligentNetworkTool(*base_args),
+            "encrypt_sensitive_data": EncryptSensitiveDataTool(*base_args),
+            "setup_secure_storage": SecureStorageTool(*base_args),
         }
 
         # Tools that need proxy implementations
@@ -105,10 +108,8 @@ class IntelligentMCPToolManager:
             "create_custom_view",
             # Architecture Tools
             # Security Tools
-            "encrypt_sensitive_data",
             "implement_gdpr_compliance",
             "implement_hipaa_compliance",
-            "setup_secure_storage",
             # AI/ML Tools
             "query_llm",
             "analyze_code_with_ai",
