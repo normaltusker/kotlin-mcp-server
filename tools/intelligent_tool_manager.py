@@ -28,6 +28,7 @@ from tools.intelligent_ui_tools import (
     IntelligentComposeComponentTool,
     IntelligentMVVMArchitectureTool,
 )
+from tools.intelligent_architecture import IntelligentDependencyInjectionTool
 
 
 class SimpleToolProxy(IntelligentToolBase):
@@ -79,6 +80,7 @@ class IntelligentMCPToolManager:
             "generate_docs": IntelligentDocumentationTool(*base_args),
             "create_compose_component": IntelligentComposeComponentTool(*base_args),
             "setup_mvvm_architecture": IntelligentMVVMArchitectureTool(*base_args),
+            "setup_dependency_injection": IntelligentDependencyInjectionTool(*base_args),
         }
 
         # Tools that need proxy implementations
@@ -97,7 +99,6 @@ class IntelligentMCPToolManager:
             # UI Development Tools
             "create_custom_view",
             # Architecture Tools
-            "setup_dependency_injection",
             "setup_room_database",
             "setup_retrofit_api",
             # Security Tools
