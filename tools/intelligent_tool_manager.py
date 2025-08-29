@@ -30,10 +30,28 @@ from tools.intelligent_ui_tools import (
     IntelligentMVVMArchitectureTool,
 )
 from tools.intelligent_testing import IntelligentTestingTool
-from tools.intelligent_architecture import IntelligentDependencyInjectionTool, IntelligentRoomDatabaseTool
+from tools.intelligent_architecture import (
+    IntelligentDependencyInjectionTool,
+    IntelligentRoomDatabaseTool,
+)
 from tools.intelligent_network import IntelligentNetworkTool
 from tools.security_tools import EncryptSensitiveDataTool, SecureStorageTool
 from tools.compliance_tools import IntelligentGDPRComplianceTool
+from tools.intelligent_build_tools import (
+    IntelligentBuildOptimizationTool,
+    IntelligentGradleBuildTool,
+    IntelligentProjectAnalysisTool,
+    IntelligentProjectRefactorTool,
+)
+from tools.intelligent_navigation_tools import (
+    IntelligentCodeAnalysisTool,
+    IntelligentCodeCompletionTool,
+    IntelligentFindReferencesTool,
+    IntelligentGotoDefinitionTool,
+    IntelligentRefactoringTool,
+    IntelligentSymbolIndexTool,
+    IntelligentSymbolSearchTool,
+)
 
 
 class SimpleToolProxy(IntelligentToolBase):
@@ -93,18 +111,26 @@ class IntelligentMCPToolManager:
             "encrypt_sensitive_data": EncryptSensitiveDataTool(*base_args),
             "setup_secure_storage": SecureStorageTool(*base_args),
             "implement_gdpr_compliance": IntelligentGDPRComplianceTool(*base_args),
+            "gradle_build": IntelligentGradleBuildTool(*base_args),
+            "analyze_project": IntelligentProjectAnalysisTool(*base_args),
+            "analyze_and_refactor_project": IntelligentProjectRefactorTool(*base_args),
+            "optimize_build_performance": IntelligentBuildOptimizationTool(*base_args),
+            "intelligent_code_analysis": IntelligentCodeAnalysisTool(*base_args),
+            "intelligent_refactoring_suggestions": IntelligentRefactoringTool(*base_args),
+            "intelligent_refactoring_apply": IntelligentRefactoringTool(*base_args),
+            "symbol_navigation_index": IntelligentSymbolIndexTool(*base_args),
+            "symbol_navigation_goto": IntelligentGotoDefinitionTool(*base_args),
+            "symbol_navigation_references": IntelligentFindReferencesTool(*base_args),
+            "intelligent_code_completion": IntelligentCodeCompletionTool(*base_args),
+            "symbol_search_advanced": IntelligentSymbolSearchTool(*base_args),
         }
 
         # Tools that need proxy implementations
         proxy_tools = [
             # Build and Testing Tools
-            "gradle_build",
-            "analyze_project",
             # File Creation Tools
             "create_kotlin_file",
             # Project Analysis Tools
-            "analyze_and_refactor_project",
-            "optimize_build_performance",
             "manage_dependencies",
             # UI Development Tools
             "create_custom_view",
@@ -125,14 +151,6 @@ class IntelligentMCPToolManager:
             "generate_unit_tests",
             "setup_ui_testing",
             # LSP-like Intelligence Tools
-            "intelligent_code_analysis",
-            "intelligent_refactoring_suggestions",
-            "intelligent_refactoring_apply",
-            "symbol_navigation_index",
-            "symbol_navigation_goto",
-            "symbol_navigation_references",
-            "intelligent_code_completion",
-            "symbol_search_advanced",
         ]
 
         # Create proxy tools for missing implementations
@@ -395,49 +413,6 @@ class IntelligentLayoutTool(IntelligentToolBase):
 # In a full implementation, each would have comprehensive intelligent features
 
 
-class IntelligentProjectAnalysisTool(IntelligentToolBase):
-    async def _execute_core_functionality(
-        self, context: IntelligentToolContext, arguments: Dict[str, Any]
-    ) -> Any:
-        analysis_type = arguments.get("analysis_type", "all")
-        return {
-            "analysis_type": analysis_type,
-            "intelligent_insights": [
-                "Project structure analyzed",
-                "Dependencies reviewed",
-                "Architecture patterns identified",
-            ],
-        }
-
-
-class IntelligentProjectRefactoringTool(IntelligentToolBase):
-    async def _execute_core_functionality(
-        self, context: IntelligentToolContext, arguments: Dict[str, Any]
-    ) -> Any:
-        return {
-            "refactoring_suggestions": [
-                "Migrate to Compose",
-                "Update dependencies",
-                "Improve architecture",
-            ],
-            "ai_powered": True,
-        }
-
-
-class IntelligentBuildOptimizationTool(IntelligentToolBase):
-    async def _execute_core_functionality(
-        self, context: IntelligentToolContext, arguments: Dict[str, Any]
-    ) -> Any:
-        return {
-            "optimizations": [
-                "Enable build cache",
-                "Parallel execution",
-                "Incremental compilation",
-            ],
-            "performance_gain": "30 - 50% faster builds",
-        }
-
-
 class IntelligentDependencyTool(IntelligentToolBase):
     async def _execute_core_functionality(
         self, context: IntelligentToolContext, arguments: Dict[str, Any]
@@ -549,18 +524,6 @@ class IntelligentLLMTool(IntelligentToolBase):
         }
 
 
-class IntelligentCodeAnalysisTool(IntelligentToolBase):
-    async def _execute_core_functionality(
-        self, context: IntelligentToolContext, arguments: Dict[str, Any]
-    ) -> Any:
-        return {
-            "code_analysis": "complete",
-            "issues_found": 0,
-            "suggestions": ["Code quality excellent"],
-            "ai_powered": True,
-        }
-
-
 class IntelligentCodeGenerationTool(IntelligentToolBase):
     async def _execute_core_functionality(
         self, context: IntelligentToolContext, arguments: Dict[str, Any]
@@ -632,78 +595,3 @@ class IntelligentUITestingTool(IntelligentToolBase):
         }
 
 
-class IntelligentCodeAnalysisCoreTool(IntelligentToolBase):
-    async def _execute_core_functionality(
-        self, context: IntelligentToolContext, arguments: Dict[str, Any]
-    ) -> Any:
-        return {
-            "semantic_analysis": "complete",
-            "symbols_extracted": 150,
-            "lsp_features": "enabled",
-        }
-
-
-class IntelligentRefactoringSuggestionTool(IntelligentToolBase):
-    async def _execute_core_functionality(
-        self, context: IntelligentToolContext, arguments: Dict[str, Any]
-    ) -> Any:
-        return {
-            "refactoring_suggestions": ["Extract method", "Simplify expression"],
-            "confidence": "high",
-            "impact": "low",
-        }
-
-
-class IntelligentRefactoringApplyTool(IntelligentToolBase):
-    async def _execute_core_functionality(
-        self, context: IntelligentToolContext, arguments: Dict[str, Any]
-    ) -> Any:
-        return {"refactoring_applied": True, "safety_checks": "passed", "backup_created": True}
-
-
-class IntelligentSymbolIndexTool(IntelligentToolBase):
-    async def _execute_core_functionality(
-        self, context: IntelligentToolContext, arguments: Dict[str, Any]
-    ) -> Any:
-        return {"symbols_indexed": 500, "files_processed": 25, "indexing_time": "2.3s"}
-
-
-class IntelligentGotoDefinitionTool(IntelligentToolBase):
-    async def _execute_core_functionality(
-        self, context: IntelligentToolContext, arguments: Dict[str, Any]
-    ) -> Any:
-        return {
-            "definition_found": True,
-            "file": "MainActivity.kt",
-            "line": 42,
-            "symbol_type": "function",
-        }
-
-
-class IntelligentFindReferencesTool(IntelligentToolBase):
-    async def _execute_core_functionality(
-        self, context: IntelligentToolContext, arguments: Dict[str, Any]
-    ) -> Any:
-        return {
-            "references_found": 8,
-            "files": ["MainActivity.kt", "ViewModel.kt"],
-            "usage_patterns": "analyzed",
-        }
-
-
-class IntelligentCodeCompletionTool(IntelligentToolBase):
-    async def _execute_core_functionality(
-        self, context: IntelligentToolContext, arguments: Dict[str, Any]
-    ) -> Any:
-        return {
-            "completions": ["function()", "property"],
-            "context_aware": True,
-            "ai_enhanced": True,
-        }
-
-
-class IntelligentSymbolSearchTool(IntelligentToolBase):
-    async def _execute_core_functionality(
-        self, context: IntelligentToolContext, arguments: Dict[str, Any]
-    ) -> Any:
-        return {"search_results": 12, "fuzzy_matching": True, "semantic_search": "enabled"}
