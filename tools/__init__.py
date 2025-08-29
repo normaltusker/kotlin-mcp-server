@@ -1,1 +1,5 @@
-# Tools module for Kotlin MCP Server
+"""Tools module for Kotlin MCP Server."""
+
+from .file_management import FileManagementTool
+
+__all__ = ["FileManagementTool"]
