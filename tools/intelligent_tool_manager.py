@@ -26,6 +26,7 @@ from tools.intelligent_code_tools_simple import (
 )
 from tools.intelligent_ui_tools import (
     IntelligentComposeComponentTool,
+    IntelligentLayoutFileTool,
     IntelligentMVVMArchitectureTool,
 )
 from tools.intelligent_testing import IntelligentTestingTool
@@ -79,6 +80,7 @@ class IntelligentMCPToolManager:
             "run_lint": IntelligentLintTool(*base_args),
             "generate_docs": IntelligentDocumentationTool(*base_args),
             "create_compose_component": IntelligentComposeComponentTool(*base_args),
+            "create_layout_file": IntelligentLayoutFileTool(*base_args),
             "setup_mvvm_architecture": IntelligentMVVMArchitectureTool(*base_args),
             "run_tests": IntelligentTestingTool(*base_args),
         }
@@ -90,7 +92,6 @@ class IntelligentMCPToolManager:
             "analyze_project",
             # File Creation Tools
             "create_kotlin_file",
-            "create_layout_file",
             # Project Analysis Tools
             "analyze_and_refactor_project",
             "optimize_build_performance",
