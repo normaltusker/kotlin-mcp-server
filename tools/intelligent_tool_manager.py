@@ -28,6 +28,7 @@ from tools.intelligent_ui_tools import (
     IntelligentComposeComponentTool,
     IntelligentMVVMArchitectureTool,
 )
+from tools.intelligent_testing import IntelligentTestGenerationTool
 
 
 class SimpleToolProxy(IntelligentToolBase):
@@ -79,6 +80,7 @@ class IntelligentMCPToolManager:
             "generate_docs": IntelligentDocumentationTool(*base_args),
             "create_compose_component": IntelligentComposeComponentTool(*base_args),
             "setup_mvvm_architecture": IntelligentMVVMArchitectureTool(*base_args),
+            "generate_unit_tests": IntelligentTestGenerationTool(*base_args),
         }
 
         # Tools that need proxy implementations
@@ -116,7 +118,6 @@ class IntelligentMCPToolManager:
             "setup_external_api",
             "call_external_api",
             # Testing Tools
-            "generate_unit_tests",
             "setup_ui_testing",
             # LSP-like Intelligence Tools
             "intelligent_code_analysis",
