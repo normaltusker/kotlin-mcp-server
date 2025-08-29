@@ -3,6 +3,7 @@ python-dotenv>=1.0.0
 pydantic>=2.0.0
 mcp>=1.0.0  # Official MCP SDK
 typing-extensions>=4.8.0
+fastmcp>=2.0.0
 
 # Core dependencies for Android/Kotlin development
 requests>=2.31.0

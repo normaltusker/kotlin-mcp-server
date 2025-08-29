@@ -8,6 +8,12 @@ This directory contains archived files from the Kotlin MCP Server project reorga
 - `kotlin_mcp_server.py` - Original MCP server implementation
 - `kotlin_mcp_server_v2.py` - Second iteration of the server
 
+### old-documentation/
+- **Process Documentation** - Implementation summaries and planning documents that are no longer needed
+- **Summary Files** - Completion reports for various development phases
+- **Planning Documents** - Original implementation plans (completed)
+- See `old-documentation/ARCHIVE_SUMMARY.md` for detailed list
+
 ## Migration Summary
 
 ### What was done:
@@ -43,3 +49,8 @@ All configuration files continue to work without changes as they now correctly r
 - Enhance LSP-like functionality for code navigation and refactoring
 
 ## Archived Date: 2025-08-29
+
+### Latest Archive (August 29, 2025):
+- **Documentation Cleanup**: Moved 14 old MD files to `old-documentation/`
+- **Files Archived**: Process summaries, implementation plans, and superseded documentation
+- **Retained**: Only essential current documentation (README.md, CHANGELOG.md, guides, etc.)
