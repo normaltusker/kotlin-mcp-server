@@ -1,4 +1,6 @@
 name: Tool Validation
+permissions:
+  contents: read
 
 on:
   push:
