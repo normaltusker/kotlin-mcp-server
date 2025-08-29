@@ -19,6 +19,8 @@ from unittest.mock import AsyncMock, MagicMock, patch
 # Add the project root to the path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
+from kotlin_mcp_server import CreateKotlinFileRequest, GradleBuildRequest
+
 from kotlin_mcp_server import (
     KotlinMCPServerV2,
 )
