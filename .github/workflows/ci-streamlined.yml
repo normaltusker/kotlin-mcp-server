@@ -1,4 +1,6 @@
 name: Essential CI
+permissions:
+  contents: read
 
 on:
   push:
