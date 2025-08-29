@@ -1,4 +1,4 @@
-#!/usr / bin / env python3
+#!/usr/bin/env python3
 """
 Intelligent Code Analysis and Formatting Tools - Simplified Implementation
 

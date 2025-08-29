@@ -1,4 +1,4 @@
-#!/usr / bin / env python3
+#!/usr/bin/env python3
 """
 Intelligent Symbol Navigation and Code Intelligence
 
@@ -127,7 +127,7 @@ class IntelligentSymbolNavigation:
 
             # If symbol name not provided, extract it from position
             if not symbol_name:
-                with open(file_path, "r", encoding="utf - 8") as f:
+                with open(file_path, "r", encoding="utf-8") as f:
                     lines = f.readlines()
                     if line <= len(lines):
                         line_content = lines[line - 1]
@@ -208,7 +208,7 @@ class IntelligentSymbolNavigation:
             if not Path(file_path).exists():
                 return {"error": "File not found: {file_path}"}
 
-            with open(file_path, "r", encoding="utf - 8") as f:
+            with open(file_path, "r", encoding="utf-8") as f:
                 content = f.read()
                 lines = content.split("\n")
 
@@ -265,7 +265,7 @@ class IntelligentSymbolNavigation:
                 return {"error": "File not found: {file_path}"}
 
             # Extract symbol at position
-            with open(file_path, "r", encoding="utf - 8") as f:
+            with open(file_path, "r", encoding="utf-8") as f:
                 lines = f.readlines()
                 if line <= len(lines):
                     line_content = lines[line - 1]
@@ -342,7 +342,7 @@ class IntelligentSymbolNavigation:
         """Index symbols in a single file."""
         symbols = []
 
-        with open(file_path, "r", encoding="utf - 8") as f:
+        with open(file_path, "r", encoding="utf-8") as f:
             content = f.read()
             lines = content.split("\n")
 
@@ -426,7 +426,7 @@ class IntelligentSymbolNavigation:
         references = []
 
         try:
-            with open(file_path, "r", encoding="utf - 8") as f:
+            with open(file_path, "r", encoding="utf-8") as f:
                 lines = f.readlines()
 
             for i, line in enumerate(lines):

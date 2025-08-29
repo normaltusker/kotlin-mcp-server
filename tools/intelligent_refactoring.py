@@ -1,4 +1,4 @@
-#!/usr / bin / env python3
+#!/usr/bin/env python3
 """
 Intelligent Kotlin Refactoring Tools
 
@@ -38,7 +38,7 @@ class IntelligentRefactoringTools:
             if not Path(file_path).exists():
                 return {"error": "File not found: {file_path}"}
 
-            with open(file_path, "r", encoding="utf - 8") as f:
+            with open(file_path, "r", encoding="utf-8") as f:
                 content = f.read()
 
             if analysis_type == "comprehensive":
@@ -103,7 +103,7 @@ class IntelligentRefactoringTools:
             if not Path(file_path).exists():
                 return {"error": "File not found: {file_path}"}
 
-            with open(file_path, "r", encoding="utf - 8") as f:
+            with open(file_path, "r", encoding="utf-8") as f:
                 content = f.read()
                 lines = content.split("\n")
 
@@ -159,7 +159,7 @@ class IntelligentRefactoringTools:
             if not Path(file_path).exists():
                 return {"error": "File not found: {file_path}"}
 
-            with open(file_path, "r", encoding="utf - 8") as f:
+            with open(file_path, "r", encoding="utf-8") as f:
                 original_content = f.read()
 
             # Perform safety checks
@@ -189,7 +189,7 @@ class IntelligentRefactoringTools:
 
             # Apply changes if not preview only
             if not preview_only:
-                with open(file_path, "w", encoding="utf - 8") as f:
+                with open(file_path, "w", encoding="utf-8") as f:
                     f.write(refactored_content)
                 result["file_updated"] = True
 
@@ -216,7 +216,7 @@ class IntelligentRefactoringTools:
             if not Path(file_path).exists():
                 return {"error": "File not found: {file_path}"}
 
-            with open(file_path, "r", encoding="utf - 8") as f:
+            with open(file_path, "r", encoding="utf-8") as f:
                 content = f.read()
 
             analysis = self.analyzer.analyze_file(file_path, content)
@@ -282,7 +282,7 @@ class IntelligentRefactoringTools:
             unused_imports_list: List[Dict[str, Any]] = []
 
             for file_path in kotlin_files:
-                with open(file_path, "r", encoding="utf - 8") as f:
+                with open(file_path, "r", encoding="utf-8") as f:
                     content = f.read()
 
                 file_analysis = self.analyzer.analyze_file(str(file_path), content)

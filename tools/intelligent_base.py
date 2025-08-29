@@ -1,4 +1,4 @@
-#!/usr / bin / env python3
+#!/usr/bin/env python3
 """
 Intelligent Base Classes for LSP - like Tool Enhancement
 
@@ -202,7 +202,7 @@ class IntelligentToolBase(ABC):
 
         if context.current_file and Path(context.current_file).exists():
             # Analyze the current file
-            with open(context.current_file, "r", encoding="utf - 8") as f:
+            with open(context.current_file, "r", encoding="utf-8") as f:
                 content = f.read()
 
             file_analysis = self.analyzer.analyze_file(context.current_file, content)

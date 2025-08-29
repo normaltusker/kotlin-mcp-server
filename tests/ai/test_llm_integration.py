@@ -1,4 +1,4 @@
-#!/usr / bin / env python3
+#!/usr/bin/env python3
 """
 Test Suite for AI / LLM Integration Module
 Tests AI - powered code generation and analysis tools

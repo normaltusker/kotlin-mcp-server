@@ -279,7 +279,7 @@ class IntelligentKotlinFileTool(IntelligentToolBase):
 
         if generated_code.get("success"):
             code_content = generated_code.get("generated_code", "")
-            with open(full_path, "w", encoding="utf - 8") as f:
+            with open(full_path, "w", encoding="utf-8") as f:
                 f.write(code_content)
 
             return {
@@ -316,7 +316,7 @@ class IntelligentLayoutTool(IntelligentToolBase):
         layout_path = self.project_path / "src" / "main" / "res" / "layout" / "{layout_name}.xml"
         layout_path.parent.mkdir(parents=True, exist_ok=True)
 
-        with open(layout_path, "w", encoding="utf - 8") as f:
+        with open(layout_path, "w", encoding="utf-8") as f:
             f.write(layout_content)
 
         return {
@@ -334,10 +334,10 @@ class IntelligentLayoutTool(IntelligentToolBase):
     def _generate_modern_layout(self, name: str, layout_type: str) -> str:
         """Generate modern Android layout XML."""
         if layout_type == "activity":
-            return """<?xml version="1.0" encoding="utf - 8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com / apk / res / android"
-    xmlns:app="http://schemas.android.com / apk / res - auto"
-    xmlns:tools="http://schemas.android.com / tools"
+            return """<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="16dp"

@@ -1,4 +1,4 @@
-#!/usr / bin / env python3
+#!/usr/bin/env python3
 """
 Intelligent UI and Architecture Tools
 
@@ -37,7 +37,7 @@ class IntelligentComposeComponentTool(IntelligentToolBase):
         full_path = self.project_path / file_path
         full_path.parent.mkdir(parents=True, exist_ok=True)
 
-        with open(full_path, "w", encoding="utf - 8") as f:
+        with open(full_path, "w", encoding="utf-8") as f:
             f.write(component_code)
 
         # Analyze the generated component
@@ -440,7 +440,7 @@ class IntelligentMVVMArchitectureTool(IntelligentToolBase):
             file_path = self.project_path / file_info["path"]
             file_path.parent.mkdir(parents=True, exist_ok=True)
 
-            with open(file_path, "w", encoding="utf - 8") as f:
+            with open(file_path, "w", encoding="utf-8") as f:
                 f.write(file_info["content"])
 
             created_files.append(str(file_path))
@@ -510,7 +510,7 @@ class IntelligentMVVMArchitectureTool(IntelligentToolBase):
             use_case_code = self._generate_use_case(feature_name, base_package)
             files.append(
                 {
-                    "path": "src / main / kotlin/{base_package.replace('.', '/')}/usecase / Get{feature_name}UseCase.kt",
+                    "path": "src / main / kotlin/{base_package.replace('.', '/')}/usecase/Get{feature_name}UseCase.kt",
                     "content": use_case_code,
                 }
             )

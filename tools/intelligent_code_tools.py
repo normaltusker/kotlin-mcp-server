@@ -1,4 +1,4 @@
-#!/usr / bin / env python3
+#!/usr/bin/env python3
 """
 Intelligent Code Analysis and Formatting Tools
 
@@ -91,7 +91,7 @@ class IntelligentFormattingTool(IntelligentToolBase):
 
         for file_path in kotlin_files[:20]:  # Limit to first 20 files for performance
             try:
-                with open(file_path, "r", encoding="utf - 8") as f:
+                with open(file_path, "r", encoding="utf-8") as f:
                     content = f.read()
                     lines = content.split("\n")
 
@@ -296,7 +296,7 @@ class IntelligentLintTool(IntelligentToolBase):
 
         for file_path in kotlin_files[:15]:  # Limit for performance
             try:
-                with open(file_path, "r", encoding="utf - 8") as f:
+                with open(file_path, "r", encoding="utf-8") as f:
                     content = f.read()
                     lines = content.split("\n")
 
@@ -568,7 +568,7 @@ class IntelligentDocumentationTool(IntelligentToolBase):
 
         for file_path in kotlin_files[:10]:  # Limit for performance
             try:
-                with open(file_path, "r", encoding="utf - 8") as f:
+                with open(file_path, "r", encoding="utf-8") as f:
                     content = f.read()
                     lines = content.split("\n")
 
