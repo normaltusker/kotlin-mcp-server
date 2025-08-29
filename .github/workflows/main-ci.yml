@@ -91,11 +91,11 @@ jobs:
         python -c "
         import asyncio
         import tempfile
-        from kotlin_mcp_server import KotlinMCPServer
+        from kotlin_mcp_server import KotlinMCPServerV2
         
         async def validate_server():
             print('🔍 Validating server import...')
-            server = KotlinMCPServer('validation-test')
+            server = KotlinMCPServerV2('validation-test')
             server.set_project_path(tempfile.mkdtemp())
             
             print('🔍 Checking tool registration...')
@@ -164,7 +164,7 @@ jobs:
         import time
         import tempfile
         import statistics
-        from kotlin_mcp_server import KotlinMCPServer
+        from kotlin_mcp_server import KotlinMCPServerV2
         
         async def benchmark():
             print('🚀 Running performance benchmarks...')
@@ -173,7 +173,7 @@ jobs:
             init_times = []
             for i in range(5):
                 start = time.time()
-                server = KotlinMCPServer(f'perf-test-{i}')
+                server = KotlinMCPServerV2(f'perf-test-{i}')
                 server.set_project_path(tempfile.mkdtemp())
                 init_times.append(time.time() - start)
             
@@ -181,7 +181,7 @@ jobs:
             print(f'📊 Server initialization: {avg_init:.3f}s (avg)')
             
             # Tool listing benchmark
-            server = KotlinMCPServer('perf-test')
+            server = KotlinMCPServerV2('perf-test')
             server.set_project_path(tempfile.mkdtemp())
             
             list_times = []

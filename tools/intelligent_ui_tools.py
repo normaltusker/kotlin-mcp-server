@@ -479,7 +479,7 @@ class IntelligentMVVMArchitectureTool(IntelligentToolBase):
         model_code = self._generate_data_model(feature_name, base_package)
         files.append(
             {
-                "path": "src / main / kotlin/{base_package.replace('.', '/')}/model/{feature_name}.kt",
+                "path": "src/main/kotlin/{base_package.replace('.', '/')}/model/{feature_name}.kt",
                 "content": model_code,
             }
         )
@@ -489,7 +489,7 @@ class IntelligentMVVMArchitectureTool(IntelligentToolBase):
             repo_interface_code = self._generate_repository_interface(feature_name, base_package)
             files.append(
                 {
-                    "path": "src / main / kotlin/{base_package.replace('.', '/')}/repository/{feature_name}Repository.kt",
+                    "path": "src/main/kotlin/{base_package.replace('.', '/')}/repository/{feature_name}Repository.kt",
                     "content": repo_interface_code,
                 }
             )
@@ -500,7 +500,7 @@ class IntelligentMVVMArchitectureTool(IntelligentToolBase):
             )
             files.append(
                 {
-                    "path": "src / main / kotlin/{base_package.replace('.', '/')}/repository/{feature_name}RepositoryImpl.kt",
+                    "path": "src/main/kotlin/{base_package.replace('.', '/')}/repository/{feature_name}RepositoryImpl.kt",
                     "content": repo_impl_code,
                 }
             )
@@ -510,7 +510,7 @@ class IntelligentMVVMArchitectureTool(IntelligentToolBase):
             use_case_code = self._generate_use_case(feature_name, base_package)
             files.append(
                 {
-                    "path": "src / main / kotlin/{base_package.replace('.', '/')}/usecase/Get{feature_name}UseCase.kt",
+                    "path": "src/main/kotlin/{base_package.replace('.', '/')}/usecase/Get{feature_name}UseCase.kt",
                     "content": use_case_code,
                 }
             )
@@ -521,7 +521,7 @@ class IntelligentMVVMArchitectureTool(IntelligentToolBase):
         )
         files.append(
             {
-                "path": "src / main / kotlin/{base_package.replace('.', '/')}/viewmodel/{feature_name}ViewModel.kt",
+                "path": "src/main/kotlin/{base_package.replace('.', '/')}/viewmodel/{feature_name}ViewModel.kt",
                 "content": view_model_code,
             }
         )
@@ -530,7 +530,7 @@ class IntelligentMVVMArchitectureTool(IntelligentToolBase):
         ui_state_code = self._generate_ui_state(feature_name, base_package)
         files.append(
             {
-                "path": "src / main / kotlin/{base_package.replace('.', '/')}/state/{feature_name}UiState.kt",
+                "path": "src/main/kotlin/{base_package.replace('.', '/')}/state/{feature_name}UiState.kt",
                 "content": ui_state_code,
             }
         )

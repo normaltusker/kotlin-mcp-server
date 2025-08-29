@@ -33,10 +33,10 @@ jobs:
       run: |
         python -c "
         import asyncio
-        from kotlin_mcp_server import KotlinMCPServer
+        from kotlin_mcp_server import KotlinMCPServerV2
         
         async def validate_tools():
-            server = KotlinMCPServer('tool-validator')
+            server = KotlinMCPServerV2('tool-validator')
             tools_result = await server.handle_list_tools()
             tools = tools_result.get('tools', [])
             
@@ -78,10 +78,10 @@ jobs:
         python -c "
         import asyncio
         import tempfile
-        from kotlin_mcp_server import KotlinMCPServer
+        from kotlin_mcp_server import KotlinMCPServerV2
         
         async def test_tool_categories():
-            server = KotlinMCPServer('category-test')
+            server = KotlinMCPServerV2('category-test')
             server.set_project_path(tempfile.mkdtemp())
             
             test_cases = [
@@ -130,10 +130,10 @@ jobs:
         python -c "
         import asyncio
         import json
-        from kotlin_mcp_server import KotlinMCPServer
+        from kotlin_mcp_server import KotlinMCPServerV2
         
         async def generate_report():
-            server = KotlinMCPServer('report-generator')
+            server = KotlinMCPServerV2('report-generator')
             tools_result = await server.handle_list_tools()
             tools = tools_result.get('tools', [])
             

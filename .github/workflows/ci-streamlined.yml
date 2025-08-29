@@ -87,11 +87,11 @@ jobs:
         python -c "
         import asyncio
         import tempfile
-        from kotlin_mcp_server import KotlinMCPServer
+        from kotlin_mcp_server import KotlinMCPServerV2
         
         async def validate():
             print('🔍 Validating server...')
-            server = KotlinMCPServer('integration-test')
+            server = KotlinMCPServerV2('integration-test')
             server.set_project_path(tempfile.mkdtemp())
             
             # Check tool registration

@@ -9,21 +9,21 @@ from pathlib import Path
 
 import pytest
 
-from kotlin_mcp_server import MCPServer
+from kotlin_mcp_server import KotlinMCPServerV2
 
 
 class TestLLMIntegration:
     """Test suite for AI / LLM integration functionality"""
 
     @pytest.fixture
-    def server(self) -> "MCPServer":
+    def server(self) -> "KotlinMCPServerV2":
         """Create server instance for testing"""
-        server = MCPServer("test - server")
+        server = KotlinMCPServerV2("test-server")
         server.project_path = Path(tempfile.mkdtemp())
         return server
 
     @pytest.mark.asyncio
-    async def test_generate_code_with_ai(self, server: MCPServer) -> None:
+    async def test_generate_code_with_ai(self, server: KotlinMCPServerV2) -> None:
         """Test AI code generation"""
         result = await server.handle_call_tool(
             "generate_code_with_ai",
@@ -33,7 +33,7 @@ class TestLLMIntegration:
         assert isinstance(result["content"], list)
 
     @pytest.mark.asyncio
-    async def test_ai_code_review(self, server: MCPServer) -> None:
+    async def test_ai_code_review(self, server: KotlinMCPServerV2) -> None:
         """Test AI code review"""
         result = await server.handle_call_tool(
             "ai_code_review", {"file_path": "Test.kt", "review_type": "comprehensive"}
@@ -42,7 +42,7 @@ class TestLLMIntegration:
         assert isinstance(result["content"], list)
 
     @pytest.mark.asyncio
-    async def test_ai_refactor_suggestions(self, server: MCPServer) -> None:
+    async def test_ai_refactor_suggestions(self, server: KotlinMCPServerV2) -> None:
         """Test AI refactoring suggestions"""
         result = await server.handle_call_tool(
             "ai_refactor_suggestions", {"file_path": "Test.kt", "refactor_type": "performance"}
@@ -51,7 +51,7 @@ class TestLLMIntegration:
         assert isinstance(result["content"], list)
 
     @pytest.mark.asyncio
-    async def test_ai_generate_comments(self, server: MCPServer) -> None:
+    async def test_ai_generate_comments(self, server: KotlinMCPServerV2) -> None:
         """Test AI comment generation"""
         result = await server.handle_call_tool(
             "ai_generate_comments", {"file_path": "Test.kt", "comment_style": "detailed"}
@@ -60,7 +60,7 @@ class TestLLMIntegration:
         assert isinstance(result["content"], list)
 
     @pytest.mark.asyncio
-    async def test_generate_unit_tests(self, server: MCPServer) -> None:
+    async def test_generate_unit_tests(self, server: KotlinMCPServerV2) -> None:
         """Test AI unit test generation"""
         result = await server.handle_call_tool(
             "generate_unit_tests",
@@ -70,7 +70,7 @@ class TestLLMIntegration:
         assert isinstance(result["content"], list)
 
     @pytest.mark.asyncio
-    async def test_ai_tools_variations(self, server: MCPServer) -> None:
+    async def test_ai_tools_variations(self, server: KotlinMCPServerV2) -> None:
         """Test AI tools with various configurations"""
         test_cases = [
             (
@@ -95,7 +95,7 @@ class TestLLMIntegration:
             assert isinstance(result["content"], list)
 
     @pytest.mark.asyncio
-    async def test_ai_code_generation_edge_cases(self, server: MCPServer) -> None:
+    async def test_ai_code_generation_edge_cases(self, server: KotlinMCPServerV2) -> None:
         """Test AI code generation with edge cases"""
         # Test with empty prompt
         result = await server.handle_call_tool(
@@ -111,7 +111,7 @@ class TestLLMIntegration:
         assert "content" in result
 
     @pytest.mark.asyncio
-    async def test_ai_file_analysis_edge_cases(self, server: MCPServer) -> None:
+    async def test_ai_file_analysis_edge_cases(self, server: KotlinMCPServerV2) -> None:
         """Test AI file analysis with edge cases"""
         # Test with non - existent file
         result = await server.handle_call_tool(

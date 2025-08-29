@@ -313,7 +313,7 @@ class IntelligentLayoutTool(IntelligentToolBase):
         layout_content = self._generate_modern_layout(layout_name, layout_type)
 
         # Create layout file
-        layout_path = self.project_path / "src" / "main" / "res" / "layout" / "{layout_name}.xml"
+        layout_path = self.project_path / "src" / "main" / "res" / "layout" / f"{layout_name}.xml"
         layout_path.parent.mkdir(parents=True, exist_ok=True)
 
         with open(layout_path, "w", encoding="utf-8") as f:
@@ -344,11 +344,11 @@ class IntelligentLayoutTool(IntelligentToolBase):
     tools:context=".{name.capitalize()}Activity">
 
     <com.google.android.material.textview.MaterialTextView
-        android:id="@+id / titleText"
+        android:id="@+id/titleText"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="@string/{name}_title"
-        android:textAppearance="@style / TextAppearance.Material3.HeadlineMedium"
+        android:textAppearance="@style/TextAppearance.Material3.HeadlineMedium"
         android:contentDescription="@string/{name}_title_description"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -360,7 +360,7 @@ class IntelligentLayoutTool(IntelligentToolBase):
         android:layout_marginTop="24dp"
         app:cardElevation="4dp"
         app:cardCornerRadius="12dp"
-        app:layout_constraintTop_toBottomOf="@id / titleText"
+        app:layout_constraintTop_toBottomOf="@id/titleText"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
@@ -374,7 +374,7 @@ class IntelligentLayoutTool(IntelligentToolBase):
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/{name}_content"
-                android:textAppearance="@style / TextAppearance.Material3.BodyLarge" />
+                android:textAppearance="@style/TextAppearance.Material3.BodyLarge" />
 
         </LinearLayout>
 

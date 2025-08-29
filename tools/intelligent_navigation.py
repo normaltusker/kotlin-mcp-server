@@ -368,7 +368,7 @@ class IntelligentSymbolNavigation:
 
             # Function pattern
             fun_match = re.search(
-                r"^\s*(?:public|private|protected|internal)?\s*(?:override|open|final|abstract|suspend|inline|infix|operator)?\s * fun\s+(\w+)",
+                r"^\s*(?:public|private|protected|internal)?\s*(?:override|open|final|abstract|suspend|inline|infix|operator)?\s*fun\s+(\w+)",
                 line,
             )
             if fun_match:

@@ -469,15 +469,17 @@ class GradleTools:
         # This is a very basic parser. A more robust solution would use a proper
         # grammar or a library that can parse Gradle's output.
         for line in lines:
-            if "+---" in line or "\--- " in line:
+            if "+---" in line or "\\--- " in line:
                 parts = line.split()
                 if len(parts) > 1:
                     dep_str = parts[-1]
                     dep_parts = dep_str.split(":")
                     if len(dep_parts) == 3:
-                        dependencies.append({
-                            "group": dep_parts[0],
-                            "name": dep_parts[1],
-                            "version": dep_parts[2],
-                        })
+                        dependencies.append(
+                            {
+                                "group": dep_parts[0],
+                                "name": dep_parts[1],
+                                "version": dep_parts[2],
+                            }
+                        )
         return dependencies
