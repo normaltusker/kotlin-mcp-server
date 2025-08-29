@@ -28,6 +28,7 @@ from tools.intelligent_ui_tools import (
     IntelligentComposeComponentTool,
     IntelligentMVVMArchitectureTool,
 )
+from tools.security_tools import EncryptSensitiveDataTool, SecureStorageTool
 
 
 class SimpleToolProxy(IntelligentToolBase):
@@ -79,6 +80,8 @@ class IntelligentMCPToolManager:
             "generate_docs": IntelligentDocumentationTool(*base_args),
             "create_compose_component": IntelligentComposeComponentTool(*base_args),
             "setup_mvvm_architecture": IntelligentMVVMArchitectureTool(*base_args),
+            "encrypt_sensitive_data": EncryptSensitiveDataTool(*base_args),
+            "setup_secure_storage": SecureStorageTool(*base_args),
         }
 
         # Tools that need proxy implementations
@@ -101,10 +104,8 @@ class IntelligentMCPToolManager:
             "setup_room_database",
             "setup_retrofit_api",
             # Security Tools
-            "encrypt_sensitive_data",
             "implement_gdpr_compliance",
             "implement_hipaa_compliance",
-            "setup_secure_storage",
             # AI/ML Tools
             "query_llm",
             "analyze_code_with_ai",
