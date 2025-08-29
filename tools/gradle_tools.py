@@ -12,7 +12,7 @@ This module provides comprehensive build management capabilities:
 
 import asyncio
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any, Dict, List
 
 from utils.security import SecurityManager
 
@@ -37,6 +37,23 @@ class GradleTools:
         - Detailed error reporting and analysis
         """
         try:
+            # Validate project path is available and contains a Gradle project
+            if not self.project_path or not Path(self.project_path).exists():
+                return {
+                    "success": False,
+                    "error": "Build failed: project path required. Please specify a valid --project-path argument.",
+                }
+
+            # Check for Gradle project files
+            gradle_files = ["build.gradle", "build.gradle.kts", "gradlew"]
+            if not any(
+                (Path(self.project_path) / gradle_file).exists() for gradle_file in gradle_files
+            ):
+                return {
+                    "success": False,
+                    "error": "Build failed: project path required. No Gradle project found. Please specify a valid --project-path argument with build.gradle file.",
+                }
+
             # Extract and validate build arguments
             build_type = arguments.get("build_type", "debug")
             clean_build = arguments.get("clean", False)
@@ -462,22 +479,24 @@ class GradleTools:
                 "error": f"Getting dependencies failed: {str(e)}",
             }
 
-    def _parse_dependencies(self, output: str) -> list[dict[str, str]]:
+    def _parse_dependencies(self, output: str) -> List[Dict[str, str]]:
         """Parse the output of the dependencies task."""
         dependencies = []
         lines = output.splitlines()
         # This is a very basic parser. A more robust solution would use a proper
         # grammar or a library that can parse Gradle's output.
         for line in lines:
-            if "+---" in line or "\--- " in line:
+            if "+---" in line or "\\--- " in line:
                 parts = line.split()
                 if len(parts) > 1:
                     dep_str = parts[-1]
                     dep_parts = dep_str.split(":")
                     if len(dep_parts) == 3:
-                        dependencies.append({
-                            "group": dep_parts[0],
-                            "name": dep_parts[1],
-                            "version": dep_parts[2],
-                        })
+                        dependencies.append(
+                            {
+                                "group": dep_parts[0],
+                                "name": dep_parts[1],
+                                "version": dep_parts[2],
+                            }
+                        )
         return dependencies

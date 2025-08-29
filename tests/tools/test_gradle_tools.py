@@ -4,6 +4,7 @@ Test Suite for Gradle Tools Module
 Tests all Gradle-related functionality
 """
 
+import json
 import tempfile
 
 import pytest
@@ -72,3 +73,17 @@ class TestGradleTools:
             result = await server.handle_call_tool(tool_name, args)
             assert "content" in result
             assert isinstance(result["content"], list)
+
+    @pytest.mark.asyncio
+    async def test_gradle_build_requires_project_path(self) -> None:
+        """Ensure structured error when project path is missing"""
+        server = KotlinMCPServer("test-server")
+        result = await server.handle_call_tool("gradle_build", {"task": "build"})
+
+        assert "content" in result
+        assert isinstance(result["content"], list)
+
+        response = json.loads(result["content"][0]["text"])
+        assert response["success"] is False
+        assert "project path required" in response["error"]
+        assert "--project-path" in response["error"]

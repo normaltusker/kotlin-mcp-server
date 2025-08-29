@@ -886,15 +886,24 @@ class {test_class_name} {{
         return f"{test_class_name}.kt"
 
     def generate_related_files(
-        self, class_type: str, package_name: str, class_name: str, directory: Path, features: List[str]
+        self,
+        class_type: str,
+        package_name: str,
+        class_name: str,
+        directory: Path,
+        features: List[str],
     ) -> List[str]:
         """Generate related files that complement the main file."""
         related_files = []
 
         if class_type == "activity" or class_type == "fragment":
             # Generate ViewModel
-            viewmodel_name = f"{class_name.replace('Activity', '').replace('Fragment', '')}ViewModel"
-            viewmodel_content = self.generate_complete_viewmodel(package_name, viewmodel_name, features)
+            viewmodel_name = (
+                f"{class_name.replace('Activity', '').replace('Fragment', '')}ViewModel"
+            )
+            viewmodel_content = self.generate_complete_viewmodel(
+                package_name, viewmodel_name, features
+            )
             viewmodel_path = directory / f"{viewmodel_name}.kt"
             viewmodel_path.write_text(viewmodel_content, encoding="utf-8")
             related_files.append(f"{viewmodel_name}.kt")
@@ -916,13 +925,13 @@ class {test_class_name} {{
             repo_path.write_text(repo_content, encoding="utf-8")
             related_files.append(f"{repo_name}.kt")
             related_files.append(self.generate_unit_test(package_name, repo_name, directory))
-        
+
         elif class_type == "repository":
             # Generate DataSource interfaces
             ds_name = f"{class_name.replace('Repository', '')}"
             local_ds_name = f"{ds_name}LocalDataSource"
             remote_ds_name = f"{ds_name}RemoteDataSource"
-            
+
             local_ds_content = f"""package {package_name}
 
 interface {local_ds_name} {{

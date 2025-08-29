@@ -95,3 +95,8 @@ coverage.xml
 sync/
 backup/
 cloud-sync/
+
+# Cloud sync
+.cloud_sync/credentials
+.cloud_sync/cache/
+.cloud_sync/logs/

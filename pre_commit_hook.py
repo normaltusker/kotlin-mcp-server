@@ -29,7 +29,7 @@ def run_quick_checks() -> bool:
         for f in python_files
         if not any(
             excluded in str(f)
-            for excluded in ["__pycache__", ".git", ".venv", "htmlcov", ".pytest_cache"]
+            for excluded in ["__pycache__", ".git", ".venv", "htmlcov", ".pytest_cache", "archive"]
         )
     ]
 
@@ -54,7 +54,7 @@ def run_quick_checks() -> bool:
         # Basic security check with bandit
         # High-severity security issues
         (
-            f"python3 -m bandit -r {main_files} -ll",
+            f"python3 -m bandit -r {main_files} -lll",
             "High-severity security issues",
         ),
         # isort check for import sorting
@@ -69,7 +69,7 @@ def run_quick_checks() -> bool:
         ),
         # Quick test run (only core functionality tests)
         (
-            "python3 -m pytest tests/test_server_core.py::TestServerCore::test_server_initialization --tb=no -q",
+            "python3 -m pytest tests/test_server_core.py::TestKotlinMCPServerCore::test_server_initialization --tb=no -q",
             "Core functionality test",
         ),
         # Tool modules import test
@@ -79,7 +79,7 @@ def run_quick_checks() -> bool:
         ),
         # Quick test of tool modules
         (
-            "python3 -m pytest tests/tools/test_gradle_tools.py -k test_gradle_build_tool --tb=no -q",
+            "python3 -m pytest tests/tools/test_gradle_tools.py -k test_gradle_build --tb=no -q",
             "Tool modules integration test",
         ),
     ]

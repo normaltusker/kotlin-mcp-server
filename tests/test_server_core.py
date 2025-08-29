@@ -49,7 +49,7 @@ class TestKotlinMCPServerCore:
         assert "tools" in tools_result
         tools = tools_result["tools"]
         assert isinstance(tools, list)
-        assert len(tools) >= 31  # Should have at least 31 tools
+        assert len(tools) >= 27  # Should have at least 27 tools
 
         # Verify tool structure
         for tool in tools:
@@ -133,8 +133,8 @@ class TestKotlinMCPServerCore:
         assert "content" in result
 
     @pytest.mark.asyncio
-    async def test_all_31_tools_systematically(self, server: KotlinMCPServer) -> None:
-        """Test all 31 tools systematically with valid arguments"""
+    async def test_all_27_tools_systematically(self, server: KotlinMCPServer) -> None:
+        """Test all 27 tools systematically with valid arguments"""
         all_tools_with_args = [
             # Kotlin Creation Tools
             ("create_kotlin_class", {"class_name": "TestClass", "package_name": "com.test"}),

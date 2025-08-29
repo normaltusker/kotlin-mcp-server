@@ -10,9 +10,9 @@ This module provides comprehensive project analysis capabilities:
 - UI modernization recommendations
 """
 
+import xml.etree.ElementTree as ET
 from pathlib import Path
 from typing import Any, Dict, List
-import xml.etree.ElementTree as ET
 
 from utils.security import SecurityManager
 
@@ -141,21 +141,20 @@ class ProjectAnalysisTools:
                 analysis_results["ui_modernization"] = await self._perform_ui_analysis()
                 if proactive:
                     for xml_file in analysis_results["ui_modernization"]["xml_layouts"]:
-                        suggestions.append({
-                            "description": f"Migrate '{xml_file}' to Jetpack Compose.",
-                            "command": f"call_tool('analyze_and_refactor_project', {{'apply_fixes': True, 'focus_areas': ['compose'], 'files_to_modernize': ['{xml_file}']}})"
-                        })
+                        suggestions.append(
+                            {
+                                "description": f"Migrate '{xml_file}' to Jetpack Compose.",
+                                "command": f"call_tool('analyze_and_refactor_project', {{'apply_fixes': True, 'focus_areas': ['compose'], 'files_to_modernize': ['{xml_file}']}})",
+                            }
+                        )
 
                 if apply_fixes:
                     applied_fixes.extend(
                         await self._apply_ui_fixes(modernization_level, focus_areas)
                     )
-            
+
             if proactive:
-                return {
-                    "success": True,
-                    "suggestions": suggestions
-                }
+                return {"success": True, "suggestions": suggestions}
 
             return {
                 "success": True,
@@ -185,7 +184,7 @@ class ProjectAnalysisTools:
                 if (self.project_path / root).exists():
                     src_root = root
                     break
-            
+
             if not src_root:
                 return {"success": False, "error": "Could not find source root."}
 
@@ -193,7 +192,9 @@ class ProjectAnalysisTools:
             manifest_path = self.project_path / "app/src/main/AndroidManifest.xml"
             package_name = None
             if manifest_path.exists():
-                tree = ET.parse(manifest_path)
+                tree = ET.parse(
+                    manifest_path
+                )  # nosec B314 - parsing trusted local Android manifest
                 root = tree.getroot()
                 package_name = root.get("package")
 
@@ -212,18 +213,22 @@ class ProjectAnalysisTools:
         # UI Modernization suggestions
         ui_analysis_results = await self._perform_ui_analysis()
         for xml_file in ui_analysis_results["xml_layouts"]:
-            suggestions.append({
-                "description": f"Migrate '{xml_file}' to Jetpack Compose.",
-                "command": f"call_tool('analyze_and_refactor_project', {{'apply_fixes': True, 'focus_areas': ['compose'], 'files_to_modernize': ['{xml_file}']}})"
-            })
+            suggestions.append(
+                {
+                    "description": f"Migrate '{xml_file}' to Jetpack Compose.",
+                    "command": f"call_tool('analyze_and_refactor_project', {{'apply_fixes': True, 'focus_areas': ['compose'], 'files_to_modernize': ['{xml_file}']}})",
+                }
+            )
 
         # GlobalScope usage suggestions
         global_scope_usages = await self._find_global_scope_usages()
         for file_path in global_scope_usages:
-            suggestions.append({
-                "description": f"Consider refactoring GlobalScope usage in '{file_path}'.",
-                "command": f"call_tool('enhance_existing_code', {{'file_path': '{file_path}', 'enhancement_type': 'optimize_performance', 'specific_requirements': 'Refactor GlobalScope usage to a more structured concurrency approach (e.g., viewModelScope or lifecycleScope).'}})"
-            })
+            suggestions.append(
+                {
+                    "description": f"Consider refactoring GlobalScope usage in '{file_path}'.",
+                    "command": f"call_tool('enhance_existing_code', {{'file_path': '{file_path}', 'enhancement_type': 'optimize_performance', 'specific_requirements': 'Refactor GlobalScope usage to a more structured concurrency approach (e.g., viewModelScope or lifecycleScope).'}})",
+                }
+            )
 
         return {"success": True, "suggestions": suggestions}
 
