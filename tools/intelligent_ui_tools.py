@@ -415,6 +415,161 @@ fun {name}(
         return steps
 
 
+class IntelligentCustomViewTool(IntelligentToolBase):
+    """Generate Android custom views with intelligent import management."""
+
+    async def _execute_core_functionality(
+        self, context: IntelligentToolContext, arguments: Dict[str, Any]
+    ) -> Any:
+        """Create a Kotlin custom view class with constructors and attribute parsing."""
+
+        file_path = arguments.get("file_path", "")
+        view_name = arguments.get("view_name", "")
+        package_name = arguments.get("package_name", "")
+        attributes: List[Dict[str, str]] = arguments.get("attributes", [])
+
+        view_code = self._generate_custom_view(view_name, package_name, attributes)
+
+        full_path = self.project_path / file_path
+        full_path.parent.mkdir(parents=True, exist_ok=True)
+
+        with open(full_path, "w", encoding="utf-8") as f:
+            f.write(view_code)
+
+        optimized_code = await self._insert_imports_and_optimize(full_path, view_code)
+        with open(full_path, "w", encoding="utf-8") as f:
+            f.write(optimized_code)
+
+        analysis = await self._analyze_custom_view(optimized_code, view_name, attributes)
+
+        return {
+            "view_created": {
+                "file_path": str(full_path),
+                "view_name": view_name,
+                "attributes": [a.get("name", "") for a in attributes],
+            },
+            "lsp_actions": {
+                "imports_optimized": True,
+                "package": package_name,
+            },
+            "intelligent_analysis": analysis,
+        }
+
+    def _generate_custom_view(
+        self, view_name: str, package_name: str, attributes: List[Dict[str, str]]
+    ) -> str:
+        """Generate Kotlin class template for an Android custom view."""
+
+        imports = [
+            "import android.content.Context",
+            "import android.util.AttributeSet",
+            "import android.view.View",
+            f"import {package_name}.R" if package_name else "",
+        ]
+
+        props: List[str] = []
+        parsing: List[str] = []
+        getter_map = {
+            "String": "getString",
+            "Int": "getInt",
+            "Boolean": "getBoolean",
+            "Float": "getFloat",
+        }
+
+        for attr in attributes:
+            name = attr.get("name", "")
+            attr_type = attr.get("type", "String")
+            default = attr.get("default")
+            if default is None:
+                default = {
+                    "String": '""',
+                    "Int": "0",
+                    "Boolean": "false",
+                    "Float": "0f",
+                }.get(attr_type, "0")
+
+            props.append(f"var {name}: {attr_type} = {default}")
+
+            getter = getter_map.get(attr_type, "getString")
+            if attr_type == "String":
+                parsing.append(
+                    f"{name} = {getter}(R.styleable.{view_name}_{name}) ?: {name}"
+                )
+            else:
+                parsing.append(
+                    f"{name} = {getter}(R.styleable.{view_name}_{name}, {name})"
+                )
+
+        properties = "\n    ".join(props)
+        parsing_code = "\n                    ".join(parsing)
+
+        return f"""package {package_name}
+
+{chr(10).join(i for i in imports if i)}
+
+class {view_name} @JvmOverloads constructor(
+    context: Context,
+    attrs: AttributeSet? = null,
+    defStyleAttr: Int = 0
+) : View(context, attrs, defStyleAttr) {{
+
+    {properties}
+
+    init {{
+        attrs?.let {{
+            context.obtainStyledAttributes(it, R.styleable.{view_name}, 0, 0).apply {{
+                try {{
+                    {parsing_code}
+                }} finally {{
+                    recycle()
+                }}
+            }}
+        }}
+    }}
+}}
+"""
+
+    async def _insert_imports_and_optimize(
+        self, file_path: Any, code: str
+    ) -> str:
+        """Use analyzer to insert imports and optimize structure."""
+        analysis = self.analyzer.analyze_file(str(file_path), code)
+        import_lines = analysis.get("dependencies", {}).get("import_list", [])
+        unique_imports = sorted(set(import_lines))
+
+        lines = code.split("\n")
+        package_line = lines[0]
+        other_lines = [l for l in lines[1:] if not l.startswith("import ")]
+
+        optimized_code = (
+            package_line
+            + "\n\n"
+            + "\n".join(unique_imports)
+            + "\n\n"
+            + "\n".join(other_lines)
+        )
+
+        return optimized_code
+
+    async def _analyze_custom_view(
+        self, code: str, view_name: str, attributes: List[Dict[str, str]]
+    ) -> Dict[str, Any]:
+        """Provide basic analysis of the generated custom view."""
+
+        return {
+            "has_constructors": all(
+                k in code
+                for k in [
+                    "@JvmOverloads",
+                    "attrs: AttributeSet? = null",
+                    "defStyleAttr: Int = 0",
+                ]
+            ),
+            "parses_attributes": bool(attributes),
+            "attribute_count": len(attributes),
+        }
+
+
 class IntelligentMVVMArchitectureTool(IntelligentToolBase):
     """Enhanced MVVM architecture setup with intelligent patterns."""
 

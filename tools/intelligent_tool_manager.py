@@ -26,6 +26,7 @@ from tools.intelligent_code_tools_simple import (
 )
 from tools.intelligent_ui_tools import (
     IntelligentComposeComponentTool,
+    IntelligentCustomViewTool,
     IntelligentMVVMArchitectureTool,
 )
 
@@ -78,6 +79,7 @@ class IntelligentMCPToolManager:
             "run_lint": IntelligentLintTool(*base_args),
             "generate_docs": IntelligentDocumentationTool(*base_args),
             "create_compose_component": IntelligentComposeComponentTool(*base_args),
+            "create_custom_view": IntelligentCustomViewTool(*base_args),
             "setup_mvvm_architecture": IntelligentMVVMArchitectureTool(*base_args),
         }
 
@@ -94,8 +96,6 @@ class IntelligentMCPToolManager:
             "analyze_and_refactor_project",
             "optimize_build_performance",
             "manage_dependencies",
-            # UI Development Tools
-            "create_custom_view",
             # Architecture Tools
             "setup_dependency_injection",
             "setup_room_database",
