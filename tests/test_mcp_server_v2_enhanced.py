@@ -187,6 +187,25 @@ class TestKotlinMCPServerV2(unittest.TestCase):
         progress_values = [msg[1] for msg in progress_messages]
         self.assertIn(0, progress_values)  # Should start at 0
 
+    async def test_create_kotlin_file_without_generator(self):
+        """Gracefully handle missing Kotlin generator."""
+
+        args = CreateKotlinFileRequest(
+            file_path="Missing.kt",
+            package_name="com.test",
+            class_name="Missing",
+            class_type="class",
+        )
+
+        # Simulate missing generator
+        self.server.kotlin_generator = None
+
+        result = await self.server.call_create_kotlin_file(args, "op-missing")
+
+        self.assertFalse(result["success"])
+        self.assertEqual(result["error"], "Kotlin generator not initialized")
+        self.assertIn("Start the server", result["message"])
+
     async def test_mcp_request_response_cycle(self):
         """Test complete MCP request/response cycle."""
         # Test initialize

@@ -1071,7 +1071,16 @@ Please generate the complete Room database setup with all components.
         await self.send_progress(operation_id, 25, "Validating parameters")
 
         if not self.kotlin_generator:
-            raise RuntimeError("Kotlin generator not initialized")
+            await self.send_progress(operation_id, 100, "Kotlin generator not initialized")
+            return {
+                "success": False,
+                "error": "Kotlin generator not initialized",
+                "message": (
+                    "Start the server with a valid project path (e.g., "
+                    "python kotlin_mcp_server.py /path/to/project) or call "
+                    "set_project_path() before invoking this tool."
+                ),
+            }
 
         await self.send_progress(operation_id, 50, "Generating Kotlin code")
 
