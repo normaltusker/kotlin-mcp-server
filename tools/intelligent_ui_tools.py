@@ -8,6 +8,7 @@ with LSP - like intelligent capabilities.
 
 import json
 import subprocess
+from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 from tools.intelligent_base import IntelligentToolBase, IntelligentToolContext
@@ -413,6 +414,125 @@ fun {name}(
         )
 
         return steps
+
+
+class IntelligentLayoutFileTool(IntelligentToolBase):
+    """Enhanced XML layout creation with intelligent validation and LSP checks."""
+
+    async def _execute_core_functionality(
+        self, context: IntelligentToolContext, arguments: Dict[str, Any]
+    ) -> Any:
+        """Create an intelligent Android XML layout file."""
+
+        file_path = arguments.get("file_path", "")
+        layout_type = arguments.get("layout_type", "LinearLayout")
+        attributes: Dict[str, str] = arguments.get("attributes", {})
+
+        # Validate layout type
+        valid_layouts = {
+            "LinearLayout",
+            "ConstraintLayout",
+            "RelativeLayout",
+            "FrameLayout",
+        }
+        if layout_type not in valid_layouts:
+            return {
+                "layout_created": False,
+                "error": f"Unsupported layout type: {layout_type}",
+            }
+
+        attribute_issues = self._validate_layout_attributes(attributes)
+
+        # Generate layout scaffold
+        layout_content = self._generate_layout_content(layout_type, attributes)
+
+        # Perform reference checks using LSP navigation
+        reference_analysis = await self._check_references_with_lsp(layout_content)
+
+        # Resolve path and create file
+        full_path = self._resolve_layout_path(file_path)
+        full_path.parent.mkdir(parents=True, exist_ok=True)
+
+        with open(full_path, "w", encoding="utf-8") as f:
+            f.write(layout_content)
+
+        # Attempt to format XML using xmllint if available
+        try:
+            subprocess.run(
+                ["xmllint", "--format", str(full_path), "-o", str(full_path)],
+                check=False,
+                capture_output=True,
+                text=True,
+            )
+        except FileNotFoundError:
+            pass
+
+        return {
+            "layout_created": {
+                "file_path": str(full_path),
+                "layout_type": layout_type,
+                "attributes": attributes,
+            },
+            "validation": {"attribute_issues": attribute_issues},
+            "reference_analysis": reference_analysis,
+        }
+
+    def _generate_layout_content(self, layout_type: str, attributes: Dict[str, str]) -> str:
+        """Generate basic XML layout structure."""
+
+        default_attrs = {
+            "android:layout_width": "match_parent",
+            "android:layout_height": "match_parent",
+        }
+        all_attrs = {**default_attrs, **attributes}
+
+        if layout_type == "LinearLayout" and "android:orientation" not in all_attrs:
+            all_attrs["android:orientation"] = "vertical"
+
+        attrs_text = "\n".join(f"    {k}=\"{v}\"" for k, v in all_attrs.items())
+        return (
+            "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
+            f"<{layout_type}\n{attrs_text}\n>\n\n</{layout_type}>\n"
+        )
+
+    def _validate_layout_attributes(self, attributes: Dict[str, str]) -> List[str]:
+        """Validate attribute namespaces and values."""
+
+        issues: List[str] = []
+        for name, value in attributes.items():
+            if not name.startswith("android:") and not name.startswith("app:"):
+                issues.append(f"Unknown namespace for attribute '{name}'")
+            if value == "":
+                issues.append(f"Attribute '{name}' has empty value")
+        return issues
+
+    async def _check_references_with_lsp(self, content: str) -> Dict[str, Any]:
+        """Use symbol navigation to analyze resource references."""
+
+        import re
+
+        references: Dict[str, Any] = {}
+        pattern = re.compile(r"@([\w]+)/([A-Za-z0-9_]+)")
+        for res_type, res_name in pattern.findall(content):
+            lsp_result = await self.symbol_navigation.find_references(res_name)
+            references[f"{res_type}/{res_name}"] = lsp_result.get(
+                "total_references", 0
+            )
+        return references
+
+    def _resolve_layout_path(self, file_path: str) -> Path:
+        """Determine where to create the layout file within the project."""
+
+        path = Path(file_path)
+        if path.is_absolute():
+            return path
+
+        # If path already includes a module/src structure, respect it
+        if "src" in path.parts:
+            return self.project_path / path
+
+        # Default to app module layout directory
+        return self.project_path / "app/src/main/res/layout" / path
 
 
 class IntelligentMVVMArchitectureTool(IntelligentToolBase):
