@@ -12,6 +12,7 @@ This module provides comprehensive project analysis capabilities:
 
 from pathlib import Path
 from typing import Any, Dict, List
+import xml.etree.ElementTree as ET
 
 from utils.security import SecurityManager
 
@@ -84,6 +85,7 @@ class ProjectAnalysisTools:
             target_api_level = arguments.get("target_api_level", 34)
             focus_areas = arguments.get("focus_areas", ["compose", "coroutines", "hilt"])
             apply_fixes = arguments.get("apply_fixes", False)
+            proactive = arguments.get("proactive", False)
 
             # Validate parameters
             valid_levels = ["conservative", "moderate", "aggressive"]
@@ -101,6 +103,7 @@ class ProjectAnalysisTools:
 
             analysis_results = {}
             applied_fixes = []
+            suggestions = []
 
             # 1. Structure Analysis
             analysis_results["structure"] = await self._perform_structure_analysis()
@@ -136,10 +139,23 @@ class ProjectAnalysisTools:
             # 7. UI Modernization Analysis
             if "compose" in focus_areas:
                 analysis_results["ui_modernization"] = await self._perform_ui_analysis()
+                if proactive:
+                    for xml_file in analysis_results["ui_modernization"]["xml_layouts"]:
+                        suggestions.append({
+                            "description": f"Migrate '{xml_file}' to Jetpack Compose.",
+                            "command": f"call_tool('analyze_and_refactor_project', {{'apply_fixes': True, 'focus_areas': ['compose'], 'files_to_modernize': ['{xml_file}']}})"
+                        })
+
                 if apply_fixes:
                     applied_fixes.extend(
                         await self._apply_ui_fixes(modernization_level, focus_areas)
                     )
+            
+            if proactive:
+                return {
+                    "success": True,
+                    "suggestions": suggestions
+                }
 
             return {
                 "success": True,
@@ -156,6 +172,60 @@ class ProjectAnalysisTools:
 
         except Exception as e:
             return {"success": False, "error": f"Analysis and refactoring failed: {str(e)}"}
+
+    async def analyze_architecture(self, arguments: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Analyze the project architecture to find the source root and main package name.
+        """
+        try:
+            # Find source root
+            src_root = None
+            possible_roots = ["app/src/main/java", "app/src/main/kotlin"]
+            for root in possible_roots:
+                if (self.project_path / root).exists():
+                    src_root = root
+                    break
+            
+            if not src_root:
+                return {"success": False, "error": "Could not find source root."}
+
+            # Find package name from AndroidManifest.xml
+            manifest_path = self.project_path / "app/src/main/AndroidManifest.xml"
+            package_name = None
+            if manifest_path.exists():
+                tree = ET.parse(manifest_path)
+                root = tree.getroot()
+                package_name = root.get("package")
+
+            return {
+                "success": True,
+                "source_root": src_root,
+                "package_name": package_name,
+            }
+        except Exception as e:
+            return {"success": False, "error": f"Failed to analyze architecture: {str(e)}"}
+
+    async def proactive_analysis(self, arguments: Dict[str, Any]) -> Dict[str, Any]:
+        """Perform comprehensive proactive analysis and return suggestions."""
+        suggestions = []
+
+        # UI Modernization suggestions
+        ui_analysis_results = await self._perform_ui_analysis()
+        for xml_file in ui_analysis_results["xml_layouts"]:
+            suggestions.append({
+                "description": f"Migrate '{xml_file}' to Jetpack Compose.",
+                "command": f"call_tool('analyze_and_refactor_project', {{'apply_fixes': True, 'focus_areas': ['compose'], 'files_to_modernize': ['{xml_file}']}})"
+            })
+
+        # GlobalScope usage suggestions
+        global_scope_usages = await self._find_global_scope_usages()
+        for file_path in global_scope_usages:
+            suggestions.append({
+                "description": f"Consider refactoring GlobalScope usage in '{file_path}'.",
+                "command": f"call_tool('enhance_existing_code', {{'file_path': '{file_path}', 'enhancement_type': 'optimize_performance', 'specific_requirements': 'Refactor GlobalScope usage to a more structured concurrency approach (e.g., viewModelScope or lifecycleScope).'}})"
+            })
+
+        return {"success": True, "suggestions": suggestions}
 
     async def _perform_structure_analysis(self) -> Dict[str, Any]:
         """Analyze project structure and architecture patterns."""
@@ -262,17 +332,18 @@ class ProjectAnalysisTools:
 
     async def _perform_ui_analysis(self) -> Dict[str, Any]:
         """Analyze UI modernization opportunities."""
-        xml_layouts = (
-            len(list((self.project_path / "app" / "src" / "main" / "res" / "layout").glob("*.xml")))
-            if (self.project_path / "app" / "src" / "main" / "res" / "layout").exists()
-            else 0
-        )
+        layout_dir = self.project_path / "app" / "src" / "main" / "res" / "layout"
+        xml_layouts = []
+        if layout_dir.exists():
+            xml_layouts = [f.as_posix() for f in layout_dir.glob("*.xml")]
+
         compose_files = self._count_compose_files()
 
         return {
             "xml_layouts": xml_layouts,
+            "xml_layout_count": len(xml_layouts),
             "compose_files": compose_files,
-            "migration_potential": "high" if xml_layouts > 5 else "low",
+            "migration_potential": "high" if len(xml_layouts) > 5 else "low",
         }
 
     async def _apply_ui_fixes(self, modernization_level: str, focus_areas: List[str]) -> List[str]:
@@ -284,6 +355,25 @@ class ProjectAnalysisTools:
             fixes.append("Added Material Design 3 theming")
 
         return fixes
+
+    async def _find_global_scope_usages(self) -> List[str]:
+        """Find usages of GlobalScope in Kotlin files."""
+        usages = []
+        kotlin_dirs = [
+            self.project_path / "app" / "src" / "main" / "java",
+            self.project_path / "app" / "src" / "main" / "kotlin",
+        ]
+
+        for kotlin_dir in kotlin_dirs:
+            if kotlin_dir.exists():
+                for kt_file in kotlin_dir.rglob("*.kt"):
+                    try:
+                        content = kt_file.read_text(encoding="utf-8")
+                        if "GlobalScope" in content:
+                            usages.append(kt_file.as_posix())
+                    except Exception:
+                        continue
+        return usages
 
     def _analyze_structure(self) -> str:
         """Analyze basic project structure."""
@@ -362,6 +452,17 @@ class ProjectAnalysisTools:
             gradle_info["app_gradle_kts"] = "Found Kotlin build script"
 
         return gradle_info
+
+    def _search_in_file(self, pattern: str, file_path: Path) -> bool:
+        """Search for a pattern in a file."""
+        if file_path.exists():
+            try:
+                content = file_path.read_text(encoding="utf-8")
+                if pattern in content:
+                    return True
+            except Exception:
+                return False
+        return False
 
     def _search_in_kotlin_files(self, pattern: str) -> bool:
         """Search for a pattern in Kotlin files."""
