@@ -28,6 +28,7 @@ from tools.intelligent_ui_tools import (
     IntelligentComposeComponentTool,
     IntelligentMVVMArchitectureTool,
 )
+from tools.intelligent_network import IntelligentNetworkTool
 
 
 class SimpleToolProxy(IntelligentToolBase):
@@ -79,6 +80,7 @@ class IntelligentMCPToolManager:
             "generate_docs": IntelligentDocumentationTool(*base_args),
             "create_compose_component": IntelligentComposeComponentTool(*base_args),
             "setup_mvvm_architecture": IntelligentMVVMArchitectureTool(*base_args),
+            "call_external_api": IntelligentNetworkTool(*base_args),
         }
 
         # Tools that need proxy implementations
@@ -114,7 +116,6 @@ class IntelligentMCPToolManager:
             "setup_cloud_sync",
             # API Integration Tools
             "setup_external_api",
-            "call_external_api",
             # Testing Tools
             "generate_unit_tests",
             "setup_ui_testing",

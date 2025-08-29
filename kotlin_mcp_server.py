@@ -775,6 +775,31 @@ class KotlinMCPServerV2:
                         },
                         "data": {"type": "object", "description": "Request payload"},
                         "headers": {"type": "object", "description": "Additional headers"},
+                        "params": {"type": "object", "description": "Query parameters"},
+                        "auth": {
+                            "type": "object",
+                            "description": "Authentication configuration",
+                            "properties": {
+                                "type": {
+                                    "type": "string",
+                                    "enum": ["basic", "bearer"],
+                                    "description": "Authentication type",
+                                },
+                                "username": {"type": "string"},
+                                "password": {"type": "string"},
+                                "token": {"type": "string"},
+                            },
+                        },
+                        "timeout": {
+                            "type": "number",
+                            "description": "Request timeout in seconds",
+                            "default": 10,
+                        },
+                        "retries": {
+                            "type": "integer",
+                            "description": "Number of retry attempts",
+                            "default": 3,
+                        },
                     },
                     "required": ["api_name", "endpoint"],
                 },
