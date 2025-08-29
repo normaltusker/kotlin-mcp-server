@@ -10,7 +10,7 @@ import asyncio
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-from ai.intelligent_analysis import KotlinAnalyzer
+from ai.intelligent_analysis import KotlinAnalyzer, analyze_code_with_llm_and_ast
 from ai.llm_integration import LLMIntegration
 
 # Import available intelligent tool implementations
@@ -79,6 +79,7 @@ class IntelligentMCPToolManager:
             "generate_docs": IntelligentDocumentationTool(*base_args),
             "create_compose_component": IntelligentComposeComponentTool(*base_args),
             "setup_mvvm_architecture": IntelligentMVVMArchitectureTool(*base_args),
+            "analyze_code_with_ai": IntelligentCodeAnalysisTool(*base_args),
         }
 
         # Tools that need proxy implementations
@@ -107,7 +108,6 @@ class IntelligentMCPToolManager:
             "setup_secure_storage",
             # AI/ML Tools
             "query_llm",
-            "analyze_code_with_ai",
             "generate_code_with_ai",
             # File Management Tools
             "manage_project_files",
@@ -547,11 +547,33 @@ class IntelligentCodeAnalysisTool(IntelligentToolBase):
     async def _execute_core_functionality(
         self, context: IntelligentToolContext, arguments: Dict[str, Any]
     ) -> Any:
+        file_path = arguments.get("file_path")
+        analysis_type = arguments.get("analysis_type", "security")
+        if not file_path:
+            raise ValueError("file_path is required")
+
+        target_path = Path(file_path)
+        if not target_path.is_absolute():
+            target_path = self.project_path / target_path
+
+        content = target_path.read_text(encoding="utf-8")
+
+        ast_llm_result = await analyze_code_with_llm_and_ast(
+            str(target_path),
+            content,
+            llm_integration=self.llm_integration,
+            analysis_type=analysis_type,
+        )
+
+        # Only keep essential parts of LLM response to avoid huge payloads
+        llm_summary: Optional[Any] = None
+        if isinstance(ast_llm_result.get("llm_analysis"), dict):
+            llm_summary = ast_llm_result["llm_analysis"].get("results")
+
         return {
-            "code_analysis": "complete",
-            "issues_found": 0,
-            "suggestions": ["Code quality excellent"],
-            "ai_powered": True,
+            "file_path": str(target_path),
+            "ast_findings": ast_llm_result.get("ast_findings", []),
+            "llm_analysis": llm_summary,
         }
 
 

@@ -9,10 +9,13 @@ for Kotlin code, including:
 - Symbol resolution and navigation
 """
 
+import ast
 import re
 from dataclasses import dataclass
 from enum import Enum
 from typing import Any, Dict, List, Optional, Tuple
+
+from ai.llm_integration import AnalysisRequest, LLMIntegration
 
 
 class SymbolType(Enum):
@@ -82,6 +85,18 @@ class CodeIssue:
     rule: str
     fix_suggestion: Optional[str] = None
     auto_fixable: bool = False
+
+
+@dataclass
+class AnalysisFinding:
+    """Finding from AST/LLM based analysis."""
+
+    file_path: str
+    line: int
+    column: int
+    issue: str
+    severity: str
+    suggestion: str
 
 
 class KotlinAnalyzer:
@@ -707,3 +722,164 @@ class IntelligentRefactoring:
             return [s for s in suggestions if "null" in s["type"]]
 
         return suggestions
+
+
+# ---------------------------------------------------------------------------
+# AST + LLM Code Analysis
+# ---------------------------------------------------------------------------
+
+def _ast_inspect_python(file_path: str, content: str) -> List[AnalysisFinding]:
+    """Run basic AST inspection for common issues.
+
+    Currently focuses on Python code since the Python ``ast`` module is used.
+    The function is intentionally lightweight but maps each finding to a
+    specific line/column so higher level tooling can surface actionable
+    feedback to the user.
+    """
+
+    findings: List[AnalysisFinding] = []
+    try:
+        tree = ast.parse(content)
+    except SyntaxError as exc:  # pragma: no cover - defensive
+        findings.append(
+            AnalysisFinding(
+                file_path=file_path,
+                line=exc.lineno or 0,
+                column=exc.offset or 0,
+                issue="syntax_error",
+                severity="error",
+                suggestion=str(exc),
+            )
+        )
+        return findings
+
+    # Track nesting to flag deep loops
+    loop_depth = 0
+
+    for node in ast.walk(tree):
+        if isinstance(node, (ast.For, ast.While)):
+            loop_depth = max(loop_depth, getattr(node, "depth", 1))
+            # Mark child loops with depth information
+            for child in ast.iter_child_nodes(node):
+                setattr(child, "depth", getattr(node, "depth", 1) + 1)
+            if getattr(node, "depth", 1) > 2:
+                findings.append(
+                    AnalysisFinding(
+                        file_path=file_path,
+                        line=node.lineno,
+                        column=node.col_offset,
+                        issue="deeply_nested_loop",
+                        severity="warning",
+                        suggestion="Refactor to reduce nested loop depth for performance",
+                    )
+                )
+
+        if isinstance(node, ast.Call):
+            func_name = ""
+            if isinstance(node.func, ast.Name):
+                func_name = node.func.id
+            elif isinstance(node.func, ast.Attribute):
+                func_name = node.func.attr
+
+            if func_name in {"eval", "exec"}:
+                findings.append(
+                    AnalysisFinding(
+                        file_path=file_path,
+                        line=node.lineno,
+                        column=node.col_offset,
+                        issue=f"use_of_{func_name}",
+                        severity="high",
+                        suggestion="Avoid dynamic code execution; use safer alternatives",
+                    )
+                )
+
+            if func_name in {"system", "popen"} and isinstance(node.func, ast.Attribute):
+                findings.append(
+                    AnalysisFinding(
+                        file_path=file_path,
+                        line=node.lineno,
+                        column=node.col_offset,
+                        issue="subprocess_call",
+                        severity="warning",
+                        suggestion="Validate inputs before invoking system commands",
+                    )
+                )
+
+        if isinstance(node, (ast.Import, ast.ImportFrom)):
+            for alias in node.names:
+                if alias.name == "pickle":
+                    findings.append(
+                        AnalysisFinding(
+                            file_path=file_path,
+                            line=node.lineno,
+                            column=node.col_offset,
+                            issue="pickle_import",
+                            severity="warning",
+                            suggestion="Avoid untrusted deserialization with pickle",
+                        )
+                    )
+
+        if isinstance(node, ast.ExceptHandler) and node.type is None:
+            findings.append(
+                AnalysisFinding(
+                    file_path=file_path,
+                    line=node.lineno,
+                    column=node.col_offset,
+                    issue="bare_except",
+                    severity="warning",
+                    suggestion="Catch specific exceptions instead of using bare except",
+                )
+            )
+
+    return findings
+
+
+async def analyze_code_with_llm_and_ast(
+    file_path: str,
+    content: str,
+    llm_integration: Optional["LLMIntegration"] = None,
+    analysis_type: str = "security",
+) -> Dict[str, Any]:
+    """Analyze code using AST inspection and optional LLM assistance.
+
+    Args:
+        file_path: Path to the file being analyzed.
+        content: Source code content.
+        llm_integration: Optional instance of :class:`LLMIntegration` used to
+            obtain higher level insights from an LLM.
+        analysis_type: Specific focus area for LLM analysis.
+
+    Returns:
+        Dict containing AST findings and optional LLM analysis results.
+    """
+
+    ast_findings = _ast_inspect_python(file_path, content)
+
+    llm_results: Optional[Dict[str, Any]] = None
+    if llm_integration is not None:
+        try:
+            request = AnalysisRequest(
+                file_path=file_path,
+                analysis_type=analysis_type,
+                code_content=content,
+            )
+            llm_results = await llm_integration.analyze_code_with_ai(request)
+        except Exception as exc:  # pragma: no cover - LLM failures are non-fatal
+            llm_results = {"success": False, "error": str(exc)}
+
+    return {
+        "file_path": file_path,
+        "ast_findings": [
+            {
+                "file_path": f.file_path,
+                "line": f.line,
+                "column": f.column,
+                "issue": f.issue,
+                "severity": f.severity,
+                "suggestion": f.suggestion,
+            }
+            for f in ast_findings
+        ],
+        "llm_analysis": llm_results,
+    }
+
