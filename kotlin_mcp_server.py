@@ -1167,9 +1167,20 @@ Please generate the complete Room database setup with all components.
         """Execute analyze_project tool."""
 
         await self.send_progress(operation_id, 30, "Starting project analysis")
-
         if not self.project_analysis:
-            raise RuntimeError("Project analysis tools not initialized - project path required")
+            await self.send_progress(
+                operation_id,
+                100,
+                "Project analysis tools missing - initialization required",
+            )
+            return {
+                "success": False,
+                "analysis_type": args.analysis_type,
+                "message": (
+                    "Project analysis tools not initialized. Provide a project path "
+                    "or run the initialization step before analyzing."
+                ),
+            }
 
         await self.send_progress(operation_id, 60, f"Performing {args.analysis_type} analysis")
 
