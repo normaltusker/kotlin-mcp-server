@@ -18,6 +18,7 @@ help:
 	@echo "  make format      - Format code with black and isort"
 	@echo "  make security    - Run security checks"
 	@echo "  make coverage    - Run tests with coverage report"
+	@echo "  make verify-tools - Verify tool registry and VS Code parity"
 	@echo ""
 	@echo "CI/CD:"
 	@echo "  make ci          - Run full CI pipeline"
@@ -78,6 +79,13 @@ security:
 	@echo "🔒 Running security checks..."
 	bandit -r *.py -f txt
 	safety check || echo "⚠️  Safety check completed"
+
+# Tool verification
+verify-tools:
+	@echo "🔧 Verifying tool registry and VS Code parity..."
+	python3 scripts/verify_tools.py --strict
+	python3 scripts/vscode_parity_check.py
+	@echo "✅ Tool verification completed"
 
 # CI/CD
 ci:
@@ -144,14 +152,34 @@ release-prep: all
 	@echo ""
 	@echo "🎯 Ready for deployment!"
 
-# Docker support (optional)
-docker-build:
-	@echo "🐳 Building Docker image..."
-	docker build -t mcp-server .
+# Android E2E Workflow
+sidecar:
+	@echo "🔨 Building Kotlin sidecar..."
+	cd kotlin-sidecar && ./gradlew shadowJar
+	@echo "✅ Sidecar JAR built at: kotlin-sidecar/build/libs/kotlin-sidecar.jar"
 
-docker-test:
-	@echo "🐳 Testing in Docker..."
-	docker run --rm mcp-server python3 -m pytest test_*.py -v
+e2e:
+	@echo "� Running E2E Android app generation..."
+	python e2e_test.py e2e/sampleapp
+	@echo "✅ E2E generation complete. Check e2e/sampleapp/ for results."
+
+fix:
+	@echo "🔧 Formatting and optimizing code..."
+	python3 -m black *.py
+	python3 -m isort *.py
+	@echo "✅ Code formatting complete"
+
+detekt:
+	@echo "🔍 Running detekt analysis..."
+	./gradlew detekt
+
+spotless:
+	@echo "🎨 Running spotless check..."
+	./gradlew spotlessCheck
+
+# Android-specific CI
+ci-android: sidecar e2e
+	@echo "🤖 Android CI simulation complete."
 
 # Help for specific commands
 help-ci:

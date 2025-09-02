@@ -675,7 +675,9 @@ class KotlinAnalyzer:
 class IntelligentRefactoring:
     """Intelligent refactoring engine with context awareness."""
 
-    def __init__(self) -> None:
+    def __init__(self, project_path: str = "", security_manager: Any = None) -> None:
+        self.project_path = project_path
+        self.security_manager = security_manager
         self.analyzer = KotlinAnalyzer()
 
     def analyze_and_suggest(

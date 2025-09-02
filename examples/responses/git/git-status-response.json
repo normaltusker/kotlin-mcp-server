@@ -1,0 +1,12 @@
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"success\": true, \"current_branch\": \"feature/ai-enhancements\", \"changes\": [{\"status\": \"M\", \"file\": \"tools/intelligent_build_tools.py\"}, {\"status\": \"A\", \"file\": \"kotlin-sidecar/build.gradle.kts\"}], \"has_changes\": true, \"ahead_behind\": {\"ahead\": 3, \"behind\": 0}}"
+      }
+    ]
+  }
+}

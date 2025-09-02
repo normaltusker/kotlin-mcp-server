@@ -1,0 +1,7 @@
+{
+  "tool": "fileRestore",
+  "input": {
+    "manifestRef": { "type": "path", "value": "/backups/manifest-2025-09-02.json" },
+    "destRoot": "/restore/location"
+  }
+}

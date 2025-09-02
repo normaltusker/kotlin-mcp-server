@@ -1,0 +1,19 @@
+{
+  "manifest": {
+    "id": "backup-2025-09-02-14-30-00",
+    "createdAt": "2025-09-02T14:30:00Z",
+    "entries": [
+      {
+        "path": "/app/src/main/kotlin/com/example/MainActivity.kt",
+        "hash": "a1b2c3d4e5f6...",
+        "size": 2048
+      },
+      {
+        "path": "/app/src/main/kotlin/com/example/UserRepository.kt",
+        "hash": "f6e5d4c3b2a1...",
+        "size": 1536
+      }
+    ]
+  },
+  "auditId": "audit-2025-09-02-001"
+}

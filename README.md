@@ -21,13 +21,13 @@ A comprehensive Model Context Protocol (MCP) server that provides AI agents with
 - **Intelligent Proxy System**: Tools without full implementations use smart proxies with AI enhancement
 - **Clean File Structure**: Legacy servers archived in `archive/legacy-servers/`
 - **Enhanced Tool Manager**: Integration with `IntelligentMCPToolManager` for advanced capabilities
-- **Complete Tool Coverage**: All 27 tools properly exposed and functional
+- **Complete Tool Coverage**: All 32 tools properly exposed and functional
 
 #### 📊 **Tool Implementation Status**
-- **Fully Implemented**: 5 tools (format_code, run_lint, generate_docs, create_compose_component, setup_mvvm_architecture)
+- **Fully Implemented**: 6 tools (format_code, run_lint, generate_docs, create_compose_component, setup_mvvm_architecture, security_hardening)
 - **Legacy Integration**: 3 core tools (create_kotlin_file, gradle_build, analyze_project)
-- **Intelligent Proxies**: 19 tools with smart fallback implementations
-- **Total Available**: 27 tools with comprehensive Android development coverage
+- **Intelligent Proxies**: 23 tools with smart fallback implementations
+- **Total Available**: 32 tools with comprehensive Android development coverage
 
 ### **Version 2.0** *(August 2025)*
 **Major Release: AI-Enhanced Modular Architecture**
@@ -49,7 +49,7 @@ A comprehensive Model Context Protocol (MCP) server that provides AI agents with
 - **Performance Optimization**: Streamlined tool execution with better resource management
 
 #### 📊 **Migration Impact**
-- **Tools**: 30 → 31 tools (103% feature parity + enhancements)
+- **Tools**: 30 → 32 tools (107% feature parity + enhancements)
 - **File Size**: Optimized modular structure vs. monolithic approach
 - **Configuration**: Zero manual path configuration required
 - **Compatibility**: Maintains full backward compatibility with existing setups
@@ -214,7 +214,7 @@ The V2.0 release introduces a clean, maintainable modular structure:
 
 ```
 kotlin-mcp-server/
-├── kotlin_mcp_server.py      # Main server (31 AI-enhanced tools)
+├── kotlin_mcp_server.py      # Main server (32 AI-enhanced tools)
 ├── ai/
 │   ├── llm_integration.py    # AI assistant integration
 │   └── code_enhancement.py   # AI-powered code generation
@@ -411,6 +411,154 @@ docker-compose up -d kotlin-mcp-server
 
 ---
 
+## 🎯 **Prove-It: Generate Real Android Apps**
+
+**Ready to see the system generate complete, production-ready Android apps?** Follow these steps to witness the full E2E workflow:
+
+### 🚀 **Quick Start: Generate Your First App**
+
+```bash
+# 1. Build the Kotlin sidecar (creates fat JAR)
+make sidecar
+
+# 2. Generate complete Android app with all features
+make e2e
+
+# 3. Your APK appears here:
+ls -la e2e/sampleapp/app/build/outputs/apk/debug/app-debug.apk
+```
+
+**What you get:**
+- ✅ **Complete Gradle project** (Kotlin, Compose, Hilt, MVVM)
+- ✅ **Working Android app** with HomeScreen + DetailsScreen
+- ✅ **Room database** with entities and DAOs
+- ✅ **Retrofit network layer** with API service
+- ✅ **Unit tests** that pass (Robolectric + JVM tests)
+- ✅ **APK ready to install** on device/emulator
+
+### 🔧 **Available Commands**
+
+```bash
+# Build Kotlin sidecar JAR
+make sidecar
+
+# Generate complete Android app
+make e2e
+
+# Format and optimize code
+make fix
+
+# Run detekt static analysis
+make detekt
+
+# Run spotless code formatting check
+make spotless
+
+# Clean all artifacts
+make clean
+```
+
+### 📊 **Generated App Features**
+
+The generated `e2e/sampleapp` includes:
+
+**🏗️ Architecture:**
+- MVVM pattern with ViewModels
+- Hilt dependency injection
+- Clean Architecture principles
+
+**🎨 UI/UX:**
+- Jetpack Compose screens
+- Material3 design
+- Navigation between screens
+
+**💾 Data Layer:**
+- Room database with entities
+- Repository pattern
+- Migration skeletons
+
+**🌐 Network:**
+- Retrofit API client
+- OkHttp interceptors
+- Error handling
+
+**🧪 Testing:**
+- Unit tests for ViewModels
+- DAO tests with Robolectric
+- API service tests
+
+**📱 Build:**
+- Debug APK generation
+- Lint/format checks
+- Gradle build optimization
+
+### ⚙️ **Environment Variables**
+
+```bash
+# Sidecar configuration
+MCP_SIDECAR_CMD=["java", "-jar", "kotlin-sidecar/build/libs/kotlin-sidecar.jar"]
+
+# Performance tuning
+MCP_API_TIMEOUT_MS=3000
+MCP_RATE_LIMIT_QPS=10
+
+# Build settings
+ANDROID_SDK_ROOT=/path/to/android/sdk
+JAVA_HOME=/path/to/jdk17
+```
+
+### 🔍 **Troubleshooting**
+
+**Gradle build fails:**
+```bash
+# Ensure Android SDK is installed and ANDROID_SDK_ROOT is set
+export ANDROID_SDK_ROOT=/path/to/android/sdk
+
+# Clean and rebuild
+make clean && make e2e
+```
+
+**Sidecar connection issues:**
+```bash
+# Check if JAR was built
+ls -la kotlin-sidecar/build/libs/kotlin-sidecar.jar
+
+# Test sidecar directly
+java -jar kotlin-sidecar/build/libs/kotlin-sidecar.jar
+```
+
+**APK not generated:**
+```bash
+# Check build logs
+cd e2e/sampleapp && ./gradlew assembleDebug --info
+
+# Ensure JDK 17 is used
+java -version  # Should show Java 17
+```
+
+### 📈 **Performance Benchmarks**
+
+The system is optimized for:
+- **Sidecar startup**: < 2 seconds
+- **Code generation**: < 5 seconds per component
+- **Build time**: < 30 seconds for debug APK
+- **Test execution**: < 10 seconds for unit tests
+
+### 🎉 **Success Indicators**
+
+When everything works correctly:
+- ✅ `kotlin-sidecar.jar` builds successfully
+- ✅ `e2e/sampleapp` directory created with full project
+- ✅ `./gradlew assembleDebug` completes without errors
+- ✅ APK file exists: `app/build/outputs/apk/debug/app-debug.apk`
+- ✅ `./gradlew testDebugUnitTest` passes tests
+- ✅ No TODO placeholders in generated code
+- ✅ All lint/format checks pass
+
+**🎯 The generated app is production-ready and can be opened in Android Studio immediately!**
+
+---
+
 ## � **Migration from V1.0 to V2.0**
 
 ### **⚡ Quick Migration Steps**
@@ -455,9 +603,99 @@ If you have an existing V1.0 installation:
 
 ---
 
-## �📚 **Comprehensive Usage Guide**
+## 🏗️ **Project Root Resolution Policy**
 
-### � **Complete Tool Reference**
+### **Overview**
+All tools in the Kotlin MCP Server have been refactored to work exclusively on the user's project workspace, never on the MCP server's current working directory. This ensures safe, predictable tool behavior and prevents accidental modifications outside your project.
+
+### **Path Resolution Priority**
+Tools resolve the project root in this order:
+
+1. **Explicit Input**: `project_root` or `projectRoot` parameter
+2. **Environment Variables**: `PROJECT_PATH` or `WORKSPACE_PATH`
+3. **IDE Metadata**: Workspace root from MCP client (VS Code, Cursor, etc.)
+4. **Fail-Safe**: Tools will error rather than use server CWD
+
+### **Input Synonyms**
+Tools accept both camelCase and snake_case parameter names:
+
+```json
+// Both formats work identically
+{
+  "project_root": "/path/to/project",
+  "file_path": "src/main.kt",
+  "build_tool": "gradle",
+  "skip_tests": false
+}
+
+{
+  "projectRoot": "/path/to/project", 
+  "filePath": "src/main.kt",
+  "buildTool": "gradle",
+  "skipTests": false
+}
+```
+
+### **IDE Integration Defaults**
+When using IDE extensions (VS Code, Cursor), tools automatically detect:
+
+- **Workspace Root**: Active workspace directory
+- **Active File**: Currently open file for file-based operations
+- **Selection**: Text selection for refactoring operations
+
+### **Security Safeguards**
+- **Path Traversal Protection**: All file paths validated to be under project root
+- **Server CWD Guard**: Runtime checks prevent accidental server directory operations
+- **Audit Logging**: All tool operations logged with project context
+
+### **Example Tool Calls**
+
+**With Explicit Project Root:**
+```json
+{
+  "tool": "buildAndTest",
+  "input": {
+    "project_root": "/Users/dev/MyAndroidApp",
+    "buildTool": "gradle",
+    "skipTests": false
+  }
+}
+```
+
+**With Environment Variable:**
+```bash
+export PROJECT_PATH=/Users/dev/MyAndroidApp
+# Tool calls without project_root will use environment
+```
+
+**IDE Auto-Detection:**
+```json
+{
+  "tool": "analyzeCodeQuality",
+  "input": {
+    "scope": "project",
+    "ruleset": "all"
+  }
+}
+// Uses active workspace automatically
+```
+
+### **Error Handling**
+Tools provide clear errors when project root cannot be resolved:
+
+```json
+{
+  "success": false,
+  "error": "ProjectRootRequired: pass `project_root` or set env PROJECT_PATH",
+  "error_type": "ProjectRootRequired"
+}
+```
+
+---
+
+## 📚 **Comprehensive Usage Guide**
+
+### 🛠 **Complete Tool Reference**
 
 The Kotlin MCP Server provides 31 comprehensive tools for Android development, organized by category:
 
@@ -1008,6 +1246,267 @@ Sets up UI testing framework with Espresso or Compose testing.
   }
 }
 ```
+
+#### **Git Tools**
+
+##### 28. `gitStatus` - Git Repository Status
+Get comprehensive Git repository status including branch, changes, and ahead/behind counts.
+
+```json
+{
+  "name": "gitStatus",
+  "arguments": {}
+}
+```
+**Returns:**
+- Current branch name
+- List of changed files with status
+- Ahead/behind counts relative to remote
+- Whether repository has uncommitted changes
+
+##### 29. `gitSmartCommit` - Intelligent Commit Messages
+Create conventional commit messages based on code changes analysis.
+
+```json
+{
+  "name": "gitSmartCommit",
+  "arguments": {}
+}
+```
+**Features:**
+- Analyzes changed files to determine commit type
+- Generates conventional commit message
+- Automatically stages changes
+- Supports feat, fix, docs, refactor, test types
+
+##### 30. `gitCreateFeatureBranch` - Safe Branch Creation
+Create feature branches with validation and naming conventions.
+
+```json
+{
+  "name": "gitCreateFeatureBranch",
+  "arguments": {
+    "branchName": "user-authentication"
+  }
+}
+```
+**Features:**
+- Creates `feature/branch-name` format
+- Validates branch name format
+- Checks for existing branches
+- Switches to new branch automatically
+
+##### 31. `gitMergeWithResolution` - Intelligent Merge
+Attempt merge with conflict resolution and advice.
+
+```json
+{
+  "name": "gitMergeWithResolution",
+  "arguments": {
+    "targetBranch": "main"
+  }
+}
+```
+**Features:**
+- Attempts automatic merge
+- Provides conflict resolution suggestions
+- Returns structured conflict hunks
+- Offers merge strategy advice
+
+#### **External API Tools**
+
+##### 32. `apiCallSecure` - Secure API Calls
+Make authenticated API calls with monitoring and compliance.
+
+```json
+{
+  "name": "apiCallSecure",
+  "arguments": {
+    "apiName": "github",
+    "endpoint": "/repos/owner/repo/issues",
+    "method": "GET",
+    "auth": {
+      "type": "bearer",
+      "token": "ghp_..."
+    }
+  }
+}
+```
+**Features:**
+- Multiple authentication types (Bearer, API Key, OAuth, Basic)
+- Automatic retries with backoff
+- Request/response monitoring
+- Compliance validation
+
+##### 33. `apiMonitorMetrics` - API Metrics Monitoring
+Get real-time API usage metrics and performance data.
+
+```json
+{
+  "name": "apiMonitorMetrics",
+  "arguments": {
+    "apiName": "github",
+    "windowMinutes": 60
+  }
+}
+```
+**Returns:**
+- Request count and success rate
+- Average latency
+- Error counts
+- Windowed metrics (1m to 7d)
+
+##### 34. `apiValidateCompliance` - API Compliance Validation
+Validate API usage against GDPR/HIPAA compliance rules.
+
+```json
+{
+  "name": "apiValidateCompliance",
+  "arguments": {
+    "apiName": "payment-api",
+    "complianceType": "gdpr"
+  }
+}
+```
+**Validates:**
+- Data handling practices
+- Privacy policy compliance
+- Audit logging requirements
+- Provides actionable remediation steps
+
+#### **Quality of Life Development Tools**
+
+##### 35. `projectSearch` - Fast Project Search
+Perform fast grep searches across project files with context.
+
+```json
+{
+  "name": "projectSearch",
+  "arguments": {
+    "query": "TODO|FIXME",
+    "includePattern": "*.kt",
+    "maxResults": 50,
+    "contextLines": 2
+  }
+}
+```
+**Features:**
+- Uses ripgrep for speed
+- Context lines around matches
+- Regex pattern support
+- File type filtering
+
+##### 36. `todoListFromCode` - TODO/FIXME Extraction
+Parse and organize TODO/FIXME comments from codebase.
+
+```json
+{
+  "name": "todoListFromCode",
+  "arguments": {
+    "includePattern": "*.{kt,java,py,js,ts}",
+    "maxResults": 100
+  }
+}
+```
+**Returns:**
+- Organized by priority (FIXME > TODO > XXX > HACK)
+- File location and line numbers
+- Full comment context
+- Summary statistics
+
+##### 37. `readmeGenerateOrUpdate` - README Management
+Generate or update README with badges, setup instructions, and tool catalog.
+
+```json
+{
+  "name": "readmeGenerateOrUpdate",
+  "arguments": {
+    "forceRegenerate": false
+  }
+}
+```
+**Generates:**
+- Build status badges
+- Setup and usage instructions
+- Complete tool catalog
+- Environment variable documentation
+
+##### 38. `changelogSummarize` - Changelog Processing
+Summarize conventional commits into grouped release notes.
+
+```json
+{
+  "name": "changelogSummarize",
+  "arguments": {
+    "changelogPath": "CHANGELOG.md",
+    "version": "latest"
+  }
+}
+```
+**Groups commits by type:**
+- Features
+- Bug fixes
+- Documentation
+- Breaking changes
+
+##### 39. `buildAndTest` - Build and Test Pipeline
+Run Gradle/Maven builds and return detailed test results.
+
+```json
+{
+  "name": "buildAndTest",
+  "arguments": {
+    "buildTool": "auto",
+    "skipTests": false
+  }
+}
+```
+**Returns:**
+- Build success/failure
+- Failing test details
+- Build artifacts
+- Performance metrics
+
+##### 40. `dependencyAudit` - Dependency Security Audit
+Audit Gradle dependencies for vulnerabilities and license compliance.
+
+```json
+{
+  "name": "dependencyAudit",
+  "arguments": {}
+}
+```
+**Checks:**
+- OSV vulnerability database
+- License compatibility
+- Outdated dependencies
+- Security advisories
+
+##### 41. `securityHardening` - Security Hardening Management
+Manage security hardening features including RBAC, rate limiting, caching, and monitoring.
+
+```json
+{
+  "name": "securityHardening",
+  "arguments": {
+    "operation": "get_metrics"
+  }
+}
+```
+**Operations:**
+- `get_metrics` - Get security metrics and monitoring data
+- `assign_role` - Assign user roles (admin, developer, readonly, guest)
+- `check_permission` - Check user permissions for operations
+- `clear_cache` - Clear the security cache
+- `export_telemetry` - Export telemetry data
+
+**Features:**
+- Role-Based Access Control (RBAC)
+- Sliding window rate limiting
+- Circuit breaker pattern
+- TTL-based caching
+- Comprehensive metrics collection
+- Telemetry export capabilities
 
 ### 🚀 **Quick Start Tool Examples**
 
@@ -2689,3 +3188,306 @@ We welcome contributions! Please see our contributing guidelines for:
 - 🛡️ Advanced security and compliance features
 
 For detailed version history, see the **Revision History** section at the top of this document.
+
+---
+
+## 🔧 Kotlin Sidecar Setup
+
+The Kotlin sidecar provides AST-aware code analysis and refactoring capabilities using the Kotlin Analysis API.
+
+### Building the Sidecar
+
+```bash
+# Navigate to the sidecar directory
+cd kotlin-sidecar
+
+# Build with Gradle (requires Java 17+)
+./gradlew build
+
+# Or use gradle wrapper if available
+gradle build
+```
+
+### Running the Sidecar
+
+```bash
+# Run the sidecar directly
+./gradlew runSidecar
+
+# Or run the built JAR
+java -jar build/libs/kotlin-sidecar-1.0.0.jar
+```
+
+### Sidecar Protocol
+
+The sidecar communicates via NDJSON over stdin/stdout:
+
+**Request Format:**
+```json
+{"tool": "refactorFunction", "input": {"filePath": "...", "functionName": "..."}}
+```
+
+**Response Format:**
+```json
+{"ok": true, "result": {"patch": "...", "affectedFiles": ["..."]}}
+```
+
+**Error Format:**
+```json
+{"ok": false, "error": {"code": "ValidationError", "message": "..."}}
+```
+
+---
+
+## ⚙️ Environment Variables Reference
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `MCP_SIDECAR_CMD` | `["java","-jar","kotlin-sidecar.jar"]` | Command to start Kotlin sidecar |
+| `MCP_MAX_RETRIES` | `5` | Maximum API retry attempts |
+| `MCP_API_TIMEOUT_MS` | `3000` | API timeout in milliseconds |
+| `MCP_RATE_LIMIT_QPS` | `10` | Rate limit queries per second |
+| `MCP_AUDIT_DB_PATH` | `./mcp_audit.db` | Audit database path |
+| `MCP_LOG_LEVEL` | `INFO` | Logging level |
+| `MCP_ENABLE_TELEMETRY` | `false` | Enable telemetry collection |
+| `MCP_CIRCUIT_BREAKER_THRESHOLD` | `5` | Circuit breaker failure threshold |
+| `MCP_CIRCUIT_BREAKER_TIMEOUT_MS` | `60000` | Circuit breaker reset timeout |
+
+### Security & Compliance
+
+| Variable | Description |
+|----------|-------------|
+| `MCP_ENCRYPTION_KEY` | AES-256 encryption key for sensitive data |
+| `MCP_AUDIT_RETENTION_DAYS` | Days to retain audit logs |
+| `MCP_GDPR_MODE` | Enable GDPR compliance features |
+| `MCP_HIPAA_MODE` | Enable HIPAA compliance features |
+
+### AI/ML Configuration
+
+| Variable | Description |
+|----------|-------------|
+| `MCP_LLM_PROVIDER` | LLM provider (openai, anthropic, local) |
+| `MCP_LLM_API_KEY` | API key for external LLM providers |
+| `MCP_LOCAL_LLM_ENDPOINT` | Endpoint for local LLM server |
+| `MCP_AI_MODEL` | Specific AI model to use |
+
+### File Management
+
+| Variable | Description |
+|----------|-------------|
+| `MCP_BACKUP_RETENTION_DAYS` | Days to retain file backups |
+| `MCP_MAX_BACKUP_SIZE_MB` | Maximum backup size in MB |
+| `MCP_SYNC_INTERVAL_SECONDS` | File sync interval |
+| `MCP_ENCRYPTED_EXTENSIONS` | File extensions to auto-encrypt |
+
+---
+
+## 📚 Tool Catalog & Examples
+
+### Core Development Tools
+
+#### `refactorFunction`
+Refactor Kotlin functions with AST-aware transformations.
+
+```json
+{
+  "name": "refactorFunction",
+  "arguments": {
+    "filePath": "/app/src/main/kotlin/MyClass.kt",
+    "functionName": "calculateTotal",
+    "refactorType": "rename",
+    "newName": "computeTotal",
+    "preview": false
+  }
+}
+```
+
+#### `formatCode`
+Format Kotlin code using ktlint or spotless.
+
+```json
+{
+  "name": "formatCode",
+  "arguments": {
+    "targets": ["src/main/kotlin"],
+    "style": "ktlint",
+    "preview": false
+  }
+}
+```
+
+#### `optimizeImports`
+Optimize and organize Kotlin imports.
+
+```json
+{
+  "name": "optimizeImports",
+  "arguments": {
+    "projectRoot": "/app",
+    "mode": "project",
+    "preview": false
+  }
+}
+```
+
+### Git Tools
+
+#### `gitStatus`
+Get Git repository status.
+
+```json
+{
+  "name": "gitStatus",
+  "arguments": {}
+}
+```
+
+#### `gitSmartCommit`
+Create intelligent commit message.
+
+```json
+{
+  "name": "gitSmartCommit",
+  "arguments": {}
+}
+```
+
+#### `gitCreateFeatureBranch`
+Create a new feature branch.
+
+```json
+{
+  "name": "gitCreateFeatureBranch",
+  "arguments": {
+    "branchName": "user-authentication"
+  }
+}
+```
+
+### API Tools
+
+#### `apiCallSecure`
+Make secure API calls with authentication.
+
+```json
+{
+  "name": "apiCallSecure",
+  "arguments": {
+    "apiName": "github",
+    "endpoint": "/repos/owner/repo/issues",
+    "method": "GET",
+    "auth": {
+      "type": "bearer",
+      "token": "ghp_..."
+    }
+  }
+}
+```
+
+#### `apiMonitorMetrics`
+Get API monitoring metrics.
+
+```json
+{
+  "name": "apiMonitorMetrics",
+  "arguments": {
+    "apiName": "github",
+    "windowMinutes": 60
+  }
+}
+```
+
+### Quality of Life Tools
+
+#### `projectSearch`
+Fast grep search with context.
+
+```json
+{
+  "name": "projectSearch",
+  "arguments": {
+    "query": "TODO|FIXME",
+    "includePattern": "*.{kt,java}",
+    "maxResults": 50,
+    "contextLines": 2
+  }
+}
+```
+
+#### `todoListFromCode`
+Parse TODO/FIXME comments.
+
+```json
+{
+  "name": "todoListFromCode",
+  "arguments": {
+    "includePattern": "*.{kt,java,py}",
+    "maxResults": 100
+  }
+}
+```
+
+#### `readmeGenerateOrUpdate`
+Generate or update README.
+
+```json
+{
+  "name": "readmeGenerateOrUpdate",
+  "arguments": {
+    "forceRegenerate": false
+  }
+}
+```
+
+#### `buildAndTest`
+Run build and return test results.
+
+```json
+{
+  "name": "buildAndTest",
+  "arguments": {
+    "buildTool": "auto",
+    "skipTests": false
+  }
+}
+```
+
+#### `dependencyAudit`
+Audit dependencies for vulnerabilities.
+
+```json
+{
+  "name": "dependencyAudit",
+  "arguments": {}
+}
+```
+
+---
+
+## 🔒 Security & RBAC
+
+### Role-Based Access Control
+
+The server implements comprehensive RBAC with the following roles:
+
+- **admin**: Full access to all tools and configurations
+- **developer**: Access to development tools (refactor, format, build)
+- **analyst**: Read-only access to analysis and monitoring tools
+- **auditor**: Access to audit trails and compliance reports
+
+### Rate Limiting
+
+Configurable rate limiting protects against abuse:
+
+- **Global QPS Limit**: `MCP_RATE_LIMIT_QPS` (default: 10)
+- **Per-User Limits**: Configurable per role
+- **Burst Handling**: Token bucket algorithm for smooth traffic
+
+### Telemetry
+
+Optional telemetry collection for usage analytics:
+
+- **Enable**: Set `MCP_ENABLE_TELEMETRY=true`
+- **Data Collected**: Tool usage statistics, performance metrics
+- **Privacy**: No sensitive data or code content collected
+- **Opt-out**: Disabled by default

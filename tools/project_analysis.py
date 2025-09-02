@@ -10,20 +10,23 @@ This module provides comprehensive project analysis capabilities:
 - UI modernization recommendations
 """
 
+import asyncio
 import xml.etree.ElementTree as ET
 from pathlib import Path
 from typing import Any, Dict, List
 
+from server.utils.base_tool import BaseMCPTool
 from utils.security import SecurityManager
 
 
-class ProjectAnalysisTools:
+class ProjectAnalysisTools(BaseMCPTool):
     """Tools for comprehensive project analysis and refactoring."""
 
     def __init__(self, project_path: Path, security_manager: SecurityManager):
         """Initialize project analysis tools."""
+        super().__init__(security_manager)
+        # Keep project_path for backward compatibility
         self.project_path = project_path
-        self.security_manager = security_manager
 
     async def analyze_project(self, arguments: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -37,17 +40,22 @@ class ProjectAnalysisTools:
         - Performance optimization opportunities
         """
         try:
+            # Normalize inputs and resolve project root
+            arguments = self.normalize_inputs(arguments)
+            project_root = self.resolve_project_root(arguments)
+
             analysis_type = arguments.get("analysis_type", "comprehensive")
 
-            self.security_manager.log_audit_event(
-                "analyze_project",
-                f"analysis_type:{analysis_type}",
-                f"project_path:{self.project_path}",
-            )
+            if self.security_manager:
+                self.security_manager.log_audit_event(
+                    "analyze_project",
+                    f"analysis_type:{analysis_type}",
+                    f"project_path:{project_root}",
+                )
 
             results = {
                 "analysis_type": analysis_type,
-                "project_path": str(self.project_path),
+                "project_path": project_root,
                 "timestamp": "2025-08-12T10:00:00Z",
             }
 
@@ -65,7 +73,7 @@ class ProjectAnalysisTools:
 
             return {"success": True, "analysis_results": results}
 
-        except Exception as e:
+        except (OSError, ValueError, RuntimeError, asyncio.TimeoutError) as e:
             return {"success": False, "error": f"Project analysis failed: {str(e)}"}
 
     async def analyze_and_refactor_project(self, arguments: Dict[str, Any]) -> Dict[str, Any]:
@@ -169,7 +177,7 @@ class ProjectAnalysisTools:
                 ),
             }
 
-        except Exception as e:
+        except (OSError, ValueError, RuntimeError, asyncio.TimeoutError) as e:
             return {"success": False, "error": f"Analysis and refactoring failed: {str(e)}"}
 
     async def analyze_architecture(self, arguments: Dict[str, Any]) -> Dict[str, Any]:
@@ -203,7 +211,7 @@ class ProjectAnalysisTools:
                 "source_root": src_root,
                 "package_name": package_name,
             }
-        except Exception as e:
+        except (OSError, ValueError, RuntimeError, asyncio.TimeoutError) as e:
             return {"success": False, "error": f"Failed to analyze architecture: {str(e)}"}
 
     async def proactive_analysis(self, arguments: Dict[str, Any]) -> Dict[str, Any]:
@@ -440,7 +448,7 @@ class ProjectAnalysisTools:
 
             return "\n".join(analysis) if analysis else "Basic manifest structure found"
 
-        except Exception as e:
+        except (OSError, ValueError, RuntimeError, asyncio.TimeoutError) as e:
             return f"Error reading manifest: {str(e)}"
 
     def _analyze_gradle_files(self) -> Dict[str, Any]:

@@ -57,23 +57,43 @@ class TestKotlinMCPServerCore:
             assert "description" in tool
             assert "inputSchema" in tool
 
-        # Verify specific tools exist
+        # Verify specific tools exist (updated to match actual available tools)
         tool_names = [tool["name"] for tool in tools]
         expected_tools = [
-            "create_kotlin_file",
-            "gradle_build",
-            "run_tests",
-            "analyze_project",
-            "generate_code_with_ai",
-            "create_layout_file",
-            "format_code",
-            "run_lint",
-            "generate_docs",
-            "create_compose_component",
-            "setup_mvvm_architecture",
-            "setup_dependency_injection",
-            "setup_room_database",
-            "generate_unit_tests",
+            "refactorFunction",
+            "buildAndTest",
+            "analyzeCodeQuality",
+            "generateTests",
+            "formatCode",
+            "optimizeImports",
+            "gitStatus",
+            "gitSmartCommit",
+            "gitCreateFeatureBranch",
+            "gitMergeWithResolution",
+            "apiCallSecure",
+            "apiMonitorMetrics",
+            "apiValidateCompliance",
+            "projectSearch",
+            "todoListFromCode",
+            "readmeGenerateOrUpdate",
+            "changelogSummarize",
+            "dependencyAudit",
+            "applyCodeAction",
+            "applyPatch",
+            "androidGenerateComposeUI",
+            "androidSetupArchitecture",
+            "androidSetupDataLayer",
+            "androidSetupNetwork",
+            "securityEncryptData",
+            "securityDecryptData",
+            "privacyRequestErasure",
+            "privacyExportData",
+            "securityAuditTrail",
+            "fileBackup",
+            "fileRestore",
+            "fileSyncWatch",
+            "fileClassifySensitivity",
+            "securityHardening",
         ]
 
         for expected_tool in expected_tools:
@@ -81,7 +101,13 @@ class TestKotlinMCPServerCore:
 
         # Test a simple tool call to ensure basic functionality
         result = await server.handle_call_tool(
-            "create_kotlin_class", {"class_name": "TestClass", "package_name": "com.test"}
+            "refactorFunction",
+            {
+                "filePath": "/tmp/test.kt",
+                "functionName": "test",
+                "refactorType": "rename",
+                "newName": "newTest",
+            },
         )
 
         # Verify the result has the expected structure

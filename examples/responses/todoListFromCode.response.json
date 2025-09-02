@@ -1,0 +1,12 @@
+{
+  "jsonrpc": "2.0",
+  "id": 4,
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"success\": true, \"todos\": [{\"file\": \"src/main/kotlin/MainActivity.kt\", \"line\": 15, \"type\": \"TODO\", \"content\": \"Implement user authentication\", \"full_line\": \"    // TODO: Implement user authentication\"}, {\"file\": \"src/main/kotlin/UserService.kt\", \"line\": 42, \"type\": \"FIXME\", \"content\": \"Handle null user case properly\", \"full_line\": \"        // FIXME: Handle null user case properly\"}, {\"file\": \"src/main/kotlin/DataManager.kt\", \"line\": 28, \"type\": \"XXX\", \"content\": \"Temporary workaround for API timeout\", \"full_line\": \"        // XXX: Temporary workaround for API timeout\"}], \"total_count\": 3, \"summary\": {\"TODO\": 1, \"FIXME\": 1, \"XXX\": 1}}"
+      }
+    ]
+  }
+}

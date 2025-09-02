@@ -1,0 +1,14 @@
+{
+  "jsonrpc": "2.0",
+  "id": 3,
+  "method": "tools/call",
+  "params": {
+    "name": "projectSearch",
+    "arguments": {
+      "query": "TODO|FIXME",
+      "includePattern": "*.{kt,java}",
+      "maxResults": 50,
+      "contextLines": 2
+    }
+  }
+}

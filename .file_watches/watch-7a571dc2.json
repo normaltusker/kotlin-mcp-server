@@ -1,0 +1,16 @@
+{
+  "id": "watch-7a571dc2",
+  "paths": [
+    "src/main/kotlin"
+  ],
+  "destination": "s3://my-bucket/sync",
+  "include_patterns": [
+    "*.kt",
+    "*.java"
+  ],
+  "exclude_patterns": [
+    "*.tmp"
+  ],
+  "created_at": "2025-09-02T13:24:10.435284",
+  "status": "active"
+}

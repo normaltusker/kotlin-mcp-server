@@ -25,6 +25,7 @@ class IntelligentToolContext:
     """Context information for intelligent tool execution."""
 
     project_path: str
+    tool_name: str
     current_file: Optional[str] = None
     selection_start: Optional[int] = None
     selection_end: Optional[int] = None
@@ -119,7 +120,7 @@ class IntelligentToolBase(ABC):
         self.analyzer = KotlinAnalyzer()
         self.llm_integration = LLMIntegration(security_manager)
         self.symbol_navigation = IntelligentSymbolNavigation()
-        self.refactoring_tools = IntelligentRefactoringTools()
+        self.refactoring_tools = IntelligentRefactoringTools(project_path, security_manager)
 
         # Cache for project - wide analysis
         self._project_symbols: Optional[Dict[str, Any]] = None

@@ -1,0 +1,11 @@
+{
+  "id": "watch-09d18638",
+  "paths": [
+    "src/"
+  ],
+  "destination": "s3://sync-bucket",
+  "include_patterns": [],
+  "exclude_patterns": [],
+  "created_at": "2025-09-02T13:24:23.895616",
+  "status": "active"
+}

@@ -1,0 +1,12 @@
+{
+  "jsonrpc": "2.0",
+  "id": 5,
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"success\": true, \"action\": \"updated\", \"path\": \"README.md\"}"
+      }
+    ]
+  }
+}

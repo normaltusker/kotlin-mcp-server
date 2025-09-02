@@ -8,16 +8,20 @@ import time
 from pathlib import Path
 from typing import Any, Dict, List
 
+from server.utils.base_tool import BaseMCPTool
 from utils.security import SecurityManager
 
 
-class BuildOptimizationTools:
+class BuildOptimizationTools(BaseMCPTool):
     """Tools for build performance optimization and analysis."""
 
     def __init__(self, project_path: Path, security_manager: SecurityManager):
         """Initialize build optimization tools."""
+        # Call parent constructor for project root enforcement
+        super().__init__(security_manager)
+
+        # Keep backward compatibility for now
         self.project_path = project_path
-        self.security_manager = security_manager
 
     async def optimize_build_performance(self, arguments: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -32,10 +36,15 @@ class BuildOptimizationTools:
         - Performance comparison and reporting
         """
         try:
+            # Normalize inputs and resolve project root
+            normalized = self.normalize_inputs(arguments)
+            project_root_str = self.resolve_project_root(normalized)
+            project_root = Path(project_root_str)
+
             # Extract optimization parameters
-            optimization_level = arguments.get("optimization_level", "moderate")
-            measure_baseline = arguments.get("measure_baseline", True)
-            apply_optimizations = arguments.get("apply_optimizations", False)
+            optimization_level = normalized.get("optimization_level", "moderate")
+            measure_baseline = normalized.get("measure_baseline", True)
+            apply_optimizations = normalized.get("apply_optimizations", False)
 
             # Validate optimization level
             valid_levels = ["conservative", "moderate", "aggressive"]
@@ -58,35 +67,39 @@ class BuildOptimizationTools:
 
             # 1. Measure baseline performance
             if measure_baseline:
-                results["baseline_performance"] = await self._measure_build_performance()
+                results["baseline_performance"] = await self._measure_build_performance(
+                    project_root
+                )
 
             # 2. Analyze current Gradle configuration
-            results["gradle_analysis"] = await self._analyze_gradle_configuration()
+            results["gradle_analysis"] = await self._analyze_gradle_configuration(project_root)
 
             # 3. Analyze cache configuration
-            results["cache_analysis"] = await self._analyze_gradle_cache()
+            results["cache_analysis"] = await self._analyze_gradle_cache(project_root)
 
             # 4. Analyze parallel execution
-            results["parallel_analysis"] = await self._analyze_parallel_execution()
+            results["parallel_analysis"] = await self._analyze_parallel_execution(project_root)
 
             # 5. Apply optimizations if requested
             applied_optimizations = []
             if apply_optimizations:
                 applied_optimizations.extend(
-                    await self._apply_cache_optimizations(optimization_level)
+                    await self._apply_cache_optimizations(optimization_level, project_root)
                 )
                 applied_optimizations.extend(
-                    await self._apply_parallel_optimizations(optimization_level)
+                    await self._apply_parallel_optimizations(optimization_level, project_root)
                 )
                 applied_optimizations.extend(
-                    await self._apply_gradle_optimizations(optimization_level)
+                    await self._apply_gradle_optimizations(optimization_level, project_root)
                 )
 
             results["applied_optimizations"] = applied_optimizations
 
             # 6. Measure performance after optimizations
             if apply_optimizations and measure_baseline:
-                results["optimized_performance"] = await self._measure_build_performance()
+                results["optimized_performance"] = await self._measure_build_performance(
+                    project_root
+                )
                 results["performance_improvement"] = self._calculate_improvement(
                     results.get("baseline_performance", {}),
                     results.get("optimized_performance", {}),
@@ -99,17 +112,28 @@ class BuildOptimizationTools:
 
             return {"success": True, "optimization_results": results}
 
-        except Exception as e:
+        except (OSError, ValueError, RuntimeError) as e:
             return {"success": False, "error": f"Build optimization failed: {str(e)}"}
 
-    async def _measure_build_performance(self) -> Dict[str, Any]:
+    async def _measure_build_performance(self, project_root: Path) -> Dict[str, Any]:
         """Measure current build performance."""
         try:
+            # Ensure we're not working in server CWD
+            from server.utils.no_cwd_guard import assert_not_server_cwd
+
+            assert_not_server_cwd(str(project_root))
+
+            # Find gradle command
+            from server.utils.project_resolver import find_gradle_cmd
+
+            gradle_info = find_gradle_cmd(str(project_root))
+            gradle_cmd, gradle_cwd, _ = gradle_info
+
             # Clean build for accurate measurement
-            clean_cmd = ["./gradlew", "clean"]
             clean_process = await asyncio.create_subprocess_exec(
-                *clean_cmd,
-                cwd=self.project_path,
+                *gradle_cmd,
+                "clean",
+                cwd=gradle_cwd,
                 stdout=asyncio.subprocess.PIPE,
                 stderr=asyncio.subprocess.PIPE,
             )
@@ -118,10 +142,11 @@ class BuildOptimizationTools:
             # Measure build time
             start_time = time.time()
 
-            build_cmd = ["./gradlew", "assembleDebug", "--profile"]
             build_process = await asyncio.create_subprocess_exec(
-                *build_cmd,
-                cwd=self.project_path,
+                *gradle_cmd,
+                "assembleDebug",
+                "--profile",
+                cwd=gradle_cwd,
                 stdout=asyncio.subprocess.PIPE,
                 stderr=asyncio.subprocess.PIPE,
             )

@@ -1,0 +1,12 @@
+{
+  "jsonrpc": "2.0",
+  "id": 2,
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"success\": true, \"status_code\": 200, \"data\": [{\"id\": 1, \"title\": \"Add AI enhancements\", \"state\": \"open\"}], \"latency_ms\": 245}"
+      }
+    ]
+  }
+}

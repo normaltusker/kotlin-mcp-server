@@ -14,16 +14,19 @@ import asyncio
 from pathlib import Path
 from typing import Any, Dict, List
 
+from server.utils.base_tool import BaseMCPTool
+from server.utils.project_resolver import find_gradle_cmd
 from utils.security import SecurityManager
 
 
-class GradleTools:
+class GradleTools(BaseMCPTool):
     """Tools for Gradle build system operations."""
 
     def __init__(self, project_path: Path, security_manager: SecurityManager):
         """Initialize Gradle tools with project path and security manager."""
+        super().__init__(security_manager)
+        # Keep project_path for backward compatibility, but will be resolved per-call
         self.project_path = project_path
-        self.security_manager = security_manager
 
     async def gradle_build(self, arguments: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -37,57 +40,51 @@ class GradleTools:
         - Detailed error reporting and analysis
         """
         try:
-            # Validate project path is available and contains a Gradle project
-            if not self.project_path or not Path(self.project_path).exists():
-                return {
-                    "success": False,
-                    "error": "Build failed: project path required. Please specify a valid --project-path argument.",
-                }
+            # Normalize inputs and resolve project root
+            arguments = self.normalize_inputs(arguments)
+            project_root = self.resolve_project_root(arguments)
 
-            # Check for Gradle project files
-            gradle_files = ["build.gradle", "build.gradle.kts", "gradlew"]
-            if not any(
-                (Path(self.project_path) / gradle_file).exists() for gradle_file in gradle_files
-            ):
-                return {
-                    "success": False,
-                    "error": "Build failed: project path required. No Gradle project found. Please specify a valid --project-path argument with build.gradle file.",
-                }
+            # Find Gradle command and working directory
+            gradle_cmd, working_dir, is_wrapper = find_gradle_cmd(project_root)
 
             # Extract and validate build arguments
             build_type = arguments.get("build_type", "debug")
             clean_build = arguments.get("clean", False)
+            task = arguments.get("task", None)  # Allow custom tasks
 
             # Validate build type parameter
             valid_build_types = ["debug", "release", "test"]
-            if build_type not in valid_build_types:
+            if build_type not in valid_build_types and not task:
                 return {
                     "success": False,
                     "error": f"Invalid build type: {build_type}. Must be one of: {valid_build_types}",
                 }
 
             # Log audit event for security and compliance
-            self.security_manager.log_audit_event(
-                "gradle_build", f"build_type:{build_type}", f"clean:{clean_build}"
-            )
+            if self.security_manager:
+                self.security_manager.log_audit_event(
+                    "gradle_build", f"build_type:{build_type}", f"clean:{clean_build}"
+                )
 
             # Construct Gradle command with appropriate arguments
-            gradle_cmd = ["./gradlew"]
+            cmd = gradle_cmd.copy()
 
             # Add clean step if requested for reliable builds
             if clean_build:
-                gradle_cmd.append("clean")
+                cmd.append("clean")
 
-            # Add build task based on build type
-            if build_type == "debug":
-                gradle_cmd.append("assembleDebug")
+            # Add build task based on build type or custom task
+            if task:
+                cmd.append(task)
+            elif build_type == "debug":
+                cmd.append("assembleDebug")
             elif build_type == "release":
-                gradle_cmd.append("assembleRelease")
+                cmd.append("assembleRelease")
             elif build_type == "test":
-                gradle_cmd.extend(["test", "assembleDebug"])
+                cmd.extend(["test", "assembleDebug"])
 
             # Add build optimization flags for better performance
-            gradle_cmd.extend(
+            cmd.extend(
                 [
                     "--parallel",  # Enable parallel execution
                     "--build-cache",  # Use build cache for speed
@@ -96,18 +93,27 @@ class GradleTools:
             )
 
             # Validate command arguments for security
-            safe_args = self.security_manager.validate_command_args(gradle_cmd)
+            if self.security_manager:
+                safe_args = self.security_manager.validate_command_args(cmd)
+            else:
+                safe_args = cmd
 
             # Execute Gradle build with timeout for reliability
             process = await asyncio.create_subprocess_exec(
                 *safe_args,
-                cwd=self.project_path,
+                cwd=working_dir,
                 stdout=asyncio.subprocess.PIPE,
                 stderr=asyncio.subprocess.PIPE,
             )
 
             # Wait for completion with timeout to prevent hanging
-            stdout, stderr = await asyncio.wait_for(process.communicate(), timeout=300)
+            try:
+                communicate_result = await asyncio.wait_for(process.communicate(), timeout=300)
+                stdout, stderr = communicate_result
+            except asyncio.TimeoutError:
+                process.kill()
+                await process.wait()
+                raise Exception("Gradle build timed out after 300 seconds")
 
             # Decode output for analysis
             stdout_text = stdout.decode("utf-8")
@@ -127,15 +133,18 @@ class GradleTools:
                 "build_type": build_type,
                 "build_time": build_time,
                 "message": "Build completed successfully" if success else "Build failed",
+                "project_root": project_root,
+                "working_dir": working_dir,
             }
 
+        # Note: ProjectRootError should bubble up to caller
         except asyncio.TimeoutError:
             return {
                 "success": False,
                 "error": "Build timed out after 5 minutes",
                 "message": "Consider using incremental builds or checking for circular dependencies",
             }
-        except Exception as e:
+        except (OSError, ValueError, RuntimeError) as e:
             return {
                 "success": False,
                 "error": f"Build execution failed: {str(e)}",
@@ -154,6 +163,13 @@ class GradleTools:
         - Parallel test execution for speed
         """
         try:
+            # Normalize inputs and resolve project root
+            arguments = self.normalize_inputs(arguments)
+            project_root = self.resolve_project_root(arguments)
+
+            # Find Gradle command and working directory
+            gradle_cmd, working_dir, is_wrapper = find_gradle_cmd(project_root)
+
             # Extract test configuration
             test_type = arguments.get("test_type", "unit")
             generate_coverage = arguments.get("coverage", True)
@@ -167,36 +183,40 @@ class GradleTools:
                 }
 
             # Log test execution for audit trail
-            self.security_manager.log_audit_event(
-                "run_tests", f"test_type:{test_type}", f"coverage:{generate_coverage}"
-            )
+            if self.security_manager:
+                self.security_manager.log_audit_event(
+                    "run_tests", f"test_type:{test_type}", f"coverage:{generate_coverage}"
+                )
 
             # Build Gradle test command
-            gradle_cmd = ["./gradlew"]
+            cmd = gradle_cmd.copy()
 
             # Add appropriate test tasks
             if test_type == "unit":
-                gradle_cmd.extend(["testDebugUnitTest"])
+                cmd.extend(["testDebugUnitTest"])
             elif test_type == "integration":
-                gradle_cmd.extend(["connectedDebugAndroidTest"])
+                cmd.extend(["connectedDebugAndroidTest"])
             elif test_type == "ui":
-                gradle_cmd.extend(["connectedDebugAndroidTest"])
+                cmd.extend(["connectedDebugAndroidTest"])
             elif test_type == "all":
-                gradle_cmd.extend(["test", "connectedDebugAndroidTest"])
+                cmd.extend(["test", "connectedDebugAndroidTest"])
 
             # Add coverage if requested
             if generate_coverage:
-                gradle_cmd.extend(["jacocoTestReport"])
+                cmd.extend(["jacocoTestReport"])
 
             # Add performance flags
-            gradle_cmd.extend(["--parallel", "--build-cache"])
+            cmd.extend(["--parallel", "--build-cache"])
 
             # Validate and execute command
-            safe_args = self.security_manager.validate_command_args(gradle_cmd)
+            if self.security_manager:
+                safe_args = self.security_manager.validate_command_args(cmd)
+            else:
+                safe_args = cmd
 
             process = await asyncio.create_subprocess_exec(
                 *safe_args,
-                cwd=self.project_path,
+                cwd=working_dir,
                 stdout=asyncio.subprocess.PIPE,
                 stderr=asyncio.subprocess.PIPE,
             )
@@ -217,9 +237,11 @@ class GradleTools:
                 "stdout": stdout_text,
                 "stderr": stderr_text,
                 "coverage_generated": generate_coverage,
+                "project_root": project_root,
+                "working_dir": working_dir,
             }
 
-        except Exception as e:
+        except (OSError, ValueError, RuntimeError, asyncio.TimeoutError) as e:
             return {"success": False, "error": f"Test execution failed: {str(e)}"}
 
     async def format_code(self, arguments: Dict[str, Any]) -> Dict[str, Any]:
@@ -233,29 +255,40 @@ class GradleTools:
         - Integration with CI/CD pipelines
         """
         try:
+            # Normalize inputs and resolve project root
+            arguments = self.normalize_inputs(arguments)
+            project_root = self.resolve_project_root(arguments)
+
+            # Find Gradle command and working directory
+            gradle_cmd, working_dir, is_wrapper = find_gradle_cmd(project_root)
+
             # Extract formatting options
             auto_fix = arguments.get("auto_fix", True)
             check_only = arguments.get("check_only", False)
 
-            self.security_manager.log_audit_event(
-                "format_code", f"auto_fix:{auto_fix}", f"check_only:{check_only}"
-            )
+            if self.security_manager:
+                self.security_manager.log_audit_event(
+                    "format_code", f"auto_fix:{auto_fix}", f"check_only:{check_only}"
+                )
 
             # Build ktlint command
-            gradle_cmd = ["./gradlew"]
+            cmd = gradle_cmd.copy()
 
             if check_only:
-                gradle_cmd.append("ktlintCheck")
+                cmd.append("ktlintCheck")
             elif auto_fix:
-                gradle_cmd.append("ktlintFormat")
+                cmd.append("ktlintFormat")
             else:
-                gradle_cmd.append("ktlintCheck")
+                cmd.append("ktlintCheck")
 
-            safe_args = self.security_manager.validate_command_args(gradle_cmd)
+            if self.security_manager:
+                safe_args = self.security_manager.validate_command_args(cmd)
+            else:
+                safe_args = cmd
 
             process = await asyncio.create_subprocess_exec(
                 *safe_args,
-                cwd=self.project_path,
+                cwd=working_dir,
                 stdout=asyncio.subprocess.PIPE,
                 stderr=asyncio.subprocess.PIPE,
             )
@@ -269,9 +302,11 @@ class GradleTools:
                 "stderr": stderr.decode("utf-8"),
                 "auto_fix": auto_fix,
                 "check_only": check_only,
+                "project_root": project_root,
+                "working_dir": working_dir,
             }
 
-        except Exception as e:
+        except (OSError, ValueError, RuntimeError, asyncio.TimeoutError) as e:
             return {"success": False, "error": f"Code formatting failed: {str(e)}"}
 
     async def run_lint(self, arguments: Dict[str, Any]) -> Dict[str, Any]:
@@ -285,25 +320,37 @@ class GradleTools:
         - Integration with quality gates
         """
         try:
+            # Normalize inputs and resolve project root
+            arguments = self.normalize_inputs(arguments)
+            project_root = self.resolve_project_root(arguments)
+
+            # Find Gradle command and working directory
+            gradle_cmd, working_dir, is_wrapper = find_gradle_cmd(project_root)
+
             # Extract lint configuration
             lint_type = arguments.get("lint_type", "debug")
             abort_on_error = arguments.get("abort_on_error", False)
 
-            self.security_manager.log_audit_event(
-                "run_lint", f"lint_type:{lint_type}", f"abort_on_error:{abort_on_error}"
-            )
+            if self.security_manager:
+                self.security_manager.log_audit_event(
+                    "run_lint", f"lint_type:{lint_type}", f"abort_on_error:{abort_on_error}"
+                )
 
             # Build lint command
-            gradle_cmd = ["./gradlew", f"lint{lint_type.capitalize()}"]
+            cmd = gradle_cmd.copy()
+            cmd.append(f"lint{lint_type.capitalize()}")
 
             if abort_on_error:
-                gradle_cmd.append("--abort_on_error")
+                cmd.append("--abort_on_error")
 
-            safe_args = self.security_manager.validate_command_args(gradle_cmd)
+            if self.security_manager:
+                safe_args = self.security_manager.validate_command_args(cmd)
+            else:
+                safe_args = cmd
 
             process = await asyncio.create_subprocess_exec(
                 *safe_args,
-                cwd=self.project_path,
+                cwd=working_dir,
                 stdout=asyncio.subprocess.PIPE,
                 stderr=asyncio.subprocess.PIPE,
             )
@@ -320,9 +367,11 @@ class GradleTools:
                 "lint_results": lint_results,
                 "stdout": stdout.decode("utf-8"),
                 "stderr": stderr.decode("utf-8"),
+                "project_root": project_root,
+                "working_dir": working_dir,
             }
 
-        except Exception as e:
+        except (OSError, ValueError, RuntimeError, asyncio.TimeoutError) as e:
             return {"success": False, "error": f"Lint analysis failed: {str(e)}"}
 
     async def generate_docs(self, arguments: Dict[str, Any]) -> Dict[str, Any]:
@@ -336,33 +385,53 @@ class GradleTools:
         - Custom documentation templates
         """
         try:
+            # Normalize inputs and resolve project root
+            arguments = self.normalize_inputs(arguments)
+            project_root = self.resolve_project_root(arguments)
+
+            # Find Gradle command and working directory
+            gradle_cmd, working_dir, _ = find_gradle_cmd(project_root)
+
             # Extract documentation options
             doc_format = arguments.get("format", "html")
             include_private = arguments.get("include_private", False)
 
-            self.security_manager.log_audit_event(
-                "generate_docs", f"format:{doc_format}", f"include_private:{include_private}"
-            )
+            if self.security_manager:
+                self.security_manager.log_audit_event(
+                    "generate_docs", f"format:{doc_format}", f"include_private:{include_private}"
+                )
 
             # Build documentation command
-            gradle_cmd = ["./gradlew", "dokkaHtml"]
+            cmd = gradle_cmd.copy()
+            cmd.append("dokkaHtml")
 
             if include_private:
-                gradle_cmd.append("-PdokkaIncludePrivate=true")
+                cmd.append("-PdokkaIncludePrivate=true")
 
-            safe_args = self.security_manager.validate_command_args(gradle_cmd)
+            if self.security_manager:
+                safe_args = self.security_manager.validate_command_args(cmd)
+            else:
+                safe_args = cmd
 
             process = await asyncio.create_subprocess_exec(
                 *safe_args,
-                cwd=self.project_path,
+                cwd=working_dir,
                 stdout=asyncio.subprocess.PIPE,
                 stderr=asyncio.subprocess.PIPE,
             )
 
-            stdout, stderr = await asyncio.wait_for(process.communicate(), timeout=300)
+            try:
+                communicate_result = await asyncio.wait_for(process.communicate(), timeout=300)
+                stdout, stderr = communicate_result
+            except asyncio.TimeoutError:
+                process.kill()
+                await process.wait()
+                raise Exception("Documentation generation timed out after 300 seconds")
 
             # Check for generated documentation
-            docs_path = self.project_path / "build" / "dokka" / "html"
+            from pathlib import Path
+
+            docs_path = Path(working_dir) / "build" / "dokka" / "html"
             docs_generated = docs_path.exists()
 
             return {
@@ -373,9 +442,11 @@ class GradleTools:
                 "docs_generated": docs_generated,
                 "stdout": stdout.decode("utf-8"),
                 "stderr": stderr.decode("utf-8"),
+                "project_root": project_root,
+                "working_dir": working_dir,
             }
 
-        except Exception as e:
+        except (OSError, ValueError, RuntimeError, asyncio.TimeoutError) as e:
             return {"success": False, "error": f"Documentation generation failed: {str(e)}"}
 
     def _extract_build_time(self, stdout: str) -> str:
@@ -398,7 +469,7 @@ class GradleTools:
             if "tests completed" in line.lower():
                 # Try to extract test numbers
                 parts = line.split()
-                for i, part in enumerate(parts):
+                for part in parts:
                     if part.isdigit():
                         results["total_tests"] = int(part)
                         break
@@ -426,25 +497,43 @@ class GradleTools:
         Get project dependencies.
         """
         try:
+            # Normalize inputs and resolve project root
+            arguments = self.normalize_inputs(arguments)
+            project_root = self.resolve_project_root(arguments)
+
+            # Find Gradle command and working directory
+            gradle_cmd, working_dir, _ = find_gradle_cmd(project_root)
+
             # Log audit event for security and compliance
-            self.security_manager.log_audit_event("get_dependencies", "", "")
+            if self.security_manager:
+                self.security_manager.log_audit_event("get_dependencies", "", "")
 
             # Construct Gradle command
-            gradle_cmd = ["./gradlew", "app:dependencies"]
+            cmd = gradle_cmd.copy()
+            cmd.extend(["app:dependencies"])
 
             # Validate command arguments for security
-            safe_args = self.security_manager.validate_command_args(gradle_cmd)
+            if self.security_manager:
+                safe_args = self.security_manager.validate_command_args(cmd)
+            else:
+                safe_args = cmd
 
             # Execute Gradle command
             process = await asyncio.create_subprocess_exec(
                 *safe_args,
-                cwd=self.project_path,
+                cwd=working_dir,
                 stdout=asyncio.subprocess.PIPE,
                 stderr=asyncio.subprocess.PIPE,
             )
 
             # Wait for completion with timeout to prevent hanging
-            stdout, stderr = await asyncio.wait_for(process.communicate(), timeout=300)
+            try:
+                communicate_result = await asyncio.wait_for(process.communicate(), timeout=300)
+                stdout, stderr = communicate_result
+            except asyncio.TimeoutError:
+                process.kill()
+                await process.wait()
+                raise Exception("Dependency analysis timed out after 300 seconds")
 
             # Decode output for analysis
             stdout_text = stdout.decode("utf-8")
@@ -473,7 +562,7 @@ class GradleTools:
                 "success": False,
                 "error": "Getting dependencies timed out after 5 minutes",
             }
-        except Exception as e:
+        except (OSError, ValueError, RuntimeError, asyncio.TimeoutError) as e:
             return {
                 "success": False,
                 "error": f"Getting dependencies failed: {str(e)}",

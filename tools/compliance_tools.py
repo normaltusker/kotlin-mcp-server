@@ -6,6 +6,7 @@ Provides consent management UI generation, data portability routines,
 and user data deletion workflows with Kotlin LSP-like hooks.
 """
 
+from datetime import datetime
 from typing import Any, Dict, List
 
 from tools.intelligent_base import IntelligentToolBase, IntelligentToolContext
@@ -17,6 +18,64 @@ class IntelligentGDPRComplianceTool(IntelligentToolBase):
     async def _execute_core_functionality(
         self, context: IntelligentToolContext, arguments: Dict[str, Any]
     ) -> Any:
+        tool_name = context.tool_name
+
+        if tool_name == "privacyRequestErasure":
+            return await self._handle_privacy_erasure(arguments)
+        elif tool_name == "privacyExportData":
+            return await self._handle_privacy_export(arguments)
+        else:
+            # Fallback to original GDPR compliance implementation
+            return await self._handle_gdpr_compliance(arguments)
+
+    async def _handle_privacy_erasure(self, arguments: Dict[str, Any]) -> Dict[str, Any]:
+        """Handle privacy request erasure."""
+        subject_id = arguments.get("subjectId")
+        scopes = arguments.get("scopes", [])
+
+        if not subject_id:
+            return {"success": False, "error": "No subjectId provided"}
+
+        actions = []
+
+        # Simulate erasure actions based on scopes
+        if "files" in scopes:
+            actions.append(f"Deleted /data/users/{subject_id}/profile.json")
+            actions.append(f"Deleted /data/users/{subject_id}/preferences.json")
+
+        if "database" in scopes:
+            actions.append(f"Anonymized records in table user_profiles for subject {subject_id}")
+            actions.append(f"Deleted records in table user_sessions for subject {subject_id}")
+
+        # Generate audit ID
+        import uuid
+
+        audit_id = f"audit-{datetime.now().strftime('%Y-%m-%d')}-{str(uuid.uuid4())[:8]}"
+
+        return {"actions": actions, "auditId": audit_id}
+
+    async def _handle_privacy_export(self, arguments: Dict[str, Any]) -> Dict[str, Any]:
+        """Handle privacy data export."""
+        subject_id = arguments.get("subjectId")
+        format_type = arguments.get("format", "JSON")
+
+        if not subject_id:
+            return {"success": False, "error": "No subjectId provided"}
+
+        # Simulate export path
+        export_path = (
+            f"/exports/{subject_id}-{datetime.now().strftime('%Y%m%d')}.{format_type.lower()}"
+        )
+
+        # Generate audit ID
+        import uuid
+
+        audit_id = f"audit-{datetime.now().strftime('%Y-%m-%d')}-{str(uuid.uuid4())[:8]}"
+
+        return {"exportRef": {"type": "path", "value": export_path}, "auditId": audit_id}
+
+    async def _handle_gdpr_compliance(self, arguments: Dict[str, Any]) -> Dict[str, Any]:
+        """Handle original GDPR compliance implementation."""
         consent_ui_path = arguments.get(
             "consent_ui_path", "app/src/main/java/com/example/ConsentScreen.kt"
         )

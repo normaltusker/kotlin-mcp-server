@@ -40,6 +40,7 @@ from tools.intelligent_base import (
 )
 from tools.intelligent_build_tools import (
     IntelligentBuildOptimizationTool,
+    IntelligentGitTool,
     IntelligentGradleBuildTool,
     IntelligentProjectAnalysisTool,
     IntelligentProjectRefactorTool,
@@ -60,6 +61,7 @@ from tools.intelligent_file_management import (
 from tools.intelligent_navigation_tools import (
     IntelligentCodeAnalysisTool,
     IntelligentCodeCompletionTool,
+    IntelligentCodeWithAITool,
     IntelligentFindReferencesTool,
     IntelligentGotoDefinitionTool,
     IntelligentRefactoringTool,
@@ -73,7 +75,7 @@ from tools.intelligent_ui_tools import (
     IntelligentLayoutFileTool,
     IntelligentMVVMArchitectureTool,
 )
-from tools.security_tools import EncryptSensitiveDataTool, SecureStorageTool
+from tools.security_tools import EncryptSensitiveDataTool, SecureStorageTool, SecurityAuditTrailTool
 
 
 class SimpleToolProxy(IntelligentToolBase):
@@ -145,41 +147,46 @@ class IntelligentMCPToolManager:
             "symbol_navigation_references": IntelligentFindReferencesTool(*base_args),
             "intelligent_code_completion": IntelligentCodeCompletionTool(*base_args),
             "symbol_search_advanced": IntelligentSymbolSearchTool(*base_args),
-            # Previously proxy tools - now have full implementations
-            "manage_dependencies": IntelligentDependencyManagementTool(*base_args),
-            "create_custom_view": IntelligentCustomViewTool(*base_args),
-            "implement_hipaa_compliance": IntelligentHIPAAComplianceTool(*base_args),
-            "query_llm": IntelligentLLMQueryTool(*base_args),
-            "analyze_code_with_ai": IntelligentCodeAnalysisAITool(*base_args),
-            "generate_code_with_ai": IntelligentCodeGenerationAITool(*base_args),
-            "manage_project_files": IntelligentFileManagementTool(*base_args),
-            "setup_cloud_sync": IntelligentCloudSyncTool(*base_args),
-            "setup_external_api": IntelligentExternalAPISetupTool(*base_args),
-            "call_external_api": IntelligentAPICallTool(*base_args),
-            "generate_unit_tests": IntelligentTestGenerationTool(*base_args),
-            "setup_ui_testing": IntelligentUITestingTool(*base_args),
-            # Missing Kotlin Generation Tools
-            "create_kotlin_class": IntelligentKotlinClassTool(*base_args),
-            "create_kotlin_data_class": IntelligentKotlinDataClassTool(*base_args),
-            "create_kotlin_interface": IntelligentKotlinInterfaceTool(*base_args),
-            "create_fragment": IntelligentFragmentTool(*base_args),
-            "create_activity": IntelligentActivityTool(*base_args),
-            "create_service": IntelligentServiceTool(*base_args),
-            "create_broadcast_receiver": IntelligentBroadcastReceiverTool(*base_args),
-            # Missing AI Tools
-            "ai_code_review": IntelligentAICodeReviewTool(*base_args),
-            "ai_refactor_suggestions": IntelligentAIRefactorSuggestionsTool(*base_args),
-            "ai_generate_comments": IntelligentAIGenerateCommentsTool(*base_args),
-            # Missing UI/Drawable Tools
-            "create_drawable_resource": IntelligentDrawableResourceTool(*base_args),
-            # Missing Additional Gradle Tools
-            "gradle_clean": IntelligentGradleCleanTool(*base_args),
-            "add_dependency": IntelligentAddDependencyTool(*base_args),
-            "update_gradle_wrapper": IntelligentUpdateGradleWrapperTool(*base_args),
-            # Missing Architecture Tools
-            "setup_navigation_component": IntelligentNavigationComponentTool(*base_args),
-            "setup_data_binding": IntelligentDataBindingTool(*base_args),
-            "setup_view_binding": IntelligentViewBindingTool(*base_args),
+            # Core refactoring tools with full implementation
+            "refactorFunction": IntelligentRefactoringTool(*base_args),
+            "applyCodeAction": IntelligentRefactoringTool(*base_args),
+            "optimizeImports": IntelligentFormattingTool(*base_args),
+            "analyzeCodeQuality": IntelligentCodeAnalysisTool(*base_args),
+            "analyzeCodeWithAi": IntelligentCodeWithAITool(*base_args),
+            "generateTests": IntelligentTestGenerationTool(*base_args),
+            "applyPatch": IntelligentRefactoringTool(*base_args),
+            # Android scaffolding tools
+            "androidGenerateComposeUI": IntelligentComposeComponentTool(*base_args),
+            "androidSetupArchitecture": IntelligentMVVMArchitectureTool(*base_args),
+            "androidSetupDataLayer": IntelligentRoomDatabaseTool(*base_args),
+            "androidSetupNetwork": IntelligentNetworkTool(*base_args),
+            # Security tools
+            "securityEncryptData": EncryptSensitiveDataTool(*base_args),
+            "securityDecryptData": EncryptSensitiveDataTool(*base_args),
+            "privacyRequestErasure": IntelligentGDPRComplianceTool(*base_args),
+            "privacyExportData": IntelligentGDPRComplianceTool(*base_args),
+            "securityAuditTrail": SecurityAuditTrailTool(*base_args),
+            # File operations
+            "fileBackup": IntelligentFileManagementTool(*base_args),
+            "fileRestore": IntelligentFileManagementTool(*base_args),
+            "fileSyncWatch": IntelligentFileManagementTool(*base_args),
+            "fileClassifySensitivity": IntelligentFileManagementTool(*base_args),
+            # Git operations
+            "gitStatus": IntelligentGitTool(*base_args),
+            "gitSmartCommit": IntelligentGitTool(*base_args),
+            "gitCreateFeatureBranch": IntelligentGitTool(*base_args),
+            "gitMergeWithResolution": IntelligentGitTool(*base_args),
+            # API tools
+            "apiCallSecure": IntelligentAPICallTool(*base_args),
+            "apiMonitorMetrics": IntelligentAPICallTool(*base_args),
+            "apiValidateCompliance": IntelligentAPICallTool(*base_args),
+            # Dev tools
+            "projectSearch": IntelligentFileManagementTool(*base_args),
+            "todoListFromCode": IntelligentCodeAnalysisTool(*base_args),
+            "readmeGenerateOrUpdate": IntelligentDocumentationTool(*base_args),
+            "changelogSummarize": IntelligentDocumentationTool(*base_args),
+            "buildAndTest": IntelligentGradleBuildTool(*base_args),
+            "dependencyAudit": IntelligentDependencyManagementTool(*base_args),
         }
 
         # All tools now have full implementations - no more proxy tools needed!
@@ -202,6 +209,7 @@ class IntelligentMCPToolManager:
         # Create intelligent context
         intelligent_context = IntelligentToolContext(
             project_path=str(self.project_path),
+            tool_name=tool_name,
             current_file=context.get("current_file") if context else None,
             selection_start=context.get("selection_start") if context else None,
             selection_end=context.get("selection_end") if context else None,
