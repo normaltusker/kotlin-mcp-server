@@ -1492,24 +1492,56 @@ class KotlinMCPServerV2:
             # elif name == "callExternalApi":
             #     result = await self.handle_call_external_api(arguments, operation_id)
             else:
-                # Fallback to intelligent tool manager for unmapped tools
+                # All other tools are handled by the intelligent tool manager
+                # This ensures proper MCP protocol communication while using intelligent capabilities
                 if self.intelligent_tool_manager:
                     await self.send_progress(
                         operation_id, 30, f"Executing {name} via intelligent tool manager"
                     )
-                    result = await self.intelligent_tool_manager.execute_intelligent_tool(
-                        name, arguments
-                    )
-                    # Send completion progress
-                    await self.send_progress(operation_id, 100, f"Completed {name}")
-
-                    # Clean up operation tracking
-                    del self.active_operations[operation_id]
-
-                    self.log_message(f"Completed tool: {name} (ID: {operation_id})", level="info")
-
-                    # Return the result directly - it's already in MCP format
-                    return result
+                    
+                    # Use intelligent tool manager but ensure MCP protocol compliance
+                    try:
+                        result = await self.intelligent_tool_manager.execute_intelligent_tool(
+                            name, arguments
+                        )
+                        
+                        # Ensure the result is in proper MCP format
+                        if isinstance(result, dict) and "content" in result:
+                            # Already in MCP format
+                            mcp_result = result
+                        else:
+                            # Convert to MCP format
+                            mcp_result = {
+                                "content": [{"type": "text", "text": json.dumps(result, indent=2)}]
+                            }
+                        
+                        await self.send_progress(operation_id, 100, f"Completed {name}")
+                        
+                        # Clean up operation tracking
+                        del self.active_operations[operation_id]
+                        
+                        self.log_message(f"Completed tool: {name} (ID: {operation_id})", level="info")
+                        
+                        return mcp_result
+                        
+                    except Exception as e:
+                        self.log_message(f"Intelligent tool manager error for {name}: {e}", level="error")
+                        return {
+                            "content": [
+                                {
+                                    "type": "text",
+                                    "text": json.dumps(
+                                        {
+                                            "success": False,
+                                            "error": f"Tool execution failed: {str(e)}",
+                                            "tool_name": name,
+                                        },
+                                        indent=2,
+                                    ),
+                                }
+                            ],
+                            "isError": True,
+                        }
                 else:
                     return {
                         "content": [
@@ -1518,7 +1550,7 @@ class KotlinMCPServerV2:
                                 "text": json.dumps(
                                     {
                                         "success": False,
-                                        "error": "Tool not implemented",
+                                        "error": "Intelligent tool manager not available",
                                         "tool_name": name,
                                     },
                                     indent=2,
@@ -1845,70 +1877,99 @@ Please generate the complete Room database setup with all components.
         self, arguments: Dict[str, Any], operation_id: str
     ) -> Dict[str, Any]:
         """Handle refactorFunction tool using sidecar."""
-        from sidecar_client import refactor_function
+        try:
+            from sidecar_client import refactor_function
+            
+            await self.send_progress(operation_id, 30, "Delegating to Kotlin sidecar")
 
-        await self.send_progress(operation_id, 30, "Delegating to Kotlin sidecar")
+            result = await refactor_function(
+                file_path=arguments.get("filePath"),
+                function_name=arguments.get("functionName"),
+                refactor_type=arguments.get("refactorType"),
+                new_name=arguments.get("newName"),
+                preview=arguments.get("preview", False),
+            )
 
-        result = await refactor_function(
-            file_path=arguments.get("filePath"),
-            function_name=arguments.get("functionName"),
-            refactor_type=arguments.get("refactorType"),
-            new_name=arguments.get("newName"),
-            preview=arguments.get("preview", False),
-        )
+            await self.send_progress(operation_id, 80, "Processing sidecar response")
 
-        await self.send_progress(operation_id, 80, "Processing sidecar response")
-
-        return result
+            return result
+        except ImportError:
+            # Fallback if sidecar not available
+            return {
+                "success": False,
+                "error": "Kotlin sidecar not available",
+                "message": "Install and configure the Kotlin sidecar for enhanced refactoring capabilities"
+            }
 
     async def handle_apply_code_action(
         self, arguments: Dict[str, Any], operation_id: str
     ) -> Dict[str, Any]:
         """Handle applyCodeAction tool using sidecar."""
-        from sidecar_client import apply_code_action
+        try:
+            from sidecar_client import apply_code_action
 
-        await self.send_progress(operation_id, 30, "Delegating to Kotlin sidecar")
+            await self.send_progress(operation_id, 30, "Delegating to Kotlin sidecar")
 
-        result = await apply_code_action(
-            file_path=arguments.get("filePath"),
-            code_action_id=arguments.get("codeActionId"),
-            preview=arguments.get("preview", False),
-        )
+            result = await apply_code_action(
+                file_path=arguments.get("filePath"),
+                code_action_id=arguments.get("codeActionId"),
+                preview=arguments.get("preview", False),
+            )
 
-        return result
+            return result
+        except ImportError:
+            return {
+                "success": False,
+                "error": "Kotlin sidecar not available",
+                "message": "Install and configure the Kotlin sidecar for code actions"
+            }
 
     async def handle_format_code(
         self, arguments: Dict[str, Any], operation_id: str
     ) -> Dict[str, Any]:
         """Handle formatCode tool using sidecar."""
-        from sidecar_client import format_code
+        try:
+            from sidecar_client import format_code
 
-        await self.send_progress(operation_id, 30, "Delegating to Kotlin sidecar")
+            await self.send_progress(operation_id, 30, "Delegating to Kotlin sidecar")
 
-        result = await format_code(
-            targets=arguments.get("targets", []),
-            style=arguments.get("style", "ktlint"),
-            preview=arguments.get("preview", False),
-        )
+            result = await format_code(
+                targets=arguments.get("targets", []),
+                style=arguments.get("style", "ktlint"),
+                preview=arguments.get("preview", False),
+            )
 
-        return result
+            return result
+        except ImportError:
+            return {
+                "success": False,
+                "error": "Kotlin sidecar not available", 
+                "message": "Install and configure the Kotlin sidecar for code formatting"
+            }
 
     async def handle_optimize_imports(
         self, arguments: Dict[str, Any], operation_id: str
     ) -> Dict[str, Any]:
         """Handle optimizeImports tool using sidecar."""
-        from sidecar_client import optimize_imports
+        try:
+            from sidecar_client import optimize_imports
 
-        await self.send_progress(operation_id, 30, "Delegating to Kotlin sidecar")
+            await self.send_progress(operation_id, 30, "Delegating to Kotlin sidecar")
 
-        result = await optimize_imports(
-            project_root=arguments.get("projectRoot"),
-            mode=arguments.get("mode", "project"),
-            targets=arguments.get("targets"),
-            preview=arguments.get("preview", False),
-        )
+            result = await optimize_imports(
+                project_root=arguments.get("projectRoot"),
+                mode=arguments.get("mode", "project"),
+                targets=arguments.get("targets"),
+                preview=arguments.get("preview", False),
+            )
 
-        return result
+            return result
+        except ImportError:
+            return {
+                "success": False,
+                "error": "Kotlin sidecar not available",
+                "message": "Install and configure the Kotlin sidecar for import optimization"
+            }
 
     async def handle_git_status(
         self, arguments: Dict[str, Any], operation_id: str
