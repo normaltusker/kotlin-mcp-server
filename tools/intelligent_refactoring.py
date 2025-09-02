@@ -951,7 +951,7 @@ class IntelligentRefactoringTools:
                     "analysis_type": analysis_type,
                 }
 
-            if not file_path.suffix in [".kt", ".java"]:
+            if file_path.suffix not in [".kt", ".java"]:
                 return {
                     "ok": False,
                     "error": f"Unsupported file type: {file_path.suffix}. Only .kt and .java files are supported.",
@@ -1135,7 +1135,7 @@ class IntelligentRefactoringTools:
                     }
                 )
 
-            if line_stripped.startswith("catch") and "Exception" in line and not "e" in line:
+            if line_stripped.startswith("catch") and "Exception" in line and "e" not in line:
                 findings.append(
                     {
                         "type": "bugs",

@@ -18,7 +18,9 @@ MCP_SIDECAR_STARTUP_TIMEOUT_MS = int(os.getenv("MCP_SIDECAR_STARTUP_TIMEOUT_MS",
 
 
 # optional: circuit breaker signals from your hardening module (stubbed)
-class CircuitOpen(Exception): ...
+class CircuitOpen(Exception):
+    """Circuit breaker is open."""
+    pass
 
 
 class CircuitBreaker:

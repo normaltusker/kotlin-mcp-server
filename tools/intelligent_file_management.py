@@ -151,8 +151,9 @@ class IntelligentFileManagementTool(IntelligentToolBase):
                                                 "confidence": 0.8,
                                             }
                                         )
-                except:
-                    pass
+                except (UnicodeDecodeError, OSError) as e:
+                    # Skip files that can't be read
+                    continue
 
         if findings:
             recommendations.append("Encrypt file or redact sensitive fields")

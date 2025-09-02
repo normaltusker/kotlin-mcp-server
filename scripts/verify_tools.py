@@ -258,9 +258,9 @@ class ToolVerifier:
                     if ":" in line:
                         parts = line.split(":")
                         potential_name = parts[0].strip()
-                        if potential_name and not " " in potential_name:
+                        if potential_name and " " not in potential_name:
                             tool_names.append(potential_name)
-                    elif line and not " " in line and len(line) < 50:
+                    elif line and " " not in line and len(line) < 50:
                         tool_names.append(line)
 
             return tool_names
