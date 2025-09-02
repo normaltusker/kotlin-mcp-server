@@ -1498,13 +1498,13 @@ class KotlinMCPServerV2:
                     await self.send_progress(
                         operation_id, 30, f"Executing {name} via intelligent tool manager"
                     )
-                    
+
                     # Use intelligent tool manager but ensure MCP protocol compliance
                     try:
                         result = await self.intelligent_tool_manager.execute_intelligent_tool(
                             name, arguments
                         )
-                        
+
                         # Ensure the result is in proper MCP format
                         if isinstance(result, dict) and "content" in result:
                             # Already in MCP format
@@ -1514,18 +1514,22 @@ class KotlinMCPServerV2:
                             mcp_result = {
                                 "content": [{"type": "text", "text": json.dumps(result, indent=2)}]
                             }
-                        
+
                         await self.send_progress(operation_id, 100, f"Completed {name}")
-                        
+
                         # Clean up operation tracking
                         del self.active_operations[operation_id]
-                        
-                        self.log_message(f"Completed tool: {name} (ID: {operation_id})", level="info")
-                        
+
+                        self.log_message(
+                            f"Completed tool: {name} (ID: {operation_id})", level="info"
+                        )
+
                         return mcp_result
-                        
+
                     except Exception as e:
-                        self.log_message(f"Intelligent tool manager error for {name}: {e}", level="error")
+                        self.log_message(
+                            f"Intelligent tool manager error for {name}: {e}", level="error"
+                        )
                         return {
                             "content": [
                                 {
@@ -1879,7 +1883,7 @@ Please generate the complete Room database setup with all components.
         """Handle refactorFunction tool using sidecar."""
         try:
             from sidecar_client import refactor_function
-            
+
             await self.send_progress(operation_id, 30, "Delegating to Kotlin sidecar")
 
             result = await refactor_function(
@@ -1898,7 +1902,7 @@ Please generate the complete Room database setup with all components.
             return {
                 "success": False,
                 "error": "Kotlin sidecar not available",
-                "message": "Install and configure the Kotlin sidecar for enhanced refactoring capabilities"
+                "message": "Install and configure the Kotlin sidecar for enhanced refactoring capabilities",
             }
 
     async def handle_apply_code_action(
@@ -1921,7 +1925,7 @@ Please generate the complete Room database setup with all components.
             return {
                 "success": False,
                 "error": "Kotlin sidecar not available",
-                "message": "Install and configure the Kotlin sidecar for code actions"
+                "message": "Install and configure the Kotlin sidecar for code actions",
             }
 
     async def handle_format_code(
@@ -1943,8 +1947,8 @@ Please generate the complete Room database setup with all components.
         except ImportError:
             return {
                 "success": False,
-                "error": "Kotlin sidecar not available", 
-                "message": "Install and configure the Kotlin sidecar for code formatting"
+                "error": "Kotlin sidecar not available",
+                "message": "Install and configure the Kotlin sidecar for code formatting",
             }
 
     async def handle_optimize_imports(
@@ -1968,7 +1972,7 @@ Please generate the complete Room database setup with all components.
             return {
                 "success": False,
                 "error": "Kotlin sidecar not available",
-                "message": "Install and configure the Kotlin sidecar for import optimization"
+                "message": "Install and configure the Kotlin sidecar for import optimization",
             }
 
     async def handle_git_status(
