@@ -1,0 +1,12 @@
+{
+  "jsonrpc": "2.0",
+  "id": 8,
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"success\": true, \"dependencies\": [{\"name\": \"com.squareup.okhttp3:okhttp\", \"version\": \"4.9.3\"}, {\"name\": \"org.jetbrains.kotlin:kotlin-stdlib\", \"version\": \"1.8.0\"}], \"vulnerabilities\": [{\"dependency\": \"com.squareup.okhttp3:okhttp\", \"version\": \"4.9.3\", \"severity\": \"HIGH\", \"description\": \"CVE-2021-0341: Information disclosure vulnerability\"}], \"license_issues\": [], \"audit_summary\": {\"total_deps\": 2, \"vulnerable_deps\": 1, \"license_issues\": 0}}"
+      }
+    ]
+  }
+}

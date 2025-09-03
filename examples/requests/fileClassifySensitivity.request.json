@@ -1,0 +1,7 @@
+{
+  "tool": "fileClassifySensitivity",
+  "input": {
+    "targets": ["src/"],
+    "policies": ["PII", "Secrets"]
+  }
+}

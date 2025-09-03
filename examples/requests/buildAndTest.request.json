@@ -1,0 +1,12 @@
+{
+  "jsonrpc": "2.0",
+  "id": 7,
+  "method": "tools/call",
+  "params": {
+    "name": "buildAndTest",
+    "arguments": {
+      "buildTool": "auto",
+      "skipTests": false
+    }
+  }
+}

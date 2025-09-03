@@ -1,0 +1,17 @@
+{
+  "jsonrpc": "2.0",
+  "id": 2,
+  "method": "tools/call",
+  "params": {
+    "name": "apiCallSecure",
+    "arguments": {
+      "apiName": "github",
+      "endpoint": "/repos/normaltusker/kotlin-mcp-server/issues",
+      "method": "GET",
+      "auth": {
+        "type": "bearer",
+        "token": "ghp_..."
+      }
+    }
+  }
+}

@@ -8,22 +8,16 @@ Implements all three MCP primitives: Tools, Resources, and Prompts.
 import asyncio
 import json
 import logging
+import os
 import sys
 from pathlib import Path
-from typing import Dict, List, Optional, Any, Union, Tuple
+from typing import Any, Dict, List, Optional, Tuple, Union
+
 import aiofiles
-import os
 
 # FastMCP imports (easier and more feature-rich than official SDK)
 from fastmcp import FastMCP
-from mcp.types import (
-    Resource, 
-    Tool, 
-    Prompt,
-    TextContent,
-    ImageContent,
-    EmbeddedResource
-)
+from mcp.types import EmbeddedResource, ImageContent, Prompt, Resource, TextContent, Tool
 
 # Import existing modules for compatibility (with fallbacks)
 try:
@@ -52,33 +46,38 @@ Implements all three MCP primitives: Tools, Resources, and Prompts.
 import asyncio
 import json
 import logging
+import os
 import sys
 from pathlib import Path
-from typing import Dict, List, Optional, Any, Union, Tuple
+from typing import Any, Dict, List, Optional, Tuple, Union
+
 import aiofiles
-import os
 
 # FastMCP imports (easier and more feature-rich than official SDK)
 from fastmcp import FastMCP
 
+
 # Basic mock classes for development
 class MockLLMIntegration:
     """Mock LLM integration for development."""
+
     def __init__(self, security_manager=None):
         pass
-    
+
     async def generate_code_with_ai(self, **kwargs):
         return f"Generated code for {kwargs.get('class_name', 'Unknown')}"
 
+
 class MockKotlinCodeGenerator:
     """Mock Kotlin code generator for development."""
+
     def __init__(self, llm_integration=None):
         self.llm_integration = llm_integration
-    
+
     async def generate_file(self, file_path: str, class_type: str, **kwargs):
-        class_name = kwargs.get('class_name', 'GeneratedClass')
-        package_name = kwargs.get('package_name', 'com.example')
-        
+        class_name = kwargs.get("class_name", "GeneratedClass")
+        package_name = kwargs.get("package_name", "com.example")
+
         # Basic Kotlin class template
         code = f"""package {package_name}
 
@@ -94,36 +93,38 @@ class {class_name} {{
     }}
 }}
 """
-        
+
         # Write file if path is provided
         if file_path:
             try:
                 full_path = Path(file_path)
                 full_path.parent.mkdir(parents=True, exist_ok=True)
-                
-                with open(full_path, 'w') as f:
+
+                with open(full_path, "w") as f:
                     f.write(code)
-                
+
                 return f"✅ Created {class_type} at {file_path}"
             except Exception as e:
                 return f"❌ Failed to create file: {str(e)}"
-        
+
         return code
+
 
 class MockSecurityManager:
     """Mock security manager for development."""
+
     def __init__(self):
         pass
-    
+
     async def validate_file_path(self, path: Path) -> bool:
         """Validate file path for security."""
         # Basic security check - no parent directory traversal
         try:
             resolved = path.resolve()
-            return not any(part.startswith('..') for part in path.parts)
+            return not any(part.startswith("..") for part in path.parts)
         except Exception:
             return False
-    
+
     def close(self):
         pass
 
@@ -131,103 +132,103 @@ class MockSecurityManager:
 class KotlinMCPServerV3:
     """
     MCP v3 Server - FastMCP Implementation
-    
+
     Full MCP 2025-06-18 specification compliance with:
     - Tools: Complete Android/Kotlin development suite
     - Resources: Project files, documentation, build artifacts
     - Prompts: Development workflow templates
     """
-    
+
     def __init__(self, name: str = "kotlin-android-mcp-v3"):
         """Initialize the MCP v3 server with FastMCP."""
         self.name = name
         self.version = "3.0.0"
         self.project_path: Optional[Path] = None
-        
+
         # Initialize core components with mocks
         self.security_manager = MockSecurityManager()
         self.llm_integration = MockLLMIntegration(self.security_manager)
         self.kotlin_generator = MockKotlinCodeGenerator(self.llm_integration)
-        
+
         # Initialize FastMCP Server
         self.mcp = FastMCP(self.name)
-        
+
         # Setup logging
         self.logger = logging.getLogger(__name__)
-        
+
         # Register MCP tools, resources, and prompts
         self._register_tools()
         self._register_resources()
         self._register_prompts()
-    
+
     def set_project_path(self, project_path: str) -> None:
         """Set the project path for file operations."""
         self.project_path = Path(project_path)
         self.logger.info(f"Project path set to: {self.project_path}")
-    
+
     def _register_tools(self) -> None:
         """Register all MCP tools."""
-        
+
         @self.mcp.tool()
         async def create_kotlin_file(
             file_path: str,
             class_name: str,
             package_name: str,
             class_type: str = "class",
-            features: Optional[List[str]] = None
+            features: Optional[List[str]] = None,
         ) -> str:
             """
             Create production-ready Kotlin files for Android development.
-            
+
             Supports Activities, ViewModels, Repositories, Data Classes, Services,
             and more with modern Android patterns.
-            
+
             Args:
                 file_path: Path where the Kotlin file should be created
                 class_name: Name of the Kotlin class to create
                 package_name: Kotlin package name (e.g., com.example.app.ui)
                 class_type: Type of class (activity, fragment, viewmodel, etc.)
                 features: List of Android features to include
-            
+
             Returns:
                 Success message or error details
             """
             self.logger.info(f"Creating Kotlin {class_type}: {class_name} at {file_path}")
-            
+
             # Adjust file path to be relative to project if needed
             if self.project_path and not Path(file_path).is_absolute():
                 full_path = self.project_path / file_path
             else:
                 full_path = Path(file_path)
-            
+
             try:
                 result = await self.kotlin_generator.generate_file(
                     file_path=str(full_path),
                     class_type=class_type,
                     class_name=class_name,
                     package_name=package_name,
-                    features=features or []
+                    features=features or [],
                 )
                 return result
             except Exception as e:
                 error_msg = f"❌ Failed to create Kotlin file: {str(e)}"
                 self.logger.error(error_msg)
                 return error_msg
-        
+
         @self.mcp.tool()
         async def analyze_project(analysis_type: str = "structure") -> str:
             """
             Perform comprehensive project analysis.
-            
+
             Args:
                 analysis_type: Type of analysis (structure, dependencies, architecture)
-            
+
             Returns:
                 Analysis results in formatted text
             """
             if not self.project_path or not self.project_path.exists():
                 return "❌ Project path not set or doesn't exist"
-            
+
             try:
                 analysis = {
                     "project_name": self.project_path.name,
@@ -235,44 +236,50 @@ class KotlinMCPServerV3:
                     "analysis_type": analysis_type,
                     "timestamp": "2024-01-01",  # Would be actual timestamp
                 }
-                
+
                 if analysis_type in ["structure", "all"]:
                     # Analyze project structure
                     kotlin_files = list(self.project_path.rglob("*.kt"))
                     gradle_files = list(self.project_path.rglob("*.gradle*"))
-                    
-                    analysis.update({
-                        "kotlin_files_count": len(kotlin_files),
-                        "gradle_files_count": len(gradle_files),
-                        "kotlin_files": [str(f.relative_to(self.project_path)) for f in kotlin_files[:10]],  # First 10
-                        "gradle_files": [str(f.relative_to(self.project_path)) for f in gradle_files]
-                    })
-                
+
+                    analysis.update(
+                        {
+                            "kotlin_files_count": len(kotlin_files),
+                            "gradle_files_count": len(gradle_files),
+                            "kotlin_files": [
+                                str(f.relative_to(self.project_path)) for f in kotlin_files[:10]
+                            ],  # First 10
+                            "gradle_files": [
+                                str(f.relative_to(self.project_path)) for f in gradle_files
+                            ],
+                        }
+                    )
+
                 return f"📊 Project Analysis Complete\n\n{json.dumps(analysis, indent=2)}"
-                
+
             except Exception as e:
                 error_msg = f"❌ Project analysis failed: {str(e)}"
                 self.logger.error(error_msg)
                 return error_msg
-        
+
         @self.mcp.tool()
         async def generate_code_with_ai(
             description: str,
             code_type: str,
             class_name: str,
             package_name: str,
-            framework: str = "android"
+            framework: str = "android",
         ) -> str:
             """
             Generate sophisticated Kotlin/Android code using AI assistance.
-            
+
             Args:
                 description: Natural language description of code to generate
                 code_type: Type of code (activity, fragment, viewmodel, etc.)
                 class_name: Name of the class to generate
                 package_name: Package name for the generated code
                 framework: Target framework (android, kotlin, compose)
-            
+
             Returns:
                 Generated code or error message
             """
@@ -283,81 +290,82 @@ class KotlinMCPServerV3:
                     code_type=code_type,
                     class_name=class_name,
                     package_name=package_name,
-                    framework=framework
+                    framework=framework,
                 )
-                
+
                 return f"🤖 AI-Generated {code_type.title()}: {class_name}\n\n{result}"
-                
+
             except Exception as e:
                 error_msg = f"❌ AI code generation failed: {str(e)}"
                 self.logger.error(error_msg)
                 return error_msg
-    
+
     def _register_resources(self) -> None:
         """Register all MCP resources."""
-        
+
         @self.mcp.resource("project://structure")
         async def project_structure() -> str:
             """Get complete project structure as JSON."""
             if not self.project_path or not self.project_path.exists():
                 return json.dumps({"error": "Project path not set or doesn't exist"})
-            
+
             try:
                 structure = {
                     "name": self.project_path.name,
                     "path": str(self.project_path),
                     "type": "android_kotlin_project",
-                    "files": {}
+                    "files": {},
                 }
-                
+
                 # Analyze different file types
                 for extension, file_type in [
                     ("*.kt", "kotlin_files"),
                     ("*.gradle*", "gradle_files"),
                     ("*.xml", "xml_files"),
-                    ("*.json", "json_files")
+                    ("*.json", "json_files"),
                 ]:
                     files = list(self.project_path.rglob(extension))
                     structure["files"][file_type] = [
-                        str(f.relative_to(self.project_path)) for f in files[:20]  # Limit to 20 files
+                        str(f.relative_to(self.project_path))
+                        for f in files[:20]  # Limit to 20 files
                     ]
-                
+
                 return json.dumps(structure, indent=2)
-                
+
             except Exception as e:
                 return json.dumps({"error": str(e)})
-        
+
         @self.mcp.resource("file://project/{path}")
         async def project_file(path: str) -> str:
             """Read any project file by relative path."""
             if not self.project_path:
                 return "Error: Project path not set"
-            
+
             file_path = self.project_path / path
-            
+
             # Security validation
             if not await self.security_manager.validate_file_path(file_path):
                 return "Error: Access denied - invalid file path"
-            
+
             try:
                 if not file_path.exists():
                     return f"Error: File not found: {path}"
-                
+
                 # Read file content
-                with open(file_path, 'r', encoding='utf-8') as f:
+                with open(file_path, "r", encoding="utf-8") as f:
                     content = f.read()
-                
+
                 return content
-                
+
             except Exception as e:
                 return f"Error reading file {path}: {str(e)}"
-        
+
         @self.mcp.resource("docs://api/overview")
         async def api_documentation() -> str:
             """Generate API documentation overview."""
             if not self.project_path:
                 return "# API Documentation\n\nError: Project path not set"
-            
+
             try:
                 docs = f"""# API Documentation
                 
@@ -395,38 +403,37 @@ This is an Android/Kotlin project managed by Kotlin MCP Server v3.
 Generated by Kotlin MCP Server v{self.version}
 """
                 return docs
-                
+
             except Exception as e:
                 return f"# API Documentation\n\nError: {str(e)}"
-    
+
     def _register_prompts(self) -> None:
         """Register all MCP prompts."""
-        
+
         @self.mcp.prompt()
         async def code_review(
-            file_path: str = "",
-            focus_areas: str = "quality,security,performance"
+            file_path: str = "", focus_areas: str = "quality,security,performance"
         ) -> str:
             """
             Comprehensive Kotlin code review prompt.
-            
+
             Args:
                 file_path: Path to the Kotlin file to review
                 focus_areas: Comma-separated focus areas
             """
-            focus_list = [area.strip() for area in focus_areas.split(',')]
-            
+            focus_list = [area.strip() for area in focus_areas.split(",")]
+
             # Read file content if available
             file_content = ""
             if file_path and self.project_path:
                 try:
                     full_path = self.project_path / file_path
                     if full_path.exists():
-                        with open(full_path, 'r', encoding='utf-8') as f:
+                        with open(full_path, "r", encoding="utf-8") as f:
                             file_content = f.read()
                 except Exception as e:
                     file_content = f"Error reading file: {str(e)}"
-            
+
             prompt = f"""Please perform a comprehensive code review for this Kotlin file:
 
 **File:** {file_path}
@@ -468,12 +475,12 @@ Generated by Kotlin MCP Server v{self.version}
 4. Priority level for each issue (High/Medium/Low)
 """
             return prompt
-        
+
         @self.mcp.prompt()
         async def architecture_analysis(analysis_depth: str = "detailed") -> str:
             """
             Analyze project architecture and suggest improvements.
-            
+
             Args:
                 analysis_depth: Depth of analysis (basic, detailed, comprehensive)
             """
@@ -481,7 +488,7 @@ Generated by Kotlin MCP Server v{self.version}
             project_info = "Project analysis not available"
             if self.project_path:
                 project_info = f"Project: {self.project_path.name} at {self.project_path}"
-            
+
             prompt = f"""Please analyze the architecture of this Android/Kotlin project:
 
 **Analysis Depth:** {analysis_depth}
@@ -523,15 +530,12 @@ Generated by Kotlin MCP Server v{self.version}
 5. Migration strategy for improvements
 """
             return prompt
-        
+
         @self.mcp.prompt()
-        async def debugging_assistant(
-            stack_trace: str = "",
-            context: str = ""
-        ) -> str:
+        async def debugging_assistant(stack_trace: str = "", context: str = "") -> str:
             """
             Help debug issues with stack trace analysis.
-            
+
             Args:
                 stack_trace: Stack trace or error message to analyze
                 context: Additional context about the issue
@@ -580,11 +584,11 @@ Generated by Kotlin MCP Server v{self.version}
 5. Testing strategy to verify resolution
 """
             return prompt
-    
+
     async def run(self) -> None:
         """Run the MCP server using FastMCP."""
         self.logger.info("Starting Kotlin MCP Server v3 with FastMCP")
-        
+
         try:
             await self.mcp.run()
         except Exception as e:
@@ -598,28 +602,31 @@ Generated by Kotlin MCP Server v{self.version}
 # MAIN ENTRY POINT
 # =============================================
 
+
 async def main() -> None:
     """Main entry point for MCP v3 server."""
     import argparse
-    
+
     parser = argparse.ArgumentParser(description="Kotlin MCP Server v3 - FastMCP Implementation")
-    parser.add_argument("project_path", nargs="?", help="Path to the Android project root directory")
-    
+    parser.add_argument(
+        "project_path", nargs="?", help="Path to the Android project root directory"
+    )
+
     args = parser.parse_args()
-    
+
     # Setup logging
     logging.basicConfig(
         level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        handlers=[logging.StreamHandler(sys.stderr)]  # Log to stderr to avoid interfering with MCP
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+        handlers=[logging.StreamHandler(sys.stderr)],  # Log to stderr to avoid interfering with MCP
     )
-    
+
     # Create and configure server
     server = KotlinMCPServerV3()
-    
+
     if args.project_path:
         server.set_project_path(args.project_path)
-    
+
     # Run server
     await server.run()
 

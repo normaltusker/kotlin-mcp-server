@@ -1,0 +1,7 @@
+{
+  "filePath": "/app/src/main/kotlin/com/example/MyClass.kt",
+  "functionName": "calculateTotal",
+  "refactorType": "rename",
+  "newName": "computeTotal",
+  "preview": false
+}

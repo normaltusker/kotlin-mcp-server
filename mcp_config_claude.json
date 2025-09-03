@@ -7,7 +7,7 @@
       ],
       "cwd": "/Users/Niravthakker/Downloads/Nirav/Personal/Coding/kotlin-mcp-server",
       "env": {
-        "PROJECT_PATH": "/Users/Niravthakker/Downloads/Nirav/Personal/Coding/Vital-Trail"
+        "PROJECT_PATH": "${workspaceRoot}"
       }
     }
   }

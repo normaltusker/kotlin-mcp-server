@@ -1,0 +1,12 @@
+[bandit]
+exclude_dirs = tests,archive,.venv,htmlcov,.pytest_cache,__pycache__
+skips = B101,B105,B404,B603,B607,B110,B112
+severity_level = medium
+
+# B101: assert_used - Allow in tests
+# B105: hardcoded_password_string - Allow in tests  
+# B404: blacklist subprocess - Needed for build tools
+# B603: subprocess_without_shell_equals_true - Needed for build tools
+# B607: start_process_with_partial_path - Needed for build tools
+# B110: try_except_pass - Allow for optional file operations
+# B112: try_except_continue - Allow for optional file operations

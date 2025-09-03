@@ -1,0 +1,6 @@
+{
+  "tool": "securityEncryptData",
+  "input": {
+    "dataRef": { "type": "inline", "value": "my-secret-password" }
+  }
+}

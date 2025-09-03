@@ -4,9 +4,9 @@ Continuous Integration Test Runner
 Runs comprehensive tests and lint checks to ensure code quality
 """
 
+import shlex
 import subprocess
 import sys
-import shlex
 from pathlib import Path
 
 
@@ -29,8 +29,17 @@ class CITestRunner:
 
             # Security: validate command executables
             allowed_commands = [
-                "python3", "python", "pytest", "black", "flake8", "pip",
-                "coverage", "isort", "pylint", "mypy", "bandit"
+                "python3",
+                "python",
+                "pytest",
+                "black",
+                "flake8",
+                "pip",
+                "coverage",
+                "isort",
+                "pylint",
+                "mypy",
+                "bandit",
             ]
             if command_list[0] not in allowed_commands:
                 print(f"❌ {description} - BLOCKED: Unauthorized command: {command_list[0]}")
@@ -43,7 +52,7 @@ class CITestRunner:
                 capture_output=True,
                 text=True,
                 timeout=300,
-                shell=False
+                shell=False,
             )
 
             if result.returncode == 0:
@@ -70,10 +79,15 @@ class CITestRunner:
     def check_dependencies(self):
         """Check required dependencies"""
         print("🔍 Checking dependencies...")
-        
+
         required_packages = [
-            "pytest", "pytest_asyncio", "pytest_cov", "flake8", 
-            "black", "isort", "psutil"
+            "pytest",
+            "pytest_asyncio",
+            "pytest_cov",
+            "flake8",
+            "black",
+            "isort",
+            "psutil",
         ]
 
         missing = []
@@ -93,7 +107,7 @@ class CITestRunner:
     def run_tests(self):
         """Run the test suite"""
         print("\n🧪 Running Test Suite")
-        
+
         test_commands = [
             ("python3 -m pytest tests/ -v --tb=short", "Core test suite"),
             ("python3 -m pytest tests/test_server_core.py -v", "Server core tests"),
@@ -113,9 +127,18 @@ class CITestRunner:
         print("\n🔍 Running Code Quality Checks")
 
         quality_commands = [
-            ("python3 -m black --check --diff . --exclude htmlcov --exclude __pycache__ --exclude .git --exclude archive", "Black formatting check"),
-            ("python3 -m isort --check-only --diff . --skip htmlcov --skip __pycache__ --skip archive", "Import sorting check"),
-            ("python3 -m flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics --exclude=htmlcov,__pycache__,.git,archive", "Flake8 linting"),
+            (
+                "python3 -m black --check --diff . --exclude htmlcov --exclude __pycache__ --exclude .git --exclude archive",
+                "Black formatting check",
+            ),
+            (
+                "python3 -m isort --check-only --diff . --skip htmlcov --skip __pycache__ --skip archive",
+                "Import sorting check",
+            ),
+            (
+                "python3 -m flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics --exclude=htmlcov,__pycache__,.git,archive",
+                "Flake8 linting",
+            ),
         ]
 
         all_passed = True
@@ -129,7 +152,7 @@ class CITestRunner:
         """Run server validation"""
         print("\n🖥️ Running Server Validation")
 
-        validation_script = '''
+        validation_script = """
 import asyncio
 import tempfile
 from kotlin_mcp_server import KotlinMCPServer
@@ -139,30 +162,30 @@ async def validate():
         print("🔍 Testing server initialization...")
         server = KotlinMCPServer("ci-test")
         server.set_project_path(tempfile.mkdtemp())
-        
+
         print("🔍 Testing tool listing...")
         tools = await server.handle_list_tools()
         tool_count = len(tools.get("tools", []))
         print(f"✅ Server has {tool_count} tools")
-        
+
         print("🔍 Testing tool execution...")
         result = await server.handle_call_tool("create_kotlin_file", {
             "file_path": "test/TestClass.kt",
-            "package_name": "com.test", 
+            "package_name": "com.test",
             "class_name": "TestClass",
             "class_type": "class"
         })
         assert "content" in result
         print("✅ Tool execution successful")
-        
+
         print("🎉 Server validation completed successfully")
-        
+
     except Exception as e:
         print(f"❌ Server validation failed: {e}")
         raise
 
 asyncio.run(validate())
-'''
+"""
 
         try:
             result = subprocess.run(
@@ -170,7 +193,7 @@ asyncio.run(validate())
                 cwd=self.project_root,
                 capture_output=True,
                 text=True,
-                timeout=60
+                timeout=60,
             )
 
             if result.returncode == 0:

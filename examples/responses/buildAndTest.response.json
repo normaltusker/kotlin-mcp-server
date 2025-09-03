@@ -1,0 +1,12 @@
+{
+  "jsonrpc": "2.0",
+  "id": 7,
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"success\": true, \"build_tool\": \"gradle\", \"test_results\": {\"total_tests\": 45, \"failed_tests\": [{\"test\": \"UserAuthenticationTest.loginWithInvalidCredentials\", \"error\": \"Expected: UserNotFoundException, Actual: null\"}], \"passed_tests\": 44}, \"output\": \"BUILD SUCCESSFUL in 2m 15s\", \"errors\": \"\"}"
+      }
+    ]
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "screenName": "UserProfileScreen",
+  "stateModel": {
+    "userName": "string",
+    "email": "string",
+    "isLoading": "boolean",
+    "error": "string?"
+  },
+  "navigation": true,
+  "theme": "Material3"
+}

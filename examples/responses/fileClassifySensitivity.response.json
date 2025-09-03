@@ -1,0 +1,12 @@
+{
+  "findings": [
+    {
+      "filePath": "src/main/kotlin/User.kt",
+      "policy": "PII",
+      "line": 42,
+      "snippet": "val email = \"test@example.com\"",
+      "confidence": 0.95
+    }
+  ],
+  "recommendations": ["Encrypt file or redact sensitive fields"]
+}

@@ -1,0 +1,12 @@
+{
+  "jsonrpc": "2.0",
+  "id": 3,
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"success\": true, \"query\": \"TODO|FIXME\", \"results\": [{\"file\": \"src/main/kotlin/MainActivity.kt\", \"line_number\": 15, \"content\": \"    // TODO: Implement user authentication\", \"context_before\": [\"    private lateinit var authManager: AuthManager\", \"    \"], \"context_after\": [\"    private fun setupAuth() {\", \"        // Authentication setup\"]}, {\"file\": \"src/main/kotlin/UserService.kt\", \"line_number\": 42, \"content\": \"        // FIXME: Handle null user case properly\", \"context_before\": [\"        val user = userRepository.findById(userId)\", \"        \"], \"context_after\": [\"        return user ?: throw UserNotFoundException()\", \"    }\"]}], \"total_matches\": 2}"
+      }
+    ]
+  }
+}

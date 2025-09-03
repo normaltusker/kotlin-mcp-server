@@ -39,7 +39,7 @@ class DockerValidator:
             "COPY requirements.txt",
             "RUN pip install",
             "COPY . .",
-            "CMD"
+            "CMD",
         ]
 
         for element in required_elements:
@@ -67,6 +67,7 @@ class DockerValidator:
 
         try:
             import yaml  # type: ignore
+
             with open(compose_path) as f:
                 compose_config = yaml.safe_load(f)
 
@@ -76,12 +77,10 @@ class DockerValidator:
                 return False
 
             services = compose_config["services"]
-            
+
             # Check for main service
-            main_service_exists = any(
-                "kotlin-mcp" in name for name in services.keys()
-            )
-            
+            main_service_exists = any("kotlin-mcp" in name for name in services.keys())
+
             if not main_service_exists:
                 self.issues.append("No kotlin-mcp service found in docker-compose.yml")
 
@@ -110,13 +109,7 @@ class DockerValidator:
             return True
 
         content = dockerignore_path.read_text()
-        recommended_ignores = [
-            "__pycache__/",
-            ".git/",
-            "*.log",
-            ".venv/",
-            ".pytest_cache/"
-        ]
+        recommended_ignores = ["__pycache__/", ".git/", "*.log", ".venv/", ".pytest_cache/"]
 
         for ignore_pattern in recommended_ignores:
             if ignore_pattern not in content:
@@ -135,12 +128,12 @@ class DockerValidator:
             return False
 
         content = req_path.read_text()
-        
+
         # Check for potentially problematic packages
         problematic_packages = {
             "opencv-python": "Consider using opencv-python-headless for Docker",
             "tkinter": "GUI packages may not work in headless containers",
-            "pyqt": "GUI packages may not work in headless containers"
+            "pyqt": "GUI packages may not work in headless containers",
         }
 
         for package, warning in problematic_packages.items():
@@ -148,9 +141,15 @@ class DockerValidator:
                 self.warnings.append(f"{package}: {warning}")
 
         # Check for version pinning
-        lines = [line.strip() for line in content.split('\n') if line.strip() and not line.startswith('#')]
-        unpinned = [line for line in lines if '>=' not in line and '==' not in line and '~=' not in line]
-        
+        lines = [
+            line.strip()
+            for line in content.split("\n")
+            if line.strip() and not line.startswith("#")
+        ]
+        unpinned = [
+            line for line in lines if ">=" not in line and "==" not in line and "~=" not in line
+        ]
+
         if unpinned:
             self.recommendations.append(f"Consider pinning versions for: {', '.join(unpinned[:3])}")
 
@@ -163,10 +162,7 @@ class DockerValidator:
 
         try:
             result = subprocess.run(
-                ["docker", "--version"],
-                capture_output=True,
-                text=True,
-                timeout=10
+                ["docker", "--version"], capture_output=True, text=True, timeout=10
             )
             if result.returncode == 0:
                 version = result.stdout.strip()
@@ -188,10 +184,7 @@ class DockerValidator:
         # Try docker-compose command
         try:
             result = subprocess.run(
-                ["docker-compose", "--version"],
-                capture_output=True,
-                text=True,
-                timeout=10
+                ["docker-compose", "--version"], capture_output=True, text=True, timeout=10
             )
             if result.returncode == 0:
                 version = result.stdout.strip()
@@ -203,10 +196,7 @@ class DockerValidator:
         # Try docker compose command (newer versions)
         try:
             result = subprocess.run(
-                ["docker", "compose", "version"],
-                capture_output=True,
-                text=True,
-                timeout=10
+                ["docker", "compose", "version"], capture_output=True, text=True, timeout=10
             )
             if result.returncode == 0:
                 version = result.stdout.strip()
@@ -221,11 +211,7 @@ class DockerValidator:
         """Validate Docker build context"""
         print("📁 Validating build context...")
 
-        required_files = [
-            "kotlin_mcp_server.py",
-            "requirements.txt",
-            "pyproject.toml"
-        ]
+        required_files = ["kotlin_mcp_server.py", "requirements.txt", "pyproject.toml"]
 
         for file_name in required_files:
             if not (self.project_root / file_name).exists():
@@ -246,43 +232,52 @@ class DockerValidator:
 
         # Detect platform
         import platform
+
         system = platform.system().lower()
 
         if system == "darwin":  # macOS
-            commands.extend([
-                "# macOS Docker Installation:",
-                "brew install --cask docker",
-                "# Or download from: https://docs.docker.com/desktop/mac/install/",
-                ""
-            ])
+            commands.extend(
+                [
+                    "# macOS Docker Installation:",
+                    "brew install --cask docker",
+                    "# Or download from: https://docs.docker.com/desktop/mac/install/",
+                    "",
+                ]
+            )
         elif system == "linux":
-            commands.extend([
-                "# Linux Docker Installation:",
-                "sudo apt update",
-                "sudo apt install docker.io docker-compose",
-                "sudo systemctl start docker",
-                "sudo systemctl enable docker",
-                "sudo usermod -aG docker $USER",
-                "# Log out and back in for group changes to take effect",
-                ""
-            ])
+            commands.extend(
+                [
+                    "# Linux Docker Installation:",
+                    "sudo apt update",
+                    "sudo apt install docker.io docker-compose",
+                    "sudo systemctl start docker",
+                    "sudo systemctl enable docker",
+                    "sudo usermod -aG docker $USER",
+                    "# Log out and back in for group changes to take effect",
+                    "",
+                ]
+            )
         elif system == "windows":
-            commands.extend([
-                "# Windows Docker Installation:",
-                "# Download Docker Desktop from: https://docs.docker.com/desktop/windows/install/",
-                "# Or use chocolatey: choco install docker-desktop",
-                ""
-            ])
+            commands.extend(
+                [
+                    "# Windows Docker Installation:",
+                    "# Download Docker Desktop from: https://docs.docker.com/desktop/windows/install/",
+                    "# Or use chocolatey: choco install docker-desktop",
+                    "",
+                ]
+            )
 
-        commands.extend([
-            "# Build and run the Kotlin MCP Server:",
-            "./docker-setup.sh build",
-            "./docker-setup.sh start",
-            "",
-            "# Or manually:",
-            "docker build -t kotlin-mcp-server .",
-            "docker-compose up -d kotlin-mcp-server"
-        ])
+        commands.extend(
+            [
+                "# Build and run the Kotlin MCP Server:",
+                "./docker-setup.sh build",
+                "./docker-setup.sh start",
+                "",
+                "# Or manually:",
+                "docker build -t kotlin-mcp-server .",
+                "docker-compose up -d kotlin-mcp-server",
+            ]
+        )
 
         return commands
 

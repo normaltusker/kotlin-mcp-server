@@ -1,0 +1,18 @@
+{
+  "provider": "google_drive",
+  "encryption_enabled": true,
+  "sync_patterns": [
+    "src/**",
+    "*.gradle*",
+    "README.md"
+  ],
+  "exclude_patterns": [
+    "build/**",
+    ".gradle/**",
+    "*.tmp",
+    ".DS_Store",
+    "node_modules/**"
+  ],
+  "last_sync": null,
+  "sync_frequency": "daily"
+}

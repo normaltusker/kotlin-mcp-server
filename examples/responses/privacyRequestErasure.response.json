@@ -1,0 +1,7 @@
+{
+  "actions": [
+    "Deleted /data/users/user-42/profile.json",
+    "Anonymized records in table user_profiles"
+  ],
+  "auditId": "audit-2025-0002"
+}

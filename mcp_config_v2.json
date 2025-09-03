@@ -1,0 +1,31 @@
+{
+  "mcpServers": {
+    "kotlin-android-v2": {
+      "command": "python3", 
+      "args": ["kotlin_mcp_server_v2_enhanced.py"],
+      "cwd": "${MCP_SERVER_DIR}",
+      "env": {
+        "PROJECT_PATH": "${WORKSPACE_ROOT}",
+        "WORKSPACE_PATH": "${WORKSPACE_ROOT}",
+        "PYTHONPATH": "${MCP_SERVER_DIR}"
+      },
+      "description": "Enhanced Kotlin/Android MCP Server with 2025-06-18 specification support",
+      "capabilities": [
+        "tools",
+        "resources", 
+        "prompts",
+        "logging",
+        "roots"
+      ],
+      "features": {
+        "schemaValidation": true,
+        "progressTracking": true,
+        "cancellationSupport": true,
+        "structuredLogging": true,
+        "resourceSubscription": true,
+        "rootMonitoring": true,
+        "promptTemplates": true
+      }
+    }
+  }
+}

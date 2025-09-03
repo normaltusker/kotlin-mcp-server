@@ -5,7 +5,14 @@ max-line-length = 100
 # W503: line break before binary operator
 # W504: line break after binary operator
 # F841: local variable is assigned to but never used (for variables prefixed with _)
-ignore = E203,E501,W503,W504,F841
+# F401: module imported but unused (allowed in some files)
+# E402: module level import not at top of file (dynamic imports)
+# F811: redefinition of unused name (dynamic imports)
+# E251: unexpected spaces around keyword / parameter equals
+# W291: trailing whitespace
+# W293: blank line contains whitespace  
+# F541: f-string is missing placeholders
+ignore = E203,E501,W503,W504,F841,F401,E402,F811,E251,W291,W293,F541
 exclude = 
     .git,
     __pycache__,
@@ -13,7 +20,8 @@ exclude =
     venv,
     build,
     dist,
-    *.egg-info
+    *.egg-info,
+    archive
 per-file-ignores =
     __init__.py:F401
     tests/*.py:S101

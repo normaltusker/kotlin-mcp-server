@@ -1,0 +1,20 @@
+{
+  "response": [
+    {
+      "id": 12345,
+      "title": "Add AI Intelligence Enhancements",
+      "state": "open",
+      "body": "Enhance the MCP server with AI capabilities...",
+      "created_at": "2025-09-01T10:00:00Z"
+    },
+    {
+      "id": 12346,
+      "title": "Fix security vulnerability in encryption",
+      "state": "open",
+      "body": "Update AES implementation to use GCM mode...",
+      "created_at": "2025-09-01T11:30:00Z"
+    }
+  ],
+  "latencyMs": 245,
+  "costEst": 0.002
+}

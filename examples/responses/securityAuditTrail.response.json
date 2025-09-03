@@ -1,0 +1,14 @@
+{
+  "events": [
+    {
+      "time": "2025-09-02T08:30:00Z",
+      "actor": "mcp-server",
+      "op": "encrypt",
+      "target": "file:/tmp/secret.txt",
+      "result": "success",
+      "complianceTags": ["GDPR"],
+      "prevHash": "0000abc...",
+      "hash": "1234def..."
+    }
+  ]
+}

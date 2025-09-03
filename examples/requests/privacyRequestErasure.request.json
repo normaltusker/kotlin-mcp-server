@@ -1,0 +1,7 @@
+{
+  "tool": "privacyRequestErasure",
+  "input": {
+    "subjectId": "user-42",
+    "scopes": ["files", "database"]
+  }
+}

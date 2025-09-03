@@ -1,0 +1,7 @@
+{
+  "tool": "fileSyncWatch",
+  "input": {
+    "paths": ["src/"],
+    "dest": "s3://my-bucket/live-sync"
+  }
+}

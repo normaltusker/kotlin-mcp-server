@@ -1,0 +1,6 @@
+{
+  "patch": "--- a/app/src/main/kotlin/com/example/MyClass.kt\n+++ b/app/src/main/kotlin/com/example/MyClass.kt\n@@ -10,7 +10,7 @@ class MyClass {\n     private val items: List<Double> = listOf(1.0, 2.0, 3.0)\n \n     // Calculate total of all items\n-    fun calculateTotal(): Double {\n+    fun computeTotal(): Double {\n         return items.sum()\n     }\n }\n",
+  "affectedFiles": [
+    "/app/src/main/kotlin/com/example/MyClass.kt"
+  ]
+}

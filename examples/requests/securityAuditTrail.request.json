@@ -1,0 +1,7 @@
+{
+  "tool": "securityAuditTrail",
+  "input": {
+    "filters": { "op": "encrypt", "subjectId": "user-42" },
+    "limit": 2
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "jsonrpc": "2.0",
+  "id": 6,
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"success\": true, \"version\": \"latest\", \"summary\": {\"v2.1.0\": {\"features\": [\"Add AI-powered code analysis\", \"Implement intelligent refactoring\"], \"fixes\": [\"Fix memory leak in file watcher\", \"Resolve API timeout issues\"], \"docs\": [\"Update installation guide\", \"Add troubleshooting section\"], \"other\": [\"Update dependencies\", \"Improve error handling\"]}}}"
+      }
+    ]
+  }
+}

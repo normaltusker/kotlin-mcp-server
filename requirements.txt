@@ -1,6 +1,9 @@
 # Core MCP Server dependencies
 python-dotenv>=1.0.0
 pydantic>=2.0.0
+mcp>=1.0.0  # Official MCP SDK
+typing-extensions>=4.8.0
+fastmcp>=2.0.0
 
 # Core dependencies for Android/Kotlin development
 requests>=2.31.0
@@ -34,7 +37,7 @@ pytest-asyncio>=0.21.0
 pytest-cov>=4.1.0
 coverage>=7.2.0
 
-# Code Quality and Linting  
+# Code Quality and Linting
 flake8>=6.0.0
 black>=23.0.0
 isort>=5.12.0
@@ -44,6 +47,19 @@ mypy>=1.4.0
 # Security
 bandit>=1.7.0
 safety>=2.3.0
+
+# Additional libraries for full implementation
+Jinja2>=3.1.0  # For code templates
+GitPython>=3.1.0  # For Git operations
+java-diff-utils>=4.0  # For diff generation
+pathspec>=0.11.0  # For gitignore patterns
+semver>=3.0.0  # For version management
+ruamel.yaml>=0.17.0  # For YAML manipulation
+toml>=0.10.0  # For TOML files
+xml.etree.ElementTree  # Built-in for XML parsing
+lxml>=4.9.0  # For advanced XML/HTML parsing
+chardet>=5.0.0  # For encoding detection
+tzlocal>=4.0  # For timezone handling
 
 # Performance and System Monitoring
 psutil>=5.9.0
