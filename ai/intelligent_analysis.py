@@ -279,7 +279,7 @@ class KotlinAnalyzer:
                         column=function_match.start(2),
                         end_line=i + 1,
                         end_column=function_match.end(2),
-                        scope="class" if any("class" in line for line in lines[:i]) else "file",
+                        scope="class" if any("class" in l for l in lines[:i]) else "file",
                         modifiers=modifiers,
                         parameters=parameters,
                         return_type=return_type,
@@ -299,7 +299,7 @@ class KotlinAnalyzer:
                         column=property_match.start(2),
                         end_line=i + 1,
                         end_column=property_match.end(2),
-                        scope="class" if any("class" in line for line in lines[:i]) else "file",
+                        scope="class" if any("class" in l for l in lines[:i]) else "file",
                         modifiers=modifiers,
                     )
                 )
