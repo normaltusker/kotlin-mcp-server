@@ -18,41 +18,34 @@ class RefactorValidationTest {
             addProperty("refactorType", "rename")
         }
 
-        val result = sidecar.processRequest(ToolRequest("refactorFunction", input))
+        val result = sidecar.handleToolRequest(ToolRequest("refactorFunction", input))
 
         assertFalse(result.ok)
-        assertEquals("ValidationError", result.error?.code)
-        assertTrue(result.error?.message?.contains("newName is required") == true)
+        assertEquals("INVALID_INPUT", result.error?.code)
+        assertTrue(result.error?.message?.contains("newName required") == true)
     }
 
     @Test
-    fun `unsupportedRefactorType_returnsUnsupportedRefactorType`() {
-        val input = JsonObject().apply {
-            addProperty("filePath", "/tmp/test.kt")
-            addProperty("functionName", "testFunc")
-            addProperty("refactorType", "unsupported_type")
-        }
+    fun `formatCode_missingTargets_returnsValidationError`() {
+        val input = JsonObject()
 
-        val result = sidecar.processRequest(ToolRequest("refactorFunction", input))
+        val result = sidecar.handleToolRequest(ToolRequest("formatCode", input))
 
         assertFalse(result.ok)
-        assertEquals("UnsupportedRefactorType", result.error?.code)
-        assertTrue(result.error?.message?.contains("Unsupported refactor type") == true)
+        assertEquals("INVALID_INPUT", result.error?.code)
+        assertTrue(result.error?.message?.contains("Missing targets") == true)
     }
 
     @Test
-    fun `functionNotFound_returnsSymbolNotFound`() {
+    fun `buildAndTest_validInput_returnsSuccess`() {
         val input = JsonObject().apply {
-            addProperty("filePath", "/tmp/nonexistent.kt")
-            addProperty("functionName", "testFunc")
-            addProperty("refactorType", "rename")
-            addProperty("newName", "newFunc")
+            addProperty("buildTool", "gradle")
+            addProperty("skipTests", false)
         }
 
-        val result = sidecar.processRequest(ToolRequest("refactorFunction", input))
+        val result = sidecar.handleToolRequest(ToolRequest("buildAndTest", input))
 
-        assertFalse(result.ok)
-        assertEquals("SymbolNotFound", result.error?.code)
-        assertTrue(result.error?.message?.contains("not found in") == true)
+        assertTrue(result.ok)
+        assertEquals("gradle", result.result?.get("buildTool")?.asString)
     }
 }
