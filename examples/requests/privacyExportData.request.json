@@ -1,7 +1,0 @@
-{
-  "tool": "privacyExportData",
-  "input": {
-    "subjectId": "user-42",
-    "format": "JSON"
-  }
-}

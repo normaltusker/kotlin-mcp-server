@@ -1,107 +1,30 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
-
-# Dependencies
+# Python
 __pycache__/
-*.py[cod]
-*$py.class
-*.so
+*.pyc
+*.pyo
+*.pyd
 .Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-MANIFEST
-
-# Virtual environments
-venv/
-ENV/
-env/
+*.so
+.pytest_cache/
+.coverage
+htmlcov/
 .venv/
-.ENV/
-.env/
+env/
+venv/
 
 # IDE
 .vscode/
 .idea/
 *.swp
 *.swo
-*~
 
 # OS
 .DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
 Thumbs.db
 
-# Logs
+# Project specific
 *.log
-logs/
-mcp_security.log
-
-# Database
 *.db
-*.sqlite
-*.sqlite3
-mcp_audit.db
-
-# Temporary files
-temp/
-tmp/
-*.tmp
-*.bak
-*.backup
-backup_test/
-
-# Coverage reports
-htmlcov/
-.tox/
-.coverage
-.coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*.cover
-.hypothesis/
-.pytest_cache/
-
-# Jupyter Notebook
-.ipynb_checkpoints
-
-# pyenv
-.python-version
-
-# Secrets and API keys
-.env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
-
-# Cloud storage sync folders
-sync/
-backup/
-cloud-sync/
-
-# Cloud sync
-.cloud_sync/credentials
-.cloud_sync/cache/
-.cloud_sync/logs/
-
-# Cloud sync
-.cloud_sync/credentials
-.cloud_sync/cache/
-.cloud_sync/logs/
+src/
+build/
+*.apk

@@ -1,9 +1,0 @@
-{
-  "tool": "fileBackup",
-  "input": {
-    "targets": ["src/main/kotlin"],
-    "dest": "s3://my-bucket/backups/2025-09-02",
-    "encrypt": true,
-    "tag": "daily-backup"
-  }
-}

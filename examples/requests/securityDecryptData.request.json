@@ -1,6 +1,0 @@
-{
-  "tool": "securityDecryptData",
-  "input": {
-    "dataRef": { "type": "inline", "value": "U2FsdGVkX19abc123..." }
-  }
-}
